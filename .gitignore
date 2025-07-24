@@ -1,0 +1,30 @@
+# Dependencies
+/node_modules
+
+# Build directory
+.next/
+/out/
+
+# Vercel directory
+.vercel
+
+# Test current bundle
+.test
+
+# Production credentials
+.env.local
+.env.production.local
+
+# Build results
+.next/
+out/
+build/
+
+# IDE files
+.vscode/
+.idea/
+
+# Other
+*.log
+.DS_Store
+*.pem

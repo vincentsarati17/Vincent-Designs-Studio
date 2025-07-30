@@ -37,4 +37,3 @@ export async function handleFormSubmission(values: FormValues) {
     return { success: false, message: 'Failed to save your message. Please try again later.' };
   }
 }
-

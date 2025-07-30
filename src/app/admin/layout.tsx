@@ -1,19 +1,15 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { useEffect, useState, type ReactNode } from 'react';
+import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { usePathname, useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -28,7 +24,9 @@ export default function AdminLayout({
   }, []);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
 
     const isLoginPage = pathname === '/admin/login';
 
@@ -46,40 +44,24 @@ export default function AdminLayout({
 
   const isLoginPage = pathname === '/admin/login';
 
-  // While loading authentication state, show a loader
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-muted/40">
+      <div className="flex h-screen items-center justify-center bg-muted/40">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
-  // If the user is not logged in and not on the login page, show a loader while redirecting
-  if (!user && !isLoginPage) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-muted/40">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+  if (!user && isLoginPage) {
+    return <>{children}</>;
   }
 
-  // If the user is logged in, show the protected content (dashboard)
-  if (user) {
-    // If they happen to be on the login page, show a loader while redirecting
-     if (isLoginPage) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-muted/40">
-                <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-        );
-     }
-    // Otherwise, show the dashboard layout and content
+  if (user && !isLoginPage) {
     return (
       <div className="min-h-screen bg-muted/40">
-        <header className="bg-background border-b">
-          <div className="container flex items-center justify-between h-16">
-            <Link href="/admin/messages" className="font-headline font-bold text-lg">
+        <header className="border-b bg-background">
+          <div className="container flex h-16 items-center justify-between">
+            <Link href="/admin/messages" className="font-headline text-lg font-bold">
               Admin Dashboard
             </Link>
             <div className="flex items-center gap-4">
@@ -94,7 +76,14 @@ export default function AdminLayout({
       </div>
     );
   }
-  
-  // If no user and on the login page, just render the login page
-  return <>{children}</>;
+
+  // This state covers a few redirecting scenarios:
+  // 1. Logged-in user on the login page -> redirecting to /admin/messages
+  // 2. Logged-out user on a protected page -> redirecting to /admin/login
+  // We show a loader to prevent flashes of incorrect content.
+  return (
+    <div className="flex h-screen items-center justify-center bg-muted/40">
+      <Loader2 className="h-8 w-8 animate-spin" />
+    </div>
+  );
 }

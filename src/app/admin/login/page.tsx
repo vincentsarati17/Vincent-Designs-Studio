@@ -26,6 +26,14 @@ export default function LoginPage() {
       if (success) {
         toast({ title: "Success", description: "Logged in successfully." });
         router.push('/admin/messages');
+      } else {
+        // This case should ideally not be hit if signInWithEmail throws on failure.
+        // But it's good practice to handle it.
+         toast({
+            title: "Login Failed",
+            description: "Please check your credentials and try again.",
+            variant: "destructive",
+        });
       }
     } catch (error) {
       toast({

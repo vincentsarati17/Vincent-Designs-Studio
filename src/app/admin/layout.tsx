@@ -41,12 +41,13 @@ export default function AdminLayout({
 
   const handleSignOut = async () => {
     await signOut(auth);
-    // The onAuthStateChanged listener will handle the redirect
+    router.push('/admin/login');
   };
 
   const isLoginPage = pathname === '/admin/login';
 
-  if (loading || (!user && !isLoginPage) || (user && isLoginPage)) {
+  // While loading authentication state, show a loader
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-muted/40">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -54,29 +55,46 @@ export default function AdminLayout({
     );
   }
 
-  // Render children for login page if user is not loaded yet but on the login page
-  if (isLoginPage && !user) {
-    return <>{children}</>;
+  // If the user is not logged in and not on the login page, show a loader while redirecting
+  if (!user && !isLoginPage) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-muted/40">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
-  return (
-    <div className="min-h-screen bg-muted/40">
-      <header className="bg-background border-b">
-        <div className="container flex items-center justify-between h-16">
-          <Link href="/admin/messages" className="font-headline font-bold text-lg">
-            Admin Dashboard
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user?.email}</span>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              Sign Out
-            </Button>
+  // If the user is logged in, show the protected content (dashboard)
+  if (user) {
+    // If they happen to be on the login page, show a loader while redirecting
+     if (isLoginPage) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-muted/40">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+        );
+     }
+    // Otherwise, show the dashboard layout and content
+    return (
+      <div className="min-h-screen bg-muted/40">
+        <header className="bg-background border-b">
+          <div className="container flex items-center justify-between h-16">
+            <Link href="/admin/messages" className="font-headline font-bold text-lg">
+              Admin Dashboard
+            </Link>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">{user.email}</span>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                Sign Out
+              </Button>
+            </div>
           </div>
-        </div>
-      </header>
-      <main className="container py-8">
-        {children}
-      </main>
-    </div>
-  );
+        </header>
+        <main className="container py-8">{children}</main>
+      </div>
+    );
+  }
+  
+  // If no user and on the login page, just render the login page
+  return <>{children}</>;
 }

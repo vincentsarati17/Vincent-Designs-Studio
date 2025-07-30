@@ -1,4 +1,6 @@
+
 import { initializeApp, getApps, getApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   projectId: "vincent-designs",
@@ -11,8 +13,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-// The database is not used for now, so we can comment it out.
-// import { getFirestore } from "firebase/firestore";
-// const db = getFirestore(app);
+const db = getFirestore(app);
 
-export { app };
+export { app, db };

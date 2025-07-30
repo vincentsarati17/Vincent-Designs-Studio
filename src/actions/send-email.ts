@@ -1,6 +1,9 @@
+
 'use server';
 
 import { z } from 'zod';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -17,40 +20,21 @@ export async function handleFormSubmission(values: FormValues) {
   if (!parsedData.success) {
     return { success: false, message: 'Invalid data.' };
   }
+  
+  try {
+    const submission = {
+      ...parsedData.data,
+      isRead: false,
+      createdAt: serverTimestamp(),
+    };
+    
+    await addDoc(collection(db, 'submissions'), submission);
 
-  // In a real application, you would integrate an email service here.
-  // For example, using a service like Resend, Nodemailer, or SendGrid.
-  //
-  // Example with Resend:
-  //
-  // import { Resend } from 'resend';
-  // const resend = new Resend(process.env.RESEND_API_KEY);
-  //
-  // try {
-  //   await resend.emails.send({
-  //     from: 'onboarding@resend.dev',
-  //     to: 'vincentdesigns137@gmail.com',
-  //     subject: `New message from ${parsedData.data.name} via your website`,
-  //     html: `<p>Name: ${parsedData.data.name}</p>
-  //            <p>Email: ${parsedData.data.email}</p>
-  //            <p>Service: ${parsedData.data.service}</p>
-  //            <p>Message: ${parsedData.data.message}</p>`,
-  //   });
-  //   return { success: true };
-  // } catch (error) {
-  //   console.error('Email sending failed:', error);
-  //   return { success: false, message: 'Failed to send email.' };
-  // }
+    return { success: true };
 
-  // For now, we will just log the data to the server console.
-  console.log('New form submission:');
-  console.log('Name:', parsedData.data.name);
-  console.log('Email:', parsedData.data.email);
-  console.log('Service:', parsedData.data.service);
-  console.log('Message:', parsedData.data.message);
-
-  // Simulate a network delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  return { success: true };
+  } catch (error) {
+    console.error('Error saving submission to Firestore:', error);
+    return { success: false, message: 'Failed to save your message. Please try again later.' };
+  }
 }
+

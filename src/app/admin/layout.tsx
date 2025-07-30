@@ -45,8 +45,10 @@ export default function AdminLayout({
     await signOut(auth);
     router.push('/admin/login');
   };
+  
+  const isLoginPage = pathname === '/admin/login';
 
-  if (loading || (!user && pathname !== '/admin/login') || (user && pathname === '/admin/login')) {
+  if (loading || (!user && !isLoginPage) || (user && isLoginPage)) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-muted/40">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -54,7 +56,7 @@ export default function AdminLayout({
     );
   }
   
-  if (pathname === '/admin/login') {
+  if (isLoginPage) {
     return <>{children}</>;
   }
 

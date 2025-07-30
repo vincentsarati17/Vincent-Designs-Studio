@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/lib/firebase'; // We can now safely import auth here
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
@@ -20,6 +20,8 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   useEffect(() => {
+    // onAuthStateChanged is a client-side observer.
+    // It's safe to use in useEffect.
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
@@ -44,7 +46,6 @@ export default function AdminLayout({
   }
 
   if (!user && pathname !== '/admin/login') {
-    // This state is temporary while redirecting
     return (
       <div className="flex items-center justify-center min-h-screen bg-muted/40">
         <Loader2 className="h-8 w-8 animate-spin" />

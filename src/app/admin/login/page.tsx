@@ -22,8 +22,8 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const user = await signInWithEmail(email, password);
-      if (user) {
+      const success = await signInWithEmail(email, password);
+      if (success) {
         toast({ title: "Success", description: "Logged in successfully." });
         router.push('/admin/messages');
       }

@@ -17,7 +17,6 @@ export interface ContactSubmission {
 }
 
 // The Project type is ready for when you want to add portfolio projects.
-/*
 export interface Project {
   id:string;
   title: string;
@@ -28,4 +27,3 @@ export interface Project {
   slug: string;
   details: string[];
 }
-*/

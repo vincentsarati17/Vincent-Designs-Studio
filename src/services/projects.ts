@@ -5,7 +5,6 @@
 // The functions to fetch data from Firestore are commented out
 // to prevent any errors while the collection doesn't exist.
 
-/*
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where, limit, getDoc, doc } from 'firebase/firestore';
 import type { Project } from '@/lib/types';
@@ -50,4 +49,3 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
     return null;
   }
 }
-*/

@@ -23,15 +23,12 @@ export default function AdminLayout({
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
+      if (!user && pathname !== '/admin/login') {
+        router.push('/admin/login');
+      }
     });
     return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!loading && !user && pathname !== '/admin/login') {
-      router.push('/admin/login');
-    }
-  }, [user, loading, router, pathname]);
+  }, [router, pathname]);
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -40,17 +37,27 @@ export default function AdminLayout({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-muted/40">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   if (!user && pathname !== '/admin/login') {
-     return (
-      <div className="flex items-center justify-center min-h-screen">
+    // This state is temporary while redirecting
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-muted/40">
         <Loader2 className="h-8 w-8 animate-spin" />
         <p className="ml-2">Redirecting to login...</p>
+      </div>
+    );
+  }
+  
+  if (user && pathname === '/admin/login') {
+    router.push('/admin/messages');
+    return (
+       <div className="flex items-center justify-center min-h-screen bg-muted/40">
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }

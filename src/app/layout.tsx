@@ -23,6 +23,16 @@ export const metadata: Metadata = {
   ],
 };
 
+const faviconSvg = `
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="50" cy="50" r="50" fill="#B85C38"/>
+  <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="Poppins, sans-serif" font-size="40" font-weight="600" fill="#F7F1EC">VD</text>
+</svg>
+`;
+
+const faviconDataUri = `data:image/svg+xml;base64,${btoa(faviconSvg)}`;
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,7 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+        <link rel="icon" href={faviconDataUri} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link

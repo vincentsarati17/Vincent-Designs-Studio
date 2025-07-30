@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -18,6 +19,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        "vincent-designs.web.app",
+        "vincent-designs.firebaseapp.com"
+      ]
+    }
+  }
 };
 
 export default nextConfig;

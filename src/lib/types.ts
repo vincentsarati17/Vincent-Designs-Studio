@@ -1,4 +1,5 @@
 
+import type { User as FirebaseUser } from "firebase/auth";
 
 export interface Testimonial {
   name: string;
@@ -27,3 +28,5 @@ export interface Project {
   slug: string;
   details: string[];
 }
+
+export interface User extends FirebaseUser {}

@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { auth } from '@/lib/firebase'; // We can now safely import auth here
+import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
@@ -20,44 +20,35 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    // onAuthStateChanged is a client-side observer.
-    // It's safe to use in useEffect.
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
       setLoading(false);
-      if (!user && pathname !== '/admin/login') {
-        router.push('/admin/login');
-      }
     });
     return () => unsubscribe();
-  }, [router, pathname]);
+  }, []);
+
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+
+    const isLoginPage = pathname === '/admin/login';
+
+    if (!user && !isLoginPage) {
+      router.push('/admin/login');
+    } else if (user && isLoginPage) {
+      router.push('/admin/messages');
+    }
+  }, [user, loading, pathname, router]);
 
   const handleSignOut = async () => {
     await signOut(auth);
     router.push('/admin/login');
   };
 
-  if (loading) {
+  if (loading || (!user && pathname !== '/admin/login') || (user && pathname === '/admin/login')) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-muted/40">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user && pathname !== '/admin/login') {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-muted/40">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <p className="ml-2">Redirecting to login...</p>
-      </div>
-    );
-  }
-  
-  if (user && pathname === '/admin/login') {
-    router.push('/admin/messages');
-    return (
-       <div className="flex items-center justify-center min-h-screen bg-muted/40">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
@@ -66,7 +57,6 @@ export default function AdminLayout({
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
-
 
   return (
     <div className="min-h-screen bg-muted/40">

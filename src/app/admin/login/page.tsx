@@ -25,10 +25,8 @@ export default function LoginPage() {
       const success = await signInWithEmail(email, password);
       if (success) {
         toast({ title: "Success", description: "Logged in successfully." });
-        router.push('/admin/messages');
+        // The AdminLayout will handle the redirect
       } else {
-        // This case should ideally not be hit if signInWithEmail throws on failure.
-        // But it's good practice to handle it.
          toast({
             title: "Login Failed",
             description: "Please check your credentials and try again.",

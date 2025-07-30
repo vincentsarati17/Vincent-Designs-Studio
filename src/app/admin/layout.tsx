@@ -28,9 +28,7 @@ export default function AdminLayout({
   }, []);
 
   useEffect(() => {
-    if (loading) {
-      return;
-    }
+    if (loading) return;
 
     const isLoginPage = pathname === '/admin/login';
 
@@ -43,9 +41,9 @@ export default function AdminLayout({
 
   const handleSignOut = async () => {
     await signOut(auth);
-    router.push('/admin/login');
+    // The onAuthStateChanged listener will handle the redirect
   };
-  
+
   const isLoginPage = pathname === '/admin/login';
 
   if (loading || (!user && !isLoginPage) || (user && isLoginPage)) {
@@ -55,8 +53,9 @@ export default function AdminLayout({
       </div>
     );
   }
-  
-  if (isLoginPage) {
+
+  // Render children for login page if user is not loaded yet but on the login page
+  if (isLoginPage && !user) {
     return <>{children}</>;
   }
 

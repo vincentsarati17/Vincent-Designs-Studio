@@ -1,7 +1,7 @@
 
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth, initializeAuth, browserLocalPersistence, browserSessionPersistence, Auth } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   projectId: "vincent-designs",
@@ -12,22 +12,9 @@ const firebaseConfig = {
   messagingSenderId: "201595097998",
 };
 
-let app: FirebaseApp;
-let auth: Auth;
-
-if (typeof window === 'undefined') {
-  // Server-side initialization
-  app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-  auth = getAuth(app);
-} else {
-  // Client-side initialization
-  app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-  // This ensures persistence is only set on the client
-  auth = initializeAuth(app, {
-    persistence: [browserLocalPersistence, browserSessionPersistence]
-  });
-}
-
+// Initialize Firebase
+const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 export { app, db, auth };

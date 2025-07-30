@@ -19,14 +19,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    serverActions: {
-      allowedOrigins: [
-        "vincent-designs.web.app",
-        "vincent-designs.firebaseapp.com"
-      ]
-    }
-  }
 };
 
 export default nextConfig;

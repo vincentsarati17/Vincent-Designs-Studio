@@ -25,8 +25,8 @@ export default function LoginPage() {
       const success = await signInWithEmail(email, password);
       if (success) {
         toast({ title: "Success", description: "Logged in successfully." });
-        // The AdminLayout will handle the redirect to the dashboard.
-        router.push('/admin/messages'); 
+        // The AdminLayout will handle showing the dashboard.
+        // No longer need to push the route from here.
       } else {
          toast({
             title: "Login Failed",

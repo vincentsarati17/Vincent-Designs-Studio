@@ -23,24 +23,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (loading) return;
-
-    const isLoginPage = pathname === '/admin/login';
-
-    if (!user && !isLoginPage) {
-      router.push('/admin/login');
-    }
-    
-    if (user && isLoginPage) {
-      router.push('/admin/messages');
-    }
-
-  }, [user, loading, pathname, router]);
-
   const handleSignOut = async () => {
     await signOut(auth);
-    // After sign-out, the effect above will redirect to login.
+    router.push('/admin/login');
   };
 
   if (loading) {
@@ -51,20 +36,32 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  // If not logged in, only render the children if we are on the login page.
-  // The effect above handles redirection from any other page.
+  const isLoginPage = pathname === '/admin/login';
+
   if (!user) {
-    return <>{pathname === '/admin/login' ? children : null}</>;
+    if (isLoginPage) {
+      // If on login page and not logged in, show the login page
+      return <>{children}</>;
+    } else {
+      // If on any other page and not logged in, redirect to login
+      router.push('/admin/login');
+      return (
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      );
+    }
   }
-  
-  // If logged in but still on the login page, show a loader during redirection.
-  if (pathname === '/admin/login') {
-     return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-4">Redirecting to dashboard...</span>
-      </div>
-    );
+
+  if (isLoginPage) {
+      // If logged in and on the login page, redirect to the dashboard
+      router.push('/admin/messages');
+      return (
+          <div className="flex h-screen w-full items-center justify-center bg-background">
+              <Loader2 className="h-8 w-8 animate-spin" />
+              <span className="ml-4">Redirecting to your dashboard...</span>
+          </div>
+      );
   }
 
   // If we have a user and are on a protected page, show the full dashboard layout.

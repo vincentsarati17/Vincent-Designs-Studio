@@ -24,25 +24,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (loading) return; // Wait until authentication check is complete
+    if (loading) return;
 
     const isLoginPage = pathname === '/admin/login';
 
-    if (user && isLoginPage) {
-      // If user is logged in and on the login page, redirect them to the dashboard.
-      router.push('/admin/messages');
-    } else if (!user && !isLoginPage) {
-      // If user is not logged in and not on the login page, redirect them to login.
+    if (!user && !isLoginPage) {
       router.push('/admin/login');
     }
+    
+    if (user && isLoginPage) {
+      router.push('/admin/messages');
+    }
+
   }, [user, loading, pathname, router]);
 
   const handleSignOut = async () => {
     await signOut(auth);
-    // After sign out, the effect above will handle redirecting to login.
+    // After sign-out, the effect above will redirect to login.
   };
 
-  // While checking for user auth, show a full-screen loader.
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -51,22 +51,23 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  // If there is no user, we should only be on the login page.
-  // The effect handles redirection from other pages, so we can just render the children (the login page itself).
+  // If not logged in, only render the children if we are on the login page.
+  // The effect above handles redirection from any other page.
   if (!user) {
-    return <>{children}</>;
+    return <>{pathname === '/admin/login' ? children : null}</>;
   }
   
-  // If we have a user and we are stuck on the login page, show a loading state while we redirect.
+  // If logged in but still on the login page, show a loader during redirection.
   if (pathname === '/admin/login') {
      return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-4">Redirecting to dashboard...</span>
       </div>
     );
   }
 
-  // If we have a user and are on any page other than login, show the dashboard layout with the content.
+  // If we have a user and are on a protected page, show the full dashboard layout.
   return (
     <div className="min-h-screen bg-muted/40">
       <header className="border-b bg-background">

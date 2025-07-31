@@ -23,63 +23,65 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (loading) return;
-
-    const isLoginPage = pathname === '/admin/login';
-
-    if (!user && !isLoginPage) {
-      router.push('/admin/login');
-    } else if (user && isLoginPage) {
-      router.push('/admin/messages');
-    }
-  }, [user, loading, pathname, router]);
-
-
   const handleSignOut = async () => {
-    await signOut(auth);
-    router.push('/admin/login');
+    try {
+      await signOut(auth);
+      router.push('/admin/login');
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
-
-  const isLoginPage = pathname === '/admin/login';
 
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-muted/40">
         <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="sr-only">Loading...</span>
       </div>
     );
   }
 
-  if (!user && isLoginPage) {
+  if (!user) {
+    // If not authenticated, redirect to login page, but allow login page to render.
+    if (pathname !== '/admin/login') {
+      router.push('/admin/login');
+      // Show loader while redirecting
+      return (
+        <div className="flex h-screen items-center justify-center bg-muted/40">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      );
+    }
     return <>{children}</>;
   }
-
-  if (user && !isLoginPage) {
-    return (
-      <div className="min-h-screen bg-muted/40">
-        <header className="border-b bg-background">
-          <div className="container flex h-16 items-center justify-between">
-            <Link href="/admin/messages" className="font-headline text-lg font-bold">
-              Admin Dashboard
-            </Link>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">{user.email}</span>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </header>
-        <main className="container py-8">{children}</main>
-      </div>
-    );
-  }
   
-  // This state covers redirecting scenarios. A loader is shown to prevent flashes of incorrect content.
+  // If user is logged in and tries to access login page, redirect to messages
+  if (user && pathname === '/admin/login') {
+      router.push('/admin/messages');
+       // Show loader while redirecting
+      return (
+        <div className="flex h-screen items-center justify-center bg-muted/40">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      );
+  }
+
   return (
-    <div className="flex h-screen items-center justify-center bg-muted/40">
-      <Loader2 className="h-8 w-8 animate-spin" />
+    <div className="min-h-screen bg-muted/40">
+      <header className="border-b bg-background">
+        <div className="container flex h-16 items-center justify-between">
+          <Link href="/admin/messages" className="font-headline text-lg font-bold">
+            Admin Dashboard
+          </Link>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">{user.email}</span>
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </header>
+      <main className="container py-8">{children}</main>
     </div>
   );
 }

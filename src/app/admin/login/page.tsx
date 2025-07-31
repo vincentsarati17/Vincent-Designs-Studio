@@ -25,11 +25,12 @@ export default function LoginPage() {
       const success = await signInWithEmail(email, password);
       if (success) {
         toast({ title: "Success", description: "Logged in successfully." });
-        // The AdminLayout will handle the redirect
+        // The AdminLayout will handle the redirect to the dashboard.
+        router.push('/admin/messages'); 
       } else {
          toast({
             title: "Login Failed",
-            description: "Please check your credentials and try again.",
+            description: "An unknown error occurred.",
             variant: "destructive",
         });
       }

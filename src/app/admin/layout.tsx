@@ -26,20 +26,23 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      // After sign-out, the effect will re-run and handle the redirect.
+      router.push('/admin/login');
     } catch (error) {
       console.error('Sign out error:', error);
     }
   };
 
   useEffect(() => {
-    if (!loading) {
-      if (user && pathname === '/admin/login') {
-        router.push('/admin/messages');
-      }
-      if (!user && pathname !== '/admin/login') {
-        router.push('/admin/login');
-      }
+    if (loading) {
+      return;
+    }
+
+    const isLoginPage = pathname === '/admin/login';
+
+    if (!user && !isLoginPage) {
+      router.push('/admin/login');
+    } else if (user && isLoginPage) {
+      router.push('/admin/messages');
     }
   }, [user, loading, pathname, router]);
 
@@ -53,55 +56,39 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!user && pathname !== '/admin/login') {
-    // Show a loader while redirecting to login
-    return (
-        <div className="flex h-screen items-center justify-center bg-muted/40">
-            <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-    );
-  }
-  
-  if (user && pathname === '/admin/login') {
-    // Show a loader while redirecting to dashboard
-    return (
-        <div className="flex h-screen items-center justify-center bg-muted/40">
-            <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-    );
-  }
-  
-  // If not logged in, but on the login page, show the login page
-  if (!user && pathname === '/admin/login') {
+  if (!user) {
+    // Show the login page if the user is not authenticated.
+    // The effect above will redirect if they try to access other admin pages.
     return <>{children}</>;
   }
 
-  // If logged in and not on the login page, show the dashboard with layout
-  if (user) {
-    return (
-        <div className="min-h-screen bg-muted/40">
-          <header className="border-b bg-background">
-            <div className="container flex h-16 items-center justify-between">
-              <Link href="/admin/messages" className="font-headline text-lg font-bold">
-                Admin Dashboard
-              </Link>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-muted-foreground">{user.email}</span>
-                <Button variant="outline" size="sm" onClick={handleSignOut}>
-                  Sign Out
-                </Button>
-              </div>
-            </div>
-          </header>
-          <main className="container py-8">{children}</main>
-        </div>
-      );
-  }
-
-  // This should not be reached, but as a fallback, show a loader.
-  return (
-    <div className="flex h-screen items-center justify-center bg-muted/40">
+  // If the user is logged in, but the effect is still redirecting from /admin/login,
+  // show a loader to prevent a flash of the login page.
+  if (pathname === '/admin/login') {
+     return (
+      <div className="flex h-screen items-center justify-center bg-muted/40">
         <Loader2 className="h-8 w-8 animate-spin" />
-    </div>
-  );
+      </div>
+    );
+  }
+  
+  // If the user is logged in and not on the login page, show the dashboard.
+  return (
+      <div className="min-h-screen bg-muted/40">
+        <header className="border-b bg-background">
+          <div className="container flex h-16 items-center justify-between">
+            <Link href="/admin/messages" className="font-headline text-lg font-bold">
+              Admin Dashboard
+            </Link>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">{user.email}</span>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                Sign Out
+              </Button>
+            </div>
+          </div>
+        </header>
+        <main className="container py-8">{children}</main>
+      </div>
+    );
 }

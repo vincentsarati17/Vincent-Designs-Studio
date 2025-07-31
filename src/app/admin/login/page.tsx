@@ -22,8 +22,12 @@ export default function LoginPage() {
     try {
       const success = await signInWithEmail(email, password);
       if (success) {
-        // The layout will handle the redirect.
-        // We no longer need to push the route from here.
+        // The layout will handle the redirect automatically.
+        // We can show a success message here.
+        toast({
+            title: "Login Successful",
+            description: "Redirecting to your dashboard...",
+        });
       } else {
          toast({
             title: "Login Failed",

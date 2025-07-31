@@ -23,57 +23,50 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      router.push('/admin/login');
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
-  };
-
-  // This effect handles all redirection logic.
   useEffect(() => {
-    if (loading) return; // Don't do anything until we have the auth state.
+    if (loading) {
+      return; // Do nothing while loading
+    }
 
     const isLoginPage = pathname === '/admin/login';
 
-    // If user is not logged in and not on the login page, redirect them there.
-    if (!user && !isLoginPage) {
-      router.push('/admin/login');
-    }
-    // If user is logged in and on the login page, redirect them to the dashboard.
-    else if (user && isLoginPage) {
+    if (user && isLoginPage) {
       router.push('/admin/messages');
+    } else if (!user && !isLoginPage) {
+      router.push('/admin/login');
     }
   }, [user, loading, pathname, router]);
 
-  // While loading authentication state, show a full-screen loader.
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+    router.push('/admin/login');
+  };
+  
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-muted">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  // If there's no user, we show the children.
-  // The effect above ensures this only happens on the login page.
-  // For any other admin route, it would have already redirected.
-  if (!user) {
-    return <>{children}</>;
-  }
-
-  // If the user is logged in, but the redirect from /admin/login is still
-  // in progress, show a loader to avoid a screen flash.
-  if (pathname === '/admin/login') {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-muted">
+      <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
   
+  if (!user) {
+    // If not logged in, only render the login page.
+    // The effect above will redirect from any other admin page.
+    return pathname === '/admin/login' ? <>{children}</> : null;
+  }
+  
+  // User is logged in
+  if (pathname === '/admin/login') {
+    // If on login page, show loader while redirecting to dashboard
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   // If we have a user and we are not on the login page, show the dashboard layout.
   return (
     <div className="min-h-screen bg-muted/40">

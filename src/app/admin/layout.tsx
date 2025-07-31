@@ -32,63 +32,65 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     }
   };
 
+  // This effect handles all redirection logic.
   useEffect(() => {
-    if (loading) {
-      return;
-    }
+    if (loading) return; // Don't do anything until we have the auth state.
 
     const isLoginPage = pathname === '/admin/login';
 
+    // If user is not logged in and not on the login page, redirect them there.
     if (!user && !isLoginPage) {
       router.push('/admin/login');
-    } else if (user && isLoginPage) {
+    }
+    // If user is logged in and on the login page, redirect them to the dashboard.
+    else if (user && isLoginPage) {
       router.push('/admin/messages');
     }
   }, [user, loading, pathname, router]);
 
-
+  // While loading authentication state, show a full-screen loader.
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-muted/40">
+      <div className="flex h-screen w-full items-center justify-center bg-muted">
         <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="sr-only">Loading...</span>
       </div>
     );
   }
 
+  // If there's no user, we show the children.
+  // The effect above ensures this only happens on the login page.
+  // For any other admin route, it would have already redirected.
   if (!user) {
-    // Show the login page if the user is not authenticated.
-    // The effect above will redirect if they try to access other admin pages.
     return <>{children}</>;
   }
 
-  // If the user is logged in, but the effect is still redirecting from /admin/login,
-  // show a loader to prevent a flash of the login page.
+  // If the user is logged in, but the redirect from /admin/login is still
+  // in progress, show a loader to avoid a screen flash.
   if (pathname === '/admin/login') {
-     return (
-      <div className="flex h-screen items-center justify-center bg-muted/40">
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-muted">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
   
-  // If the user is logged in and not on the login page, show the dashboard.
+  // If we have a user and we are not on the login page, show the dashboard layout.
   return (
-      <div className="min-h-screen bg-muted/40">
-        <header className="border-b bg-background">
-          <div className="container flex h-16 items-center justify-between">
-            <Link href="/admin/messages" className="font-headline text-lg font-bold">
-              Admin Dashboard
-            </Link>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">{user.email}</span>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                Sign Out
-              </Button>
-            </div>
+    <div className="min-h-screen bg-muted/40">
+      <header className="border-b bg-background">
+        <div className="container flex h-16 items-center justify-between">
+          <Link href="/admin/messages" className="font-headline text-lg font-bold">
+            Admin Dashboard
+          </Link>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">{user.email}</span>
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              Sign Out
+            </Button>
           </div>
-        </header>
-        <main className="container py-8">{children}</main>
-      </div>
-    );
+        </div>
+      </header>
+      <main className="container py-8">{children}</main>
+    </div>
+  );
 }

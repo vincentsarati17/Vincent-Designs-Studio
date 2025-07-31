@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import { signInWithEmail } from '@/services/auth';
 
 export default function LoginPage() {
-  const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,9 +22,8 @@ export default function LoginPage() {
     try {
       const success = await signInWithEmail(email, password);
       if (success) {
-        toast({ title: "Success", description: "Logged in successfully." });
-        // The AdminLayout will handle showing the dashboard.
-        // No longer need to push the route from here.
+        // The layout will handle the redirect.
+        // We no longer need to push the route from here.
       } else {
          toast({
             title: "Login Failed",

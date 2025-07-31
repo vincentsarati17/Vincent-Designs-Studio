@@ -24,25 +24,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (loading) {
-      return; // Do nothing while loading
-    }
+    if (loading) return; // Wait until authentication check is complete
 
     const isLoginPage = pathname === '/admin/login';
 
     if (user && isLoginPage) {
+      // If user is logged in and on the login page, redirect them to the dashboard.
       router.push('/admin/messages');
     } else if (!user && !isLoginPage) {
+      // If user is not logged in and not on the login page, redirect them to login.
       router.push('/admin/login');
     }
   }, [user, loading, pathname, router]);
 
-
   const handleSignOut = async () => {
     await signOut(auth);
-    router.push('/admin/login');
+    // After sign out, the effect above will handle redirecting to login.
   };
-  
+
+  // While checking for user auth, show a full-screen loader.
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -50,24 +50,23 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </div>
     );
   }
-  
+
+  // If there is no user, we should only be on the login page.
+  // The effect handles redirection from other pages, so we can just render the children (the login page itself).
   if (!user) {
-    // If not logged in, only render the login page.
-    // The effect above will redirect from any other admin page.
-    return pathname === '/admin/login' ? <>{children}</> : null;
+    return <>{children}</>;
   }
   
-  // User is logged in
+  // If we have a user and we are stuck on the login page, show a loading state while we redirect.
   if (pathname === '/admin/login') {
-    // If on login page, show loader while redirecting to dashboard
-    return (
+     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
-  // If we have a user and we are not on the login page, show the dashboard layout.
+  // If we have a user and are on any page other than login, show the dashboard layout with the content.
   return (
     <div className="min-h-screen bg-muted/40">
       <header className="border-b bg-background">

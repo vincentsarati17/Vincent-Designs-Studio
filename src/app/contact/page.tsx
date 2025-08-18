@@ -34,10 +34,6 @@ export default function ContactPage() {
                 <h3 className="font-headline text-xl font-semibold flex items-center gap-2"><WhatsAppIcon className="w-5 h-5 text-primary"/> WhatsApp</h3>
                 <a href="https://wa.me/264818190591" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors mt-2 block">Message us on WhatsApp</a>
             </div>
-            <div>
-                <h3 className="font-headline text-xl font-semibold">Location</h3>
-                <p className="text-muted-foreground mt-2">Based in Rundu, Namibia</p>
-            </div>
         </div>
       </div>
     </div>

@@ -5,12 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { Section, SectionHeader } from "@/components/Section";
 
 export default function Home() {
   return (
     <div className="flex flex-col">
       <HeroSection />
-      <ServicesSection />
+      <WhatWeDoSection />
       <CTASection />
     </div>
   );
@@ -18,7 +19,7 @@ export default function Home() {
 
 function HeroSection() {
   return (
-    <section className="container py-16 md:py-24">
+    <Section className="!pt-16 md:!pt-24">
       <div className="grid lg:grid-cols-2 gap-12 items-center">
         <div className="space-y-6 text-center lg:text-left">
           <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold text-balance">
@@ -59,14 +60,13 @@ function HeroSection() {
           </div>
         </motion.div>
       </div>
-    </section>
+    </Section>
   );
 }
 
-function ServicesSection() {
+function WhatWeDoSection() {
   return (
-    <section className="py-16 md:py-24 bg-card">
-      <div className="container">
+    <Section className="bg-card">
         <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-center">
           <div className="space-y-4">
             <h2 className="font-headline text-3xl md:text-4xl font-bold text-balance">
@@ -120,26 +120,22 @@ function ServicesSection() {
             </motion.div>
           </div>
         </div>
-      </div>
-    </section>
+    </Section>
   );
 }
 
 function CTASection() {
   return (
-    <section className="py-16 md:py-24 bg-card">
-      <div className="container text-center">
-        <h2 className="font-headline text-3xl md:text-4xl font-bold text-balance">
-          Ready to tell your story?
-        </h2>
-        <p className="mt-4 text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
-          Let's collaborate to create a brand and website that truly represents
-          you.
-        </p>
-        <Button asChild size="lg" className="mt-8">
-          <Link href="/contact">Get in Touch</Link>
-        </Button>
-      </div>
-    </section>
+    <Section className="bg-card">
+        <SectionHeader
+          title="Ready to tell your story?"
+          description="Let's collaborate to create a brand and website that truly represents you."
+        />
+        <div className="text-center mt-8">
+            <Button asChild size="lg">
+              <Link href="/contact">Get in Touch</Link>
+            </Button>
+        </div>
+    </Section>
   );
 }

@@ -1,17 +1,13 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ArrowRight } from 'lucide-react';
+import { Section, SectionHeader } from '@/components/Section';
+import ServiceCard from '@/components/ServiceCard';
 
 export default function ServicesPage() {
   return (
-    <div className="container py-16 md:py-24">
-      <div className="text-center max-w-3xl mx-auto">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold text-balance">Our Services</h1>
-        <p className="mt-4 text-lg text-muted-foreground text-balance">
-          From a single logo to a comprehensive brand system, from a simple landing page to a complex e-commerce platform, we craft solutions that are as beautiful as they are effective.
-        </p>
-      </div>
+    <Section>
+      <SectionHeader 
+        title="Our Services"
+        description="From a single logo to a comprehensive brand system, from a simple landing page to a complex e-commerce platform, we craft solutions that are as beautiful as they are effective."
+      />
       <div className="mt-16 grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
         <ServiceCard
           title="Web Design"
@@ -44,22 +40,6 @@ export default function ServicesPage() {
           href="/services/mobile-app-design"
         />
       </div>
-    </div>
+    </Section>
   );
-}
-
-function ServiceCard({ title, description, href }: { title: string; description: string; href: string; }) {
-  return (
-    <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-      <div className="p-6">
-        <h2 className="font-headline text-2xl font-bold">{title}</h2>
-        <p className="mt-2 text-muted-foreground">{description}</p>
-        <Button asChild variant="link" className="p-0 mt-4 text-primary">
-          <Link href={href}>
-            Learn More <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
-    </Card>
-  )
 }

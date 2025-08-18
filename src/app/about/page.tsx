@@ -65,20 +65,22 @@ export default function AboutPage() {
       </div>
 
       <div className="py-16 md:py-24">
-        <div className="container text-center max-w-3xl mx-auto">
+        <div className="container text-center max-w-6xl mx-auto">
             <h2 className="font-headline text-3xl md:text-4xl font-bold text-balance">Our Toolkit</h2>
             <p className="mt-4 text-lg text-muted-foreground text-balance">
                 We use industry-leading tools and technologies to bring your vision to life, ensuring a modern, efficient, and high-quality result.
             </p>
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 text-center">
-                {tools.map(tool => (
-                    <div key={tool.name} className="flex flex-col items-center gap-2">
-                        <div className="w-16 h-16 flex items-center justify-center rounded-full bg-muted text-primary">
-                            {tool.icon}
+            <div className="mt-12 relative w-full overflow-hidden">
+                <div className="flex w-max animate-scroll">
+                    {[...tools, ...tools].map((tool, index) => (
+                        <div key={`${tool.name}-${index}`} className="flex flex-col items-center gap-2 mx-6 flex-shrink-0">
+                            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-muted text-primary">
+                                {tool.icon}
+                            </div>
+                            <span className="font-semibold">{tool.name}</span>
                         </div>
-                        <span className="font-semibold">{tool.name}</span>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
         </div>
       </div>

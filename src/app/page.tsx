@@ -55,7 +55,6 @@ function HeroSection() {
               className="object-cover"
               priority
               sizes="(max-width: 1024px) 100vw, 50vw"
-              data-ai-hint="creative workspace"
             />
           </div>
         </motion.div>
@@ -112,7 +111,6 @@ function WhatWeDoSection() {
               <Image
                 src="/image/Web Design.jpg"
                 alt="Web Design Example"
-                data-ai-hint="website mockup"
                 fill
                 sizes="(max-width: 768px) 50vw, 33vw"
                 className="object-cover rounded-lg"

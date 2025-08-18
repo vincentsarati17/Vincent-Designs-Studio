@@ -46,7 +46,6 @@ export default function AboutPage() {
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
-              data-ai-hint="creative workspace"
             />
           </motion.div>
         </div>

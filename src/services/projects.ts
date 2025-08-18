@@ -44,7 +44,8 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
 
     const projectDoc = projectSnapshot.docs[0];
     return { id: projectDoc.id, ...projectDoc.data() } as Project;
-  } catch (error) {
+  } catch (error)
+  {
     console.error(`Failed to fetch project by slug ${slug}:`, error);
     return null;
   }

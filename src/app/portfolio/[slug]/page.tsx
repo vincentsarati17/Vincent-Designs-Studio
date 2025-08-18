@@ -1,3 +1,4 @@
+
 import { getProjectBySlug } from "@/services/projects";
 import { notFound } from "next/navigation";
 import Image from "next/image";

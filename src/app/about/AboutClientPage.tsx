@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -40,8 +41,8 @@ export default function AboutClientPage() {
             transition={{ duration: 1.5, ease: "easeOut" }}
           >
             <Image
-              src="https://picsum.photos/600/600"
-              alt="Creative studio environment"
+              src="/image/VDS-founder.png"
+              alt="Vincent, Founder of Vincent Designs Studio"
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"

@@ -50,7 +50,7 @@ function HeroSection() {
           <div className="relative aspect-square">
             <Image
               src="/image/mockup.png"
-              alt="Creative agency workspace"
+              alt="Creative agency workspace with laptop showing website mockup"
               fill
               className="object-cover"
               priority
@@ -95,7 +95,7 @@ function WhatWeDoSection() {
             >
               <Image
                 src="/image/Graphic Design.jpg"
-                alt="Graphic Design Example"
+                alt="Example of professional graphic design work"
                 fill
                 sizes="(max-width: 768px) 50vw, 33vw"
                 className="object-cover rounded-lg"
@@ -110,7 +110,7 @@ function WhatWeDoSection() {
             >
               <Image
                 src="/image/Web Design.jpg"
-                alt="Web Design Example"
+                alt="Example of modern web design on a laptop screen"
                 fill
                 sizes="(max-width: 768px) 50vw, 33vw"
                 className="object-cover rounded-lg"

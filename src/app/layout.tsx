@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import PageTransition from "@/components/PageTransition";
 import { cn } from "@/lib/utils";
+import { Lora, Poppins } from 'next/font/google';
 
 const VDS_JSON_LD = {
   '@context': 'https://schema.org',
@@ -29,6 +30,19 @@ const VDS_JSON_LD = {
   ],
 };
 
+const poppins = Poppins({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-poppins',
+  weight: ['400', '600', '700']
+});
+
+const lora = Lora({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-lora',
+  weight: ['400', '500', '700']
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.vincentdesigns.studio'), // Replace with your actual domain
@@ -37,18 +51,38 @@ export const metadata: Metadata = {
     template: "%s | Vincent Designs Studio",
   },
   description:
-    "Bespoke graphic and web design. We build exceptional brands and websites for businesses ready to make their mark.",
+    "Bespoke graphic and web design in Namibia. We build exceptional brands and websites for businesses ready to make their mark.",
   keywords: [
     "Vincent Designs Studio",
-    "web design",
-    "graphic design",
-    "branding",
-    "digital agency",
+    "web design Namibia",
+    "graphic design Namibia",
+    "branding Namibia",
+    "digital agency Namibia",
+    "website development",
+    "logo design",
+    "UI/UX design",
+    "Rundu web design",
     "Namibia"
   ],
   icons: {
     icon: "/image/VDS icon.png",
-  }
+  },
+  openGraph: {
+    title: 'Vincent Designs Studio | Digital Craftsmanship, Inspired Design',
+    description: 'Bespoke graphic and web design in Namibia. We build exceptional brands and websites for businesses ready to make their mark.',
+    url: 'https://www.vincentdesigns.studio',
+    siteName: 'Vincent Designs Studio',
+    images: [
+      {
+        url: '/image/VDS-og-image.png', // Path to your default OG image
+        width: 1200,
+        height: 630,
+        alt: 'Vincent Designs Studio - Digital Craftsmanship, Inspired Design',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
@@ -57,21 +91,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+    <html lang="en" className={`${poppins.variable} ${lora.variable} scroll-smooth`} suppressHydrationWarning>
       <head>
         <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(VDS_JSON_LD) }}
-        />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;700&display=swap"
-          rel="stylesheet"
         />
       </head>
       <body className={cn("font-body", "antialiased bg-background text-foreground min-h-screen flex flex-col")}>

@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['Lora', 'serif'],
-        headline: ['Poppins', 'sans-serif'],
+        body: ['var(--font-lora)', 'serif'],
+        headline: ['var(--font-poppins)', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

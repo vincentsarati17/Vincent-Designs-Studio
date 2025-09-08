@@ -1,6 +1,12 @@
 
 import ProjectCard from "@/components/ProjectCard";
 import { getProjects } from "@/services/projects";
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "Our Work",
+    description: "Explore a selection of our best work. See how we've helped businesses with web design, branding, and graphic design to make their mark.",
+};
 
 export default async function PortfolioPage() {
   let projects = [];

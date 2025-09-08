@@ -6,6 +6,13 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Code, PenTool, Figma, Framer } from 'lucide-react';
 import { motion } from "framer-motion";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Our Story",
+  description: "Learn about the mission, vision, and creative passion that drives Vincent Designs Studio. Discover the heart behind our world-class design.",
+};
+
 
 const tools = [
     { name: 'Figma', icon: <Figma /> },

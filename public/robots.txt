@@ -1,0 +1,11 @@
+
+# Allow all user agents to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow crawling of Next.js specific folders
+Disallow: /_next/
+Disallow: /api/
+
+# Location of sitemap
+Sitemap: https://www.vincentdesigns.studio/sitemap.xml

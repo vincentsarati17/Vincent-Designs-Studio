@@ -1,7 +1,14 @@
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { Section } from '@/components/Section';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "Landing Page Creation",
+    description: "Turn visitors into customers with high-converting landing pages. We design focused, strategic pages for campaigns, products, and events.",
+};
 
 const offerings = [
   "Strategic Copywriting",

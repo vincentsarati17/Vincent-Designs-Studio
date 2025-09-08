@@ -1,7 +1,14 @@
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { Section } from '@/components/Section';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "Logo Design Service",
+    description: "Get a memorable logo that captures the essence of your business. Our design process builds a timeless mark for your brand.",
+};
 
 const offerings = [
   "Discovery & Research",

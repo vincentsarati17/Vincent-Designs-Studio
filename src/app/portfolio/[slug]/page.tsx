@@ -1,17 +1,49 @@
 
-import { getProjectBySlug } from "@/services/projects";
+import { getProjectBySlug, getProjects } from "@/services/projects";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import type { Metadata, ResolvingMetadata } from "next";
 
 type PortfolioDetailPageProps = {
   params: {
     slug: string;
   };
 };
+
+export async function generateMetadata(
+  { params }: PortfolioDetailPageProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const project = await getProjectBySlug(params.slug);
+
+  if (!project) {
+    return {
+      title: 'Project Not Found',
+    }
+  }
+
+  const previousImages = (await parent).openGraph?.images || []
+
+  return {
+    title: project.title,
+    description: project.description,
+    openGraph: {
+      images: [project.imageUrl, ...previousImages],
+    },
+  }
+}
+
+export async function generateStaticParams() {
+  const projects = await getProjects();
+  return projects.map((project) => ({
+    slug: project.slug,
+  }));
+}
+
 
 export default async function PortfolioDetailPage({ params }: PortfolioDetailPageProps) {
   const project = await getProjectBySlug(params.slug);

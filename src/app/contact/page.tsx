@@ -1,5 +1,13 @@
+
 import ContactForm from '@/components/ContactForm';
 import { Mail, Phone } from 'lucide-react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "Contact Us",
+    description: "Get in touch with Vincent Designs Studio to start your next project. We're ready to discuss your web design, graphic design, or branding needs.",
+};
+
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>

@@ -1,6 +1,13 @@
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Section } from '@/components/Section';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "Web Design & Development",
+    description: "We design and build fast, responsive, and user-friendly websites that serve as powerful marketing tools and convert visitors into customers.",
+};
 
 const processSteps = [
   { name: "Discover", description: "Understanding your goals and audience." },

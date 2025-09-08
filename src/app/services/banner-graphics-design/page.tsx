@@ -1,7 +1,14 @@
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { Section } from '@/components/Section';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "Banner & Graphics Design",
+    description: "Get eye-catching banners and graphics for your website, social media, and ad campaigns. On-brand, engaging, and optimized for performance.",
+};
 
 const offerings = [
   "Social Media Banners",

@@ -1,7 +1,14 @@
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { Section } from '@/components/Section';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "Mobile App Design",
+    description: "We design beautiful, functional, and user-friendly mobile apps for iOS and Android. Let's create an app your users will love.",
+};
 
 const offerings = [
   "iOS App Design",

@@ -1,7 +1,14 @@
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { Section } from '@/components/Section';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "UI/UX Design Services",
+    description: "We create intuitive, efficient, and enjoyable user experiences. Our UI/UX design process is centered on user needs to build products people love.",
+};
 
 const offerings = [
   "User Research & Analysis",

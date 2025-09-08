@@ -1,5 +1,12 @@
+
 import { Section, SectionHeader } from '@/components/Section';
 import ServiceCard from '@/components/ServiceCard';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "Our Services",
+    description: "Discover the range of services offered by Vincent Designs Studio, including Web Design, Logo Design, UI/UX, and more. Let's build something amazing together.",
+};
 
 export default function ServicesPage() {
   return (

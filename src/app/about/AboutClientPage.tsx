@@ -41,8 +41,8 @@ export default function AboutClientPage() {
             transition={{ duration: 1.5, ease: "easeOut" }}
           >
             <Image
-              src="/image/VDS-founder.png"
-              alt="Vincent, Founder of Vincent Designs Studio"
+              src="/image/creative studio.jpg"
+              alt="Creative studio environment"
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"

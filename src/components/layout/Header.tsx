@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -59,7 +58,7 @@ export default function Header() {
           ) : (
             // Render a placeholder on the server and during initial client render
             // to prevent hydration mismatch. The width is set to match the two buttons.
-            <div style={{width: '76px'}}></div>
+            <div style={{width: '88px'}}></div>
           )}
         </div>
       </div>

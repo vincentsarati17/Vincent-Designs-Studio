@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     "Namibia"
   ],
   icons: {
-    icon: "/image/VDS icon.png",
+    icon: "/image/VINCEDSTUDIO.icon.png",
   },
   openGraph: {
     title: 'Vincent Designs Studio | Digital Craftsmanship, Inspired Design',

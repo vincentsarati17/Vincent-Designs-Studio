@@ -57,8 +57,9 @@ export default function Header() {
               </Button>
             </>
           ) : (
-            // Render a placeholder or nothing on the server to prevent mismatch
-            <div style={{width: '76px'}}></div> // Placeholder for buttons
+            // Render a placeholder on the server and during initial client render
+            // to prevent hydration mismatch. The width is set to match the two buttons.
+            <div style={{width: '76px'}}></div>
           )}
         </div>
       </div>

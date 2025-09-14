@@ -43,15 +43,20 @@ export default function Header() {
             <Link href="/contact">Contact Us</Link>
           </Button>
         </nav>
-        {mounted && (
-          <div className="md:hidden flex items-center gap-2">
-            <ThemeToggleButton />
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </div>
-        )}
+        
+        {/* Client-side only rendering for mobile menu and theme toggle to prevent hydration mismatch */}
+        <div className="md:hidden flex items-center gap-2">
+          {mounted && (
+            <>
+              <ThemeToggleButton />
+              <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
+                {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </>
+          )}
+        </div>
+
       </div>
       {mounted && isOpen && (
         <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b pb-4 animate-in fade-in-20 slide-in-from-top-4">

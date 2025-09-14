@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -23,9 +24,9 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-20 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/image/VINCEDSTUDIO.icon.png" alt="Vincent Designs Studio Logo" width={60} height={60} className="h-16 w-auto" />
+          <Image src="/image/VINCEDSTUDIO.icon.png" alt="Vincent Designs Studio Logo" width={72} height={72} className="h-16 w-auto" />
         </Link>
         
         {/* Desktop Navigation */}
@@ -65,7 +66,7 @@ export default function Header() {
       
       {/* Mobile Menu Dropdown */}
       {mounted && isOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b pb-4 animate-in fade-in-20 slide-in-from-top-4">
+        <div className="md:hidden absolute top-20 left-0 w-full bg-background border-b pb-4 animate-in fade-in-20 slide-in-from-top-4">
           <nav className="flex flex-col items-center gap-4 pt-4">
             {navLinks.map((link) => (
               <Link

@@ -28,6 +28,8 @@ export default function Header() {
         <Link href="/" className="flex items-center gap-2">
           <Image src="/image/VINCEDSTUDIO.icon.png" alt="Vincent Designs Studio Logo" width={56} height={56} className="h-14 w-auto" />
         </Link>
+        
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-4">
           {navLinks.map((link) => (
             <Link
@@ -44,9 +46,9 @@ export default function Header() {
           </Button>
         </nav>
         
-        {/* Client-side only rendering for mobile menu and theme toggle to prevent hydration mismatch */}
+        {/* Mobile Menu Toggle and Theme Toggle */}
         <div className="md:hidden flex items-center gap-2">
-          {mounted && (
+          {mounted ? (
             <>
               <ThemeToggleButton />
               <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
@@ -54,10 +56,14 @@ export default function Header() {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </>
+          ) : (
+            // Render a placeholder or nothing on the server to prevent mismatch
+            <div style={{width: '76px'}}></div> // Placeholder for buttons
           )}
         </div>
-
       </div>
+      
+      {/* Mobile Menu Dropdown */}
       {mounted && isOpen && (
         <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b pb-4 animate-in fade-in-20 slide-in-from-top-4">
           <nav className="flex flex-col items-center gap-4 pt-4">

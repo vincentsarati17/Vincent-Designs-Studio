@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -23,7 +22,7 @@ function HeroSection() {
       <div className="grid lg:grid-cols-2 gap-12 items-center">
         <div className="space-y-6 text-center lg:text-left">
           <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold text-balance">
-            Namibia's Creative Web &amp; Graphic Design Agency
+            Web &amp; Graphic Design Agency
           </h1>
           <p className="font-body text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 text-balance">
             Specializing in bespoke graphic and web design in Namibia. We build exceptional brands and websites for businesses ready to make their mark.

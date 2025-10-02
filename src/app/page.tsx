@@ -23,10 +23,10 @@ function HeroSection() {
       <div className="grid lg:grid-cols-2 gap-12 items-center">
         <div className="space-y-6 text-center lg:text-left">
           <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold text-balance">
-            We are a creative agency.
+            Namibia's Creative Web &amp; Graphic Design Agency
           </h1>
           <p className="font-body text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 text-balance">
-            Specializing in bespoke graphic and web design, we build exceptional brands and websites for businesses ready to make their mark.
+            Specializing in bespoke graphic and web design in Namibia. We build exceptional brands and websites for businesses ready to make their mark.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Button asChild size="lg">
@@ -69,12 +69,12 @@ function WhatWeDoSection() {
         <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-center">
           <div className="space-y-4">
             <h2 className="font-headline text-3xl md:text-4xl font-bold text-balance">
-              What We Do
+              Our Web &amp; Graphic Design Services
             </h2>
             <p className="text-muted-foreground text-lg">
               We specialize in creating unique brand identities and
               high-performance websites that capture the essence of your
-              business.
+              business and connect with your audience in Namibia.
             </p>
             <div className="flex gap-4 pt-4">
               <Button asChild variant="outline">
@@ -126,8 +126,8 @@ function CTASection() {
   return (
     <Section className="bg-card">
         <SectionHeader
-          title="Ready to tell your story?"
-          description="Let's collaborate to create a brand and website that truly represents you."
+          title="Ready to grow your Namibian business?"
+          description="Let's collaborate to create a brand and website that truly represents you. Contact the leading design studio in Namibia today."
         />
         <div className="text-center mt-8">
             <Button asChild size="lg">

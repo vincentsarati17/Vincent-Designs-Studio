@@ -15,19 +15,28 @@ const VDS_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
   name: 'Vincent Designs Studio',
-  url: 'https://www.vincentdesigns.studio', // Replace with your actual domain
-  logo: 'https://www.vincentdesigns.studio/image/VDS-logo.png', // Replace with your actual domain
+  url: 'https://www.vincentdesigns.studio',
+  logo: 'https://www.vincentdesigns.studio/image/VDS-logo.png',
   contactPoint: {
     '@type': 'ContactPoint',
     telephone: '+264-81-819-0591',
     contactType: 'Customer Service',
     email: 'vincentdesigns137@gmail.com',
+    areaServed: 'NA',
+    availableLanguage: 'en'
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: 'NA',
+    addressLocality: 'Rundu'
   },
   sameAs: [
     // Add links to your social media profiles here
     // "https://www.facebook.com/your-profile",
     // "https://www.instagram.com/your-profile",
   ],
+  description: "Leading graphic and web design agency in Namibia, specializing in bespoke branding, websites, and digital solutions for businesses.",
+  serviceType: ["Graphic Design", "Web Design", "Web Development", "Branding", "UI/UX Design", "Mobile App Design"]
 };
 
 const poppins = Poppins({
@@ -45,30 +54,31 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.vincentdesigns.studio'), // Replace with your actual domain
+  metadataBase: new URL('https://www.vincentdesigns.studio'),
   title: {
-    default: "Vincent Designs Studio | Digital Craftsmanship, Inspired Design",
+    default: "Graphic & Web Design in Namibia | Vincent Designs Studio",
     template: "%s | Vincent Designs Studio",
   },
   description:
-    "Bespoke graphic and web design in Namibia. We build exceptional brands and websites for businesses ready to make their mark.",
+    "Top-rated graphic and web design business in Namibia. Vincent Designs Studio offers bespoke branding, websites, and digital marketing for businesses looking to grow.",
   keywords: [
-    "Vincent Designs Studio",
-    "web design Namibia",
     "graphic design Namibia",
+    "web design Namibia",
+    "Vincent Designs Studio",
     "branding Namibia",
     "digital agency Namibia",
-    "website development",
-    "logo design",
-    "UI/UX design",
+    "website development Namibia",
+    "logo design Namibia",
+    "UI/UX design Namibia",
     "Rundu web design",
-    "Namibia"
+    "Namibia web design company",
+    "small business website Namibia"
   ],
   icons: {
     icon: "/image/VINCEDSTUDIO.icon.png",
   },
   openGraph: {
-    title: 'Vincent Designs Studio | Digital Craftsmanship, Inspired Design',
+    title: 'Graphic & Web Design in Namibia | Vincent Designs Studio',
     description: 'Bespoke graphic and web design in Namibia. We build exceptional brands and websites for businesses ready to make their mark.',
     url: 'https://www.vincentdesigns.studio',
     siteName: 'Vincent Designs Studio',
@@ -77,10 +87,10 @@ export const metadata: Metadata = {
         url: '/image/VDS-og-image.png', // Path to your default OG image
         width: 1200,
         height: 630,
-        alt: 'Vincent Designs Studio - Digital Craftsmanship, Inspired Design',
+        alt: 'Vincent Designs Studio - Graphic and Web Design Services in Namibia',
       },
     ],
-    locale: 'en_US',
+    locale: 'en_NA',
     type: 'website',
   },
 };

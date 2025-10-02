@@ -6,8 +6,8 @@ import { Section } from '@/components/Section';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: "Graphic Design Services",
-    description: "We translate your brand's essence into compelling visuals. Our services include branding, logo design, print, packaging, and more.",
+    title: "Graphic Design Services in Namibia",
+    description: "Top graphic design business in Namibia. We translate your brand's essence into compelling visuals for logos, branding, print, and more.",
 };
 
 const offerings = [
@@ -23,10 +23,10 @@ export default function GraphicDesignPage() {
   return (
     <Section className="!py-16 md:!py-24">
       <div className="max-w-3xl mx-auto">
-          <p className="font-headline text-primary font-semibold">Our Service</p>
+          <p className="font-headline text-primary font-semibold">Graphic Design Services in Namibia</p>
           <h1 className="font-headline text-4xl md:text-5xl font-bold mt-2 text-balance">Graphic Design</h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            We translate your brand's essence into compelling visuals. Our design philosophy combines modern aesthetics with strategic thinking to create identities that are not only beautiful but also meaningful and memorable.
+            We are a premier graphic design business in Namibia, helping brands connect with their audience through compelling visuals. Our design philosophy combines modern aesthetics with strategic thinking to create identities that are not only beautiful but also meaningful and memorable.
           </p>
           <div className="mt-8">
             <h3 className="font-headline text-xl font-semibold">What's Included:</h3>

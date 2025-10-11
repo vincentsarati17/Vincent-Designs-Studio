@@ -7,6 +7,7 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import type { Metadata, ResolvingMetadata } from "next";
+import { motion } from "framer-motion";
 
 type PortfolioDetailPageProps = {
   params: {
@@ -54,14 +55,14 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
 
   return (
     <div className="container py-16 md:py-24">
-      <div className="max-w-4xl mx-auto">
+      <motion.div layoutId={`card-${project.id}`} className="max-w-4xl mx-auto">
         <div className="mb-8">
           <Badge>{project.category}</Badge>
-          <h1 className="font-headline text-4xl md:text-5xl font-bold mt-2 text-balance">{project.title}</h1>
+          <motion.h1 layoutId={`title-${project.id}`} className="font-headline text-4xl md:text-5xl font-bold mt-2 text-balance">{project.title}</motion.h1>
           <p className="mt-4 text-lg text-muted-foreground">{project.description}</p>
         </div>
         
-        <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-12">
+        <motion.div layoutId={`image-${project.id}`} className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-12">
             <Image
                 src={project.imageUrl}
                 alt={project.title}
@@ -69,7 +70,7 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 66vw"
             />
-        </div>
+        </motion.div>
 
         <div className="grid md:grid-cols-3 gap-12">
             <div className="md:col-span-2 space-y-4">
@@ -92,7 +93,7 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
                 </Button>
             </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

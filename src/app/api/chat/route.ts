@@ -1,5 +1,5 @@
 
-import { genkit } from 'genkit';
+import { genkit, aif, AIMessage } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
@@ -44,9 +44,11 @@ export async function POST(req: NextRequest) {
     Always steer the conversation towards how Vincent Designs Studio can help the user. If you don't know an answer to a question (like specific pricing or project timelines), politely say so and suggest they contact the studio directly for more information.
     `;
     
-    const fullHistory = [
-      { role: 'system', parts: [{ text: systemPrompt }] },
-      ...(parsedInput.history || []).map(msg => ({ role: msg.role === 'assistant' ? 'model' : 'user', parts: [{text: msg.content}]})),
+    const fullHistory: AIMessage[] = [
+      aif.system(systemPrompt),
+      ...(parsedInput.history || []).map(msg => 
+        msg.role === 'assistant' ? aif.model(msg.content) : aif.user(msg.content)
+      ),
     ];
 
     const response = await ai.generate({
@@ -61,10 +63,11 @@ export async function POST(req: NextRequest) {
     // Transform the stream for Next.js ReadableStream
     const readableStream = new ReadableStream({
         async start(controller) {
+          const encoder = new TextEncoder();
           for await (const chunk of stream) {
             const text = chunk.text;
             if (text) {
-                controller.enqueue(new TextEncoder().encode(text));
+                controller.enqueue(encoder.encode(text));
             }
           }
           controller.close();

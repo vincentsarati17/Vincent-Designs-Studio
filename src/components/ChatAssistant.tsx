@@ -25,8 +25,7 @@ export default function ChatAssistant() {
     if (input.trim() === '') return;
 
     const userMessage: Message = { role: 'user', content: input };
-    const newMessages: Message[] = [...messages, userMessage];
-    setMessages(newMessages);
+    setMessages(prev => [...prev, userMessage]);
     const currentInput = input;
     setInput('');
 
@@ -63,10 +62,10 @@ export default function ChatAssistant() {
         console.error("Chat error:", error);
         setMessages(prev => {
            const newMessages = [...prev];
-            newMessages[newMessages.length - 1] = {
-              role: 'assistant',
-              content: "Sorry, I'm having trouble connecting. Please try again later.",
-            };
+            const lastMessage = newMessages[newMessages.length - 1];
+            if (lastMessage && lastMessage.role === 'assistant') {
+              lastMessage.content = "Sorry, I'm having trouble connecting. Please try again later.";
+            }
             return newMessages;
         });
       }
@@ -75,10 +74,13 @@ export default function ChatAssistant() {
 
   useEffect(() => {
     if (scrollAreaRef.current) {
-        scrollAreaRef.current.scrollTo({
-            top: scrollAreaRef.current.scrollHeight,
-            behavior: 'smooth'
-        });
+        const viewport = scrollAreaRef.current.querySelector('div');
+        if (viewport) {
+            viewport.scrollTo({
+                top: viewport.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
     }
   }, [messages]);
   
@@ -112,8 +114,8 @@ export default function ChatAssistant() {
                           <Bot size={20} />
                         </div>
                       )}
-                      <div className={`rounded-lg px-4 py-2 max-w-[80%] ${msg.role === 'user' ? 'bg-muted' : 'bg-card border'}`}>
-                        <p className="text-sm">{msg.content || <Loader className="animate-spin" size={20}/>}</p>
+                      <div className={`rounded-lg px-4 py-2 max-w-[80%] whitespace-pre-wrap ${msg.role === 'user' ? 'bg-muted' : 'bg-card border'}`}>
+                        <p className="text-sm">{msg.content || <Loader className="animate-spin inline-block" size={20}/>}</p>
                       </div>
                       {msg.role === 'user' && (
                          <div className="bg-muted p-2 rounded-full">
@@ -128,11 +130,11 @@ export default function ChatAssistant() {
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                    onKeyDown={(e) => e.key === 'Enter' && !isPending && handleSend()}
                     placeholder="Ask a question..."
                     disabled={isPending}
                   />
-                  <Button onClick={handleSend} disabled={isPending}>
+                  <Button onClick={handleSend} disabled={isPending || !input.trim()}>
                     {isPending ? <Loader className="animate-spin" /> : <Send />}
                   </Button>
                 </div>

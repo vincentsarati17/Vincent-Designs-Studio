@@ -10,7 +10,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import PageTransition from "@/components/PageTransition";
 import { cn } from "@/lib/utils";
 import { Lora, Poppins } from 'next/font/google';
-import LiveHelperChat from "@/components/LiveHelperChat";
+import TawkTo from "@/components/TawkTo";
 
 const VDS_JSON_LD = {
   '@context': 'https://schema.org',
@@ -125,7 +125,7 @@ export default function RootLayout({
           </main>
           <Footer />
           <WhatsAppButton />
-          <LiveHelperChat />
+          <TawkTo />
           <Toaster />
         </ThemeProvider>
       </body>

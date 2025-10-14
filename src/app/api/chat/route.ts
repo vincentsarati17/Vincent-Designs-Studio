@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
           const decoder = new TextDecoder();
           for await (const chunk of stream) {
             if (chunk.content) {
-                controller.enqueue(chunk.content);
+                controller.enqueue(decoder.decode(chunk.content as Uint8Array));
             }
           }
           controller.close();

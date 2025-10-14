@@ -2,16 +2,14 @@
 'use server';
 
 import { genkit, defineFlow, generate } from 'genkit';
-import { configureGenkit } from 'genkit/core';
 import { googleAI } from '@genkit-ai/google-genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { Readable } from 'stream';
 
 export const runtime = 'nodejs';
 
-// Initialize Genkit and the Google AI plugin
-configureGenkit({
+// Initialize Genkit and the Google AI plugin with modern syntax
+genkit({
   plugins: [
     googleAI({
       apiVersion: "v1beta",
@@ -75,12 +73,15 @@ export async function POST(req: NextRequest) {
     const response = await studioAssistant({ prompt, history });
     const stream = response.stream();
 
+    // Transform the stream for Next.js ReadableStream
     const readableStream = new ReadableStream({
         async start(controller) {
           const decoder = new TextDecoder();
           for await (const chunk of stream) {
             if (chunk.content) {
-                controller.enqueue(decoder.decode(chunk.content as Uint8Array));
+                // Ensure chunk.content is decoded correctly
+                const text = Array.isArray(chunk.content) ? chunk.content.map(c => c.text || '').join('') : (typeof chunk.content === 'string' ? chunk.content : '');
+                controller.enqueue(new TextEncoder().encode(text));
             }
           }
           controller.close();
@@ -90,6 +91,7 @@ export async function POST(req: NextRequest) {
     return new Response(readableStream, {
         headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
+
   } catch (error) {
     console.error('Error processing chat stream:', error);
     return NextResponse.json(

@@ -11,7 +11,7 @@ export default function TawkTo() {
         (function(){
         var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
         s1.async=true;
-        s1.src='https://embed.tawk.to/YOUR_PROPERTY_ID/YOUR_WIDGET_ID';
+        s1.src='https://embed.tawk.to/68ee281903e6dd1951504041/1j7h4p9bm';
         s1.charset='UTF-8';
         s1.setAttribute('crossorigin','*');
         s0.parentNode.insertBefore(s1,s0);

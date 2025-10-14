@@ -1,7 +1,7 @@
 
 'use server';
 
-import { genkit, defineFlow, generate, streamFlow } from 'genkit';
+import { genkit, defineFlow, generate } from 'genkit';
 import { configureGenkit } from 'genkit/core';
 import { googleAI } from '@genkit-ai/google-genai';
 import { NextRequest, NextResponse } from 'next/server';
@@ -71,28 +71,15 @@ export async function POST(req: NextRequest) {
   const { prompt, history } = await req.json();
 
   try {
-    const { stream } = await streamFlow(studioAssistant, { prompt, history });
-    
+    const response = await studioAssistant({ prompt, history });
+    const stream = response.stream();
+
     const readableStream = new ReadableStream({
         async start(controller) {
           const decoder = new TextDecoder();
           for await (const chunk of stream) {
-            if (chunk.output) {
-                // The output from a streaming flow is a JSON string.
-                // We need to parse it to get the actual content.
-                // It might send multiple JSON objects, so we handle that.
-                const raw = decoder.decode(chunk.output as Uint8Array);
-                const parts = raw.replace(/\]\[/g, '],[').split(',');
-                for(const part of parts) {
-                  try {
-                    const parsed = JSON.parse(part);
-                    if(parsed.content) {
-                      controller.enqueue(parsed.content);
-                    }
-                  } catch(e) {
-                    // Ignore parsing errors for incomplete JSON
-                  }
-                }
+            if (chunk.content) {
+                controller.enqueue(chunk.content);
             }
           }
           controller.close();

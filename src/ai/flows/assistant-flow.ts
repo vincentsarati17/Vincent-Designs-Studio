@@ -67,10 +67,8 @@ const sendQuoteTool = ai.defineTool(
 );
 
 
-const prompt = ai.definePrompt({
+const assistantPrompt = ai.definePrompt({
   name: 'assistantPrompt',
-  input: { schema: AssistantInputSchema },
-  output: { format: 'text' },
   tools: [sendQuoteTool],
   system: `
     You are "Vincent Designs Assistant", a friendly, helpful, and creative virtual design partner for Vincent Designs Studio, a web design agency.
@@ -99,20 +97,14 @@ const prompt = ai.definePrompt({
 
     Your responses should be conversational and helpful.
   `,
-  prompt: `{{#if history}}
-{{#each history}}
-{{#if @first}}
-{{/if}}
-{{role}}: {{{content}}}
-{{/each}}
-{{/if}}
-user: {{{prompt}}}
-`,
 });
 
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
-   const { text } = await ai.generate({
-    prompt: prompt.compile(input),
+   const { text } = await ai.run(assistantPrompt, {
+    input: {
+      history: input.history,
+      prompt: input.prompt,
+    },
     model: 'googleai/gemini-1.5-flash-preview',
     tools: [sendQuoteTool],
     toolConfig: {

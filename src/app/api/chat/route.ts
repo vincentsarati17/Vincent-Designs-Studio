@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
       });
 
     return new Response(readableStream, {
-        headers: { 'Content-Type': 'text/plain; charset=utf-g' },
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
   } catch (error) {
     console.error('Error processing chat stream:', error);

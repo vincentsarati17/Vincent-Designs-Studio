@@ -1,9 +1,8 @@
 
-import { genkit } from 'genkit';
+import { genkit, AIMessage, aif } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { AIMessage, aif } from 'genkit/ai';
 
 export const runtime = 'nodejs';
 

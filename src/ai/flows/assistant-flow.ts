@@ -14,11 +14,7 @@ import { z } from 'zod';
 
 // Initialize Genkit with the Google AI plugin
 const ai = genkit({
-  plugins: [
-    googleAI({
-      apiVersion: 'v1', // Explicitly use the 'v1' API
-    }),
-  ],
+  plugins: [googleAI()],
 });
 
 
@@ -98,7 +94,7 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
    const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
 
    const response = await ai.generate({
-    model: 'googleai/gemini-1.5-flash',
+    model: 'googleai/gemini-1.5-pro-preview',
     prompt: input.prompt,
     history,
     system: systemPrompt,

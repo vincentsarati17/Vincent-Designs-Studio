@@ -90,7 +90,7 @@ export default function ChatAssistant() {
             <Card className="flex flex-col h-[60vh] shadow-2xl">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="font-headline flex items-center gap-2">
-                  <Bot /> Assistant
+                  <Bot /> Vincent Designs Assistant
                 </CardTitle>
                 <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
                   <X className="h-5 w-5" />

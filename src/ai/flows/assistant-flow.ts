@@ -12,13 +12,9 @@ import { genkit, Message } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 
-// Initialize Genkit within the flow file to avoid 'use server' export issues.
+// Initialize Genkit with the Google AI plugin
 const ai = genkit({
-  plugins: [
-    googleAI({ apiVersion: 'v1' }),
-  ],
-  logLevel: 'debug',
-  enableTracingAndMetrics: true,
+  plugins: [googleAI()],
 });
 
 
@@ -97,7 +93,7 @@ const systemPrompt = `
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
    const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
 
-   const { text } = await ai.generate({
+   const response = await ai.generate({
     model: 'googleai/gemini-1.5-flash-preview',
     prompt: input.prompt,
     history,
@@ -105,5 +101,5 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
     tools: [sendQuoteTool],
   });
 
-  return { response: text };
+  return { response: response.text };
 }

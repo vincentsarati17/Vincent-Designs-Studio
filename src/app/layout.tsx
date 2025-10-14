@@ -10,7 +10,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import PageTransition from "@/components/PageTransition";
 import { cn } from "@/lib/utils";
 import { Lora, Poppins } from 'next/font/google';
-import TawkTo from "@/components/TawkTo";
+import AiChatbot from "@/components/AiChatbot";
 
 const VDS_JSON_LD = {
   '@context': 'https://schema.org',
@@ -125,7 +125,7 @@ export default function RootLayout({
           </main>
           <Footer />
           <WhatsAppButton />
-          <TawkTo />
+          <AiChatbot />
           <Toaster />
         </ThemeProvider>
       </body>

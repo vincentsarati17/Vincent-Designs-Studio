@@ -9,7 +9,7 @@ import { z } from 'zod';
 export const runtime = 'nodejs';
 
 // Initialize Genkit with the Google AI plugin
-genkit({
+const ai = genkit({
   plugins: [
     googleAI({
       apiVersion: "v1beta",
@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
 
   try {
     const parsedInput = studioAssistantSchema.parse({ prompt, history });
-    const llm = googleAI.model('gemini-1.5-flash-latest');
     
     const systemPrompt = `You are a friendly, professional, and encouraging virtual assistant for Vincent Designs Studio, a creative agency specializing in graphic and web design. Your persona is that of a creative partner.
 
@@ -53,8 +52,8 @@ export async function POST(req: NextRequest) {
       ...(parsedInput.history || []).map(msg => ({ role: msg.role === 'assistant' ? 'model' : 'user', parts: [{text: msg.content}]})),
     ];
 
-    const response = await genkit.generate({
-      model: llm,
+    const response = await ai.generate({
+      model: 'gemini-1.5-flash-latest',
       prompt: parsedInput.prompt,
       history: fullHistory,
       stream: true,
@@ -65,10 +64,9 @@ export async function POST(req: NextRequest) {
     // Transform the stream for Next.js ReadableStream
     const readableStream = new ReadableStream({
         async start(controller) {
-          const decoder = new TextDecoder();
           for await (const chunk of stream) {
-            if (chunk.content) {
-                const text = chunk.text() ?? '';
+            const text = chunk.text();
+            if (text) {
                 controller.enqueue(new TextEncoder().encode(text));
             }
           }

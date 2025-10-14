@@ -1,12 +1,11 @@
 
 'use server';
 
-import { genkit, streamFlow } from 'genkit';
+import { genkit, defineFlow, generate, streamFlow } from 'genkit';
 import { configureGenkit } from 'genkit/core';
 import { googleAI } from '@genkit-ai/google-genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { generate } from 'genkit/ai';
 
 export const runtime = 'edge';
 
@@ -21,7 +20,7 @@ configureGenkit({
   enableTracingAndMetrics: true,
 });
 
-const studioAssistant = genkit.defineFlow(
+const studioAssistant = defineFlow(
   {
     name: 'studioAssistant',
     inputSchema: z.object({

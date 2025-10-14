@@ -15,9 +15,7 @@ import { z } from 'zod';
 // Initialize Genkit within the flow file to avoid 'use server' export issues.
 const ai = genkit({
   plugins: [
-    googleAI({
-      apiVersion: 'v1beta',
-    }),
+    googleAI(),
   ],
   logLevel: 'debug',
   enableTracingAndMetrics: true,
@@ -103,8 +101,8 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
     model: 'googleai/gemini-1.5-flash-preview',
     prompt: input.prompt,
     history,
-    tools: [sendQuoteTool],
     system: systemPrompt,
+    tools: [sendQuoteTool],
   });
 
   return { response: text };

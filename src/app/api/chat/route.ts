@@ -1,5 +1,5 @@
 
-import { ai } from 'genkit/ai';
+import { genkit } from 'genkit';
 import { configureGenkit } from 'genkit/core';
 import { googleAI } from '@genkit-ai/google-genai';
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,7 +18,7 @@ configureGenkit({
   enableTracingAndMetrics: true,
 });
 
-const studioAssistant = ai.flow(
+const studioAssistant = genkit.defineFlow(
   {
     name: 'studioAssistant',
     inputSchema: z.object({
@@ -53,7 +53,7 @@ const studioAssistant = ai.flow(
       ...(history || []).map(msg => ({ role: msg.role === 'assistant' ? 'model' : 'user', content: [{text: msg.content}]})),
     ];
 
-    const response = await ai.generate({
+    const response = await genkit.generate({
       model: llm,
       prompt: prompt,
       history: fullHistory,
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
   const { prompt, history } = await req.json();
 
   try {
-    const { stream } = await ai.streamFlow(studioAssistant, { prompt, history });
+    const { stream } = await genkit.streamFlow(studioAssistant, { prompt, history });
     
     const readableStream = new ReadableStream({
         async start(controller) {

@@ -6,8 +6,9 @@ import { configureGenkit } from 'genkit/core';
 import { googleAI } from '@genkit-ai/google-genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { Readable } from 'stream';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 // Initialize Genkit and the Google AI plugin
 configureGenkit({

@@ -15,7 +15,7 @@ import { z } from 'zod';
 // Initialize Genkit within the flow file to avoid 'use server' export issues.
 const ai = genkit({
   plugins: [
-    googleAI(),
+    googleAI({ apiVersion: 'v1' }),
   ],
   logLevel: 'debug',
   enableTracingAndMetrics: true,

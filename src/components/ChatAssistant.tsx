@@ -25,12 +25,14 @@ export default function ChatAssistant() {
     if (input.trim() === '') return;
 
     const userMessage: Message = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages: Message[] = [...messages, userMessage];
+    setMessages(newMessages);
     const currentInput = input;
     setInput('');
 
     startTransition(async () => {
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
       try {
         const response = await fetch('/api/chat', {
           method: 'POST',
@@ -38,20 +40,24 @@ export default function ChatAssistant() {
           body: JSON.stringify({ prompt: currentInput, history: messages }),
         });
 
-        if (!response.ok) {
+        if (!response.ok || !response.body) {
           throw new Error('Failed to get response from server.');
         }
-        
-        const data = await response.json();
 
-        setMessages(prev => {
-            const newMessages = [...prev];
-            newMessages[newMessages.length - 1] = {
-              role: 'assistant',
-              content: data.text,
-            };
-            return newMessages;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          setMessages(prev => {
+            const newMsgs = [...prev];
+            newMsgs[newMsgs.length - 1].content += chunk;
+            return newMsgs;
           });
+        }
 
       } catch (error) {
         console.error("Chat error:", error);

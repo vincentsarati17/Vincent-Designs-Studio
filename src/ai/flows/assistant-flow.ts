@@ -98,7 +98,7 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
    const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
 
    const response = await ai.generate({
-    model: 'googleai/gemini-1.5-flash-preview',
+    model: 'googleai/gemini-1.5-flash',
     prompt: input.prompt,
     history,
     system: systemPrompt,

@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A file containing the AI assistant flow for Vincent Designs Studio.
@@ -7,7 +8,7 @@
  * - AssistantOutput - The return type for the assistantFlow function.
  */
 
-import { genkit } from 'genkit';
+import { genkit, Message } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 
@@ -67,10 +68,7 @@ const sendQuoteTool = ai.defineTool(
 );
 
 
-const assistantPrompt = ai.definePrompt({
-  name: 'assistantPrompt',
-  tools: [sendQuoteTool],
-  system: `
+const systemPrompt = `
     You are "Vincent Designs Assistant", a friendly, helpful, and creative virtual design partner for Vincent Designs Studio, a web design agency.
     Your personality is modern, professional, and approachable. Use emojis sparingly to stay approachable (e.g., 🎨 💬 🚀).
 
@@ -96,20 +94,21 @@ const assistantPrompt = ai.definePrompt({
         - If you are unsure about something, respond with: "I’m not certain about that, but you can reach Vincent directly at vincentdesigns137@gmail.com 📩."
 
     Your responses should be conversational and helpful.
-  `,
-});
+  `;
 
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
-   const { text } = await ai.run(assistantPrompt, {
-    input: {
-      history: input.history,
-      prompt: input.prompt,
-    },
+   const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
+
+   const { text } = await ai.generate({
     model: 'googleai/gemini-1.5-flash-preview',
+    prompt: input.prompt,
+    history,
     tools: [sendQuoteTool],
-    toolConfig: {
-      mode: 'auto',
+    config: {
+      multiTurn: true,
     },
+    system: systemPrompt,
   });
+
   return { response: text };
 }

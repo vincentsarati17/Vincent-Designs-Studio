@@ -1,9 +1,12 @@
 
-import { genkit } from 'genkit';
+'use server';
+
+import { genkit, streamFlow } from 'genkit';
 import { configureGenkit } from 'genkit/core';
 import { googleAI } from '@genkit-ai/google-genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { generate } from 'genkit/ai';
 
 export const runtime = 'edge';
 
@@ -53,7 +56,7 @@ const studioAssistant = genkit.defineFlow(
       ...(history || []).map(msg => ({ role: msg.role === 'assistant' ? 'model' : 'user', content: [{text: msg.content}]})),
     ];
 
-    const response = await genkit.generate({
+    const response = await generate({
       model: llm,
       prompt: prompt,
       history: fullHistory,
@@ -69,7 +72,7 @@ export async function POST(req: NextRequest) {
   const { prompt, history } = await req.json();
 
   try {
-    const { stream } = await genkit.streamFlow(studioAssistant, { prompt, history });
+    const { stream } = await streamFlow(studioAssistant, { prompt, history });
     
     const readableStream = new ReadableStream({
         async start(controller) {

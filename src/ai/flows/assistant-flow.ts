@@ -14,7 +14,7 @@ import { z } from 'zod';
 
 // Initialize Genkit with the Google AI plugin
 const ai = genkit({
-  plugins: [googleAI()],
+  plugins: [googleAI({ apiVersion: 'v1' })],
 });
 
 

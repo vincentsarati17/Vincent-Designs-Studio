@@ -3,7 +3,7 @@
 
 import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
@@ -25,9 +25,8 @@ const studioAssistantSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const { prompt, history } = await req.json();
-
   try {
+    const { prompt, history } = await req.json();
     const parsedInput = studioAssistantSchema.parse({ prompt, history });
     
     const systemPrompt = `You are a friendly, professional, and encouraging virtual assistant for Vincent Designs Studio, a creative agency specializing in graphic and web design. Your persona is that of a creative partner.
@@ -87,9 +86,9 @@ export async function POST(req: NextRequest) {
       errorMessage = error.message;
     }
     
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

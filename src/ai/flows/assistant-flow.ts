@@ -104,9 +104,6 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
     prompt: input.prompt,
     history,
     tools: [sendQuoteTool],
-    config: {
-      multiTurn: true,
-    },
     system: systemPrompt,
   });
 

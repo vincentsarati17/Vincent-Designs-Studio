@@ -7,8 +7,21 @@
  * - AssistantOutput - The return type for the assistantFlow function.
  */
 
-import { ai } from '@/lib/genkit';
+import { genkit } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
+
+// Initialize Genkit within the flow file to avoid 'use server' export issues.
+const ai = genkit({
+  plugins: [
+    googleAI({
+      apiVersion: 'v1beta',
+    }),
+  ],
+  logLevel: 'debug',
+  enableTracingAndMetrics: true,
+});
+
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({

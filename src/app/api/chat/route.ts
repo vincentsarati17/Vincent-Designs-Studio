@@ -1,14 +1,14 @@
 
 'use server';
 
-import { genkit, defineFlow, generate } from 'genkit';
+import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 export const runtime = 'nodejs';
 
-// Initialize Genkit and the Google AI plugin with modern syntax
+// Initialize Genkit with the Google AI plugin
 genkit({
   plugins: [
     googleAI({
@@ -19,17 +19,16 @@ genkit({
   enableTracingAndMetrics: true,
 });
 
-const studioAssistant = defineFlow(
-  {
-    name: 'studioAssistant',
-    inputSchema: z.object({
-      prompt: z.string(),
-      history: z.array(z.any()).optional(),
-    }),
-    outputSchema: z.any(),
-  },
-  async ({ prompt, history }) => {
+const studioAssistantSchema = z.object({
+  prompt: z.string(),
+  history: z.array(z.any()).optional(),
+});
 
+export async function POST(req: NextRequest) {
+  const { prompt, history } = await req.json();
+
+  try {
+    const parsedInput = studioAssistantSchema.parse({ prompt, history });
     const llm = googleAI.model('gemini-1.5-flash-latest');
     
     const systemPrompt = `You are a friendly, professional, and encouraging virtual assistant for Vincent Designs Studio, a creative agency specializing in graphic and web design. Your persona is that of a creative partner.
@@ -50,27 +49,17 @@ const studioAssistant = defineFlow(
     `;
     
     const fullHistory = [
-      { role: 'system', content: [{ text: systemPrompt }] },
-      ...(history || []).map(msg => ({ role: msg.role === 'assistant' ? 'model' : 'user', content: [{text: msg.content}]})),
+      { role: 'system', parts: [{ text: systemPrompt }] },
+      ...(parsedInput.history || []).map(msg => ({ role: msg.role === 'assistant' ? 'model' : 'user', parts: [{text: msg.content}]})),
     ];
 
-    const response = await generate({
+    const response = await genkit.generate({
       model: llm,
-      prompt: prompt,
+      prompt: parsedInput.prompt,
       history: fullHistory,
       stream: true,
     });
     
-    return response;
-  }
-);
-
-
-export async function POST(req: NextRequest) {
-  const { prompt, history } = await req.json();
-
-  try {
-    const response = await studioAssistant({ prompt, history });
     const stream = response.stream();
 
     // Transform the stream for Next.js ReadableStream
@@ -79,8 +68,7 @@ export async function POST(req: NextRequest) {
           const decoder = new TextDecoder();
           for await (const chunk of stream) {
             if (chunk.content) {
-                // Ensure chunk.content is decoded correctly
-                const text = Array.isArray(chunk.content) ? chunk.content.map(c => c.text || '').join('') : (typeof chunk.content === 'string' ? chunk.content : '');
+                const text = chunk.text() ?? '';
                 controller.enqueue(new TextEncoder().encode(text));
             }
           }
@@ -94,8 +82,15 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('Error processing chat stream:', error);
+    let errorMessage = 'An error occurred while processing your request.';
+    if (error instanceof z.ZodError) {
+      errorMessage = 'Invalid request body.';
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
     return NextResponse.json(
-      { error: 'An error occurred while processing your request.' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

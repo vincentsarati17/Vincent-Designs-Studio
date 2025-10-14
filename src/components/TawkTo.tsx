@@ -4,6 +4,10 @@
 import Script from 'next/script';
 
 export default function TawkTo() {
+  if (process.env.NODE_ENV !== 'production') {
+    return null;
+  }
+
   return (
     <Script id="tawk-to-script" strategy="afterInteractive">
       {`

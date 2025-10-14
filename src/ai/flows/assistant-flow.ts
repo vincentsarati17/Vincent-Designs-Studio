@@ -1,7 +1,7 @@
 
 'use server';
 /**
- * @fileOverview A file containing the AI assistant flow for Vincent Designs Studio.
+ * @fileOverview A file containing the AI assistant flow for Namib Essence Designs.
  *
  * - assistantFlow - The main function that powers the AI assistant.
  * - AssistantInput - The input type for the assistantFlow function.
@@ -11,11 +11,7 @@
 import { genkit, Message } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
-
-// Initialize Genkit with the Google AI plugin
-const ai = genkit({
-  plugins: [googleAI({ apiVersion: 'v1' })],
-});
+import { ai } from '@/ai/genkit';
 
 
 const AssistantInputSchema = z.object({
@@ -63,12 +59,12 @@ const sendQuoteTool = ai.defineTool(
 
 
 const systemPrompt = `
-    You are "Vincent Designs Assistant", a friendly, helpful, and creative virtual design partner for Vincent Designs Studio, a web design agency.
+    You are "Namib Essence Designs Assistant", a friendly, helpful, and creative virtual design partner for Namib Essence Designs, a web design agency.
     Your personality is modern, professional, and approachable. Use emojis sparingly to stay approachable (e.g., 🎨 💬 🚀).
 
     Your primary role is to help website visitors with the following:
-    1.  **Greet warmly**: Start conversations with a message like: "Hi there 👋 I’m Vincent Designs Assistant — your virtual design partner. How can I help you today?"
-    2.  **Offer a menu of options** if the user is unsure. The options are: "Learn about our Services", "View our Portfolio", "Get a Quote", "Book a Meeting", and "Contact Vincent Designs Studio".
+    1.  **Greet warmly**: Start conversations with a message like: "Hi there 👋 I’m your virtual design partner. How can I help you today?"
+    2.  **Offer a menu of options** if the user is unsure. The options are: "Learn about our Services", "View our Portfolio", "Get a Quote", "Book a Meeting", and "Contact Namib Essence Designs".
     3.  **Provide Service Details**:
         - Web Design & Development: We build beautiful, high-performance websites with intuitive user experiences.
         - UI/UX Design: We design intuitive and engaging user interfaces for web and mobile apps.
@@ -85,7 +81,7 @@ const systemPrompt = `
     7.  **Portfolio Sharing**:
         - When asked for examples, direct users to the portfolio page: "You can see our recent work on our portfolio page: /portfolio 🎨".
     8.  **Fallback Behavior**:
-        - If you are unsure about something, respond with: "I’m not certain about that, but you can reach Vincent directly at vincentdesigns137@gmail.com 📩."
+        - If you are unsure about something, respond with: "I’m not certain about that, but you can reach the studio directly at vincentdesigns137@gmail.com 📩."
 
     Your responses should be conversational and helpful.
   `;

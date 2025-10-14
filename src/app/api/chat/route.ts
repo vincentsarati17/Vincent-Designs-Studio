@@ -9,7 +9,7 @@ import { z } from 'zod';
 export const runtime = 'nodejs';
 
 // Initialize Genkit with the Google AI plugin
-const ai = genkit({
+genkit({
   plugins: [
     googleAI({
       apiVersion: "v1beta",
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       ...(parsedInput.history || []).map(msg => ({ role: msg.role === 'assistant' ? 'model' : 'user', parts: [{text: msg.content}]})),
     ];
 
-    const response = await ai.generate({
+    const response = await genkit.generate({
       model: 'gemini-1.5-flash-latest',
       prompt: parsedInput.prompt,
       history: fullHistory,

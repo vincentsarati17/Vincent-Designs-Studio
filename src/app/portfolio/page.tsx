@@ -9,13 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PortfolioPage() {
-  let projects = [];
-  try {
-    projects = await getProjects();
-  } catch (error) {
-    console.error("Failed to fetch projects:", error);
-    // You could return a message here to be displayed on the page
-  }
+  const projects = (await getProjects()) || [];
 
   return (
     <div className="container py-16 md:py-24">

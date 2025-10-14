@@ -26,43 +26,43 @@ export default function ChatAssistant() {
 
     const userMessage: Message = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
 
     startTransition(async () => {
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
       try {
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: input, history: messages }),
+          body: JSON.stringify({ prompt: currentInput, history: messages }),
         });
 
-        if (!response.ok || !response.body) {
+        if (!response.ok) {
           throw new Error('Failed to get response from server.');
         }
+        
+        const data = await response.json();
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullResponse = '';
-
-        setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          fullResponse += decoder.decode(value, { stream: true });
-          setMessages(prev => {
+        setMessages(prev => {
             const newMessages = [...prev];
             newMessages[newMessages.length - 1] = {
               role: 'assistant',
-              content: fullResponse,
+              content: data.text,
             };
             return newMessages;
           });
-        }
+
       } catch (error) {
         console.error("Chat error:", error);
-        setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I'm having trouble connecting. Please try again later." }]);
+        setMessages(prev => {
+           const newMessages = [...prev];
+            newMessages[newMessages.length - 1] = {
+              role: 'assistant',
+              content: "Sorry, I'm having trouble connecting. Please try again later.",
+            };
+            return newMessages;
+        });
       }
     });
   };
@@ -107,7 +107,7 @@ export default function ChatAssistant() {
                         </div>
                       )}
                       <div className={`rounded-lg px-4 py-2 max-w-[80%] ${msg.role === 'user' ? 'bg-muted' : 'bg-card border'}`}>
-                        <p className="text-sm">{msg.content}</p>
+                        <p className="text-sm">{msg.content || <Loader className="animate-spin" size={20}/>}</p>
                       </div>
                       {msg.role === 'user' && (
                          <div className="bg-muted p-2 rounded-full">
@@ -116,16 +116,6 @@ export default function ChatAssistant() {
                       )}
                     </div>
                   ))}
-                  {isPending && messages[messages.length -1]?.role !== 'assistant' && (
-                     <div className="flex items-start gap-3">
-                        <div className="bg-primary text-primary-foreground p-2 rounded-full">
-                          <Bot size={20} />
-                        </div>
-                        <div className="rounded-lg px-4 py-2 max-w-[80%] bg-card border">
-                           <Loader className="animate-spin" size={20}/>
-                        </div>
-                     </div>
-                  )}
                   </div>
                 </ScrollArea>
                 <div className="flex items-center gap-2">

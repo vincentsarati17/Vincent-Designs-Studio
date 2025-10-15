@@ -98,7 +98,7 @@ const flow = ai.defineFlow(
     outputSchema: AssistantOutputSchema,
   },
   async (input) => {
-    const history = (input.history || []).map(m => new Message(m.role, [{text: m.content}]));
+    const history = (input.history || []).map(m => new Message(m.role, [{ text: m.content }]));
 
     const response = await assistantPrompt({
         prompt: input.prompt,

@@ -88,13 +88,13 @@ const systemPrompt = `
 const assistantPrompt = ai.definePrompt({
     name: 'assistantPrompt',
     input: { schema: AssistantInputSchema },
+    output: { format: 'text' },
     system: systemPrompt,
     tools: [sendQuoteTool],
     prompt: (input) => {
       const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
-      return {
-        messages: [...history, new Message('user', [{text: input.prompt}])]
-      };
+      history.push(new Message('user', [{text: input.prompt}]));
+      return { messages: history };
     },
 });
 

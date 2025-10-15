@@ -88,6 +88,7 @@ const assistantPrompt = ai.definePrompt({
     system: systemPrompt,
     tools: [sendQuoteTool],
     output: { format: 'text' },
+    model: 'googleai/gemini-1.5-pro'
 });
 
 const flow = ai.defineFlow(
@@ -105,7 +106,6 @@ const flow = ai.defineFlow(
     const response = await assistantPrompt({
       prompt: input.prompt,
       history: history,
-      model: 'googleai/gemini-1.5-pro'
     });
 
     return { response: response.text };

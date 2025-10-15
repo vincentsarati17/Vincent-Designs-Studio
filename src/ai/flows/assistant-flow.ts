@@ -98,7 +98,12 @@ const assistantChatFlow = ai.defineFlow(
     outputSchema: AssistantOutputSchema,
   },
   async (input) => {
-    const history = (input.history || []).map(
+    // 1. Filter the history to ensure every message has a role and content.
+    // This prevents the 'Cannot read properties of undefined (reading 'content')' error.
+    const cleanHistory = (input.history || []).filter(m => m.role && m.content);
+
+    // 2. Map the cleaned history to Genkit Message objects.
+    const history = cleanHistory.map(
       (m) => new Message({ role: m.role, content: [{ text: m.content }] })
     );
 
@@ -106,6 +111,9 @@ const assistantChatFlow = ai.defineFlow(
       ...history,
       new Message({ role: 'user', content: [{ text: input.prompt }] }),
     ];
+
+    // Optional: Log the messages being sent to the model for debugging.
+    // console.log('Cleaned messages:', JSON.stringify(messages, null, 2));
 
     const response = await assistantPrompt({
       history: messages,

@@ -9,7 +9,6 @@
 
 import { z } from 'zod';
 import { ai } from '@/ai/genkit';
-import { Message } from 'genkit';
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({

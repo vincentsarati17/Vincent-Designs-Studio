@@ -22,6 +22,18 @@ export default function GlobalError({
     console.error(error);
   }, [error]);
 
+  const handleReset = () => {
+    try {
+      // The `reset` function is not guaranteed to work for all errors,
+      // especially server-side ones. A hard reload is a more reliable fallback.
+      window.location.reload();
+    } catch (e) {
+      // If window is not defined (e.g., in a weird edge case),
+      // we can try to call the original reset.
+      reset();
+    }
+  };
+
   return (
     <html>
       <body>
@@ -30,7 +42,7 @@ export default function GlobalError({
             <p className="mt-4 text-lg text-muted-foreground">
                 We're sorry, but an unexpected error occurred. Please try again.
             </p>
-            <Button onClick={() => reset()} className="mt-8">
+            <Button onClick={handleReset} className="mt-8">
                 Try again
             </Button>
         </div>

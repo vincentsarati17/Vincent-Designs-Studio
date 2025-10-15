@@ -4,11 +4,12 @@
  *
  * - assistantFlow - The main function that powers the AI assistant.
  * - AssistantInput - The input type for the assistantFlow function.
- * - AssistantOutput - The return type for the assistantFlow function.
+ * - AssistantOutput - The return type for the assistant-flow function.
  */
 
 import { z } from 'zod';
 import { ai } from '@/ai/genkit';
+import { Message } from 'genkit';
 
 
 const AssistantInputSchema = z.object({
@@ -88,9 +89,6 @@ const assistantPrompt = ai.definePrompt({
     system: systemPrompt,
     tools: [sendQuoteTool],
     model: 'googleai/gemini-1.5-pro',
-    input: {
-      schema: AssistantInputSchema
-    },
     output: { format: 'text' },
 });
 
@@ -101,7 +99,12 @@ const flow = ai.defineFlow(
     outputSchema: AssistantOutputSchema,
   },
   async (input) => {
-    const response = await assistantPrompt(input);
+    const history = (input.history || []).map(m => new Message(m.role, m.content));
+
+    const response = await assistantPrompt({
+        prompt: input.prompt,
+        history: history,
+    });
     return { response: response.text };
   }
 );

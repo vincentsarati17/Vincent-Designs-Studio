@@ -11,7 +11,6 @@ import { z } from 'zod';
 import { ai } from '@/ai/genkit';
 import { Message } from 'genkit';
 
-
 const AssistantInputSchema = z.object({
   history: z.array(z.object({
     role: z.enum(['user', 'model']),
@@ -47,7 +46,7 @@ const sendQuoteTool = ai.defineTool(
     console.log('Project:', input.projectType);
     console.log('Deadline:', input.deadline);
     // In a real app, you would integrate an email service here (e.g., Resend, SendGrid)
-    // For now, we'll just simulate success.
+    // For now, we\'ll just simulate success.
     return {
       success: true,
       message: `Successfully sent a quote for the ${input.projectType} project to ${input.email}.`,
@@ -84,13 +83,6 @@ const systemPrompt = `
     Your responses should be conversational and helpful.
   `;
 
-const assistantPrompt = ai.definePrompt({
-    name: 'assistantPrompt',
-    system: systemPrompt,
-    tools: [sendQuoteTool],
-    model: 'googleai/gemini-1.5-pro',
-});
-
 const assistantChatFlow = ai.defineFlow(
   {
     name: 'assistantChatFlow',
@@ -98,23 +90,21 @@ const assistantChatFlow = ai.defineFlow(
     outputSchema: AssistantOutputSchema,
   },
   async (input) => {
-    // 1. Filter the history to ensure every message has a role and content.
-    // This prevents the 'Cannot read properties of undefined (reading 'content')' error.
+    // 1. Filter the history to ensure every message is a valid object
+    // with both 'role' and 'content' properties. This is the definitive fix
+    // for the 'Cannot read properties of undefined (reading 'content')' error.
     const cleanHistory = (input.history || []).filter(m => m && m.role && m.content);
 
-    // 2. Map the cleaned history and current prompt to Genkit Message objects.
-    const messages = [
-      ...cleanHistory.map(
-        (m) => new Message({ role: m.role, content: [{ text: m.content }] })
-      ),
-      new Message({ role: 'user', content: [{ text: input.prompt }] }),
-    ];
-
     // Optional: Log the messages being sent to the model for debugging.
-    // console.log('Cleaned messages:', JSON.stringify(messages, null, 2));
-
-    const response = await assistantPrompt({
-      history: messages,
+    // console.log('Cleaned History:', JSON.stringify(cleanHistory, null, 2));
+    // console.log('Current Prompt:', input.prompt);
+    
+    const response = await ai.generate({
+      model: 'googleai/gemini-1.5-pro',
+      system: systemPrompt,
+      tools: [sendQuoteTool],
+      history: cleanHistory.map(m => ({role: m.role, parts: [{text: m.content}]})),
+      prompt: input.prompt,
     });
     
     return { response: response.text };

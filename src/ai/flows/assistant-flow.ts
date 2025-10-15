@@ -87,8 +87,11 @@ const assistantPrompt = ai.definePrompt({
     name: 'assistantPrompt',
     system: systemPrompt,
     tools: [sendQuoteTool],
+    model: 'googleai/gemini-1.5-pro',
+    input: {
+      schema: AssistantInputSchema
+    },
     output: { format: 'text' },
-    model: 'googleai/gemini-1.5-pro'
 });
 
 const flow = ai.defineFlow(
@@ -98,16 +101,7 @@ const flow = ai.defineFlow(
     outputSchema: AssistantOutputSchema,
   },
   async (input) => {
-    const history = (input.history || []).map(msg => ({
-      role: msg.role,
-      content: [{ text: msg.content }]
-    }));
-
-    const response = await assistantPrompt({
-      prompt: input.prompt,
-      history: history,
-    });
-
+    const response = await assistantPrompt(input);
     return { response: response.text };
   }
 );

@@ -9,7 +9,6 @@
  */
 
 import { genkit, Message } from 'genkit';
-import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 import { ai } from '@/ai/genkit';
 
@@ -90,7 +89,7 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
    const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
 
    const response = await ai.generate({
-    model: 'googleai/gemini-1.5-pro-preview',
+    model: 'googleai/gemini-1.5-pro',
     prompt: input.prompt,
     history,
     system: systemPrompt,

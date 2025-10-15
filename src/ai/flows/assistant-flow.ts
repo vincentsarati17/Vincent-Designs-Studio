@@ -101,9 +101,10 @@ const flow = ai.defineFlow(
   async (input) => {
     const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
     
+    const messages = [...history, new Message('user', [{ text: input.prompt }])];
+
     const response = await assistantPrompt({
-        prompt: input.prompt,
-        history,
+        history: messages
     });
 
     return { response: response.text };

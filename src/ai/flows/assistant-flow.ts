@@ -85,16 +85,32 @@ const systemPrompt = `
     Your responses should be conversational and helpful.
   `;
 
-export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
-   const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
-
-   const response = await ai.generate({
-    model: 'googleai/gemini-1.5-pro',
-    prompt: input.prompt,
-    history,
+const assistantPrompt = ai.definePrompt({
+    name: 'assistantPrompt',
+    input: { schema: AssistantInputSchema },
     system: systemPrompt,
     tools: [sendQuoteTool],
-  });
+    prompt: (input) => {
+      const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
+      return {
+        messages: [...history, new Message('user', [{text: input.prompt}])]
+      };
+    },
+});
 
-  return { response: response.text };
+const flow = ai.defineFlow(
+  {
+    name: 'assistantChatFlow',
+    inputSchema: AssistantInputSchema,
+    outputSchema: AssistantOutputSchema,
+  },
+  async (input) => {
+    const response = await assistantPrompt(input);
+    return { response: response.text };
+  }
+);
+
+
+export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
+  return await flow(input);
 }

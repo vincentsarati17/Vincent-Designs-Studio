@@ -87,15 +87,9 @@ const systemPrompt = `
 
 const assistantPrompt = ai.definePrompt({
     name: 'assistantPrompt',
-    input: { schema: AssistantInputSchema },
-    output: { format: 'text' },
     system: systemPrompt,
     tools: [sendQuoteTool],
-    prompt: (input) => {
-      const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
-      const messages = [...history, new Message('user', [{text: input.prompt}])];
-      return { messages };
-    },
+    output: { format: 'text' },
 });
 
 const flow = ai.defineFlow(
@@ -105,7 +99,13 @@ const flow = ai.defineFlow(
     outputSchema: AssistantOutputSchema,
   },
   async (input) => {
-    const response = await assistantPrompt(input);
+    const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
+
+    const response = await assistantPrompt({
+        prompt: input.prompt,
+        history: history,
+    });
+
     return { response: response.text };
   }
 );

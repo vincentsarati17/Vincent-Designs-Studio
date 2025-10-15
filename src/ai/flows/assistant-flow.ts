@@ -7,7 +7,6 @@
  * - AssistantOutput - The return type for the assistantFlow function.
  */
 
-import { Message } from 'genkit';
 import { z } from 'zod';
 import { ai } from '@/ai/genkit';
 

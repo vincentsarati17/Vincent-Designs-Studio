@@ -100,7 +100,7 @@ const assistantChatFlow = ai.defineFlow(
     // console.log('Current Prompt:', input.prompt);
     
     const response = await ai.generate({
-      model: 'googleai/gemini-1.5-pro',
+      model: 'googleai/gemini-pro',
       system: systemPrompt,
       tools: [sendQuoteTool],
       history: cleanHistory.map(m => new Message({role: m.role, content: [{text: m.content}]})),

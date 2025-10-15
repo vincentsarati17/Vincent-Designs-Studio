@@ -91,24 +91,27 @@ const assistantPrompt = ai.definePrompt({
     model: 'googleai/gemini-1.5-pro',
 });
 
-const flow = ai.defineFlow(
+const assistantChatFlow = ai.defineFlow(
   {
     name: 'assistantChatFlow',
     inputSchema: AssistantInputSchema,
     outputSchema: AssistantOutputSchema,
   },
   async (input) => {
-    const history = (input.history || []).map(m => new Message(m.role, [{ text: m.content }]));
+    const history = (input.history || []).map(
+      (m) => new Message(m.role, [{ text: m.content }])
+    );
 
     const response = await assistantPrompt({
-        prompt: input.prompt,
-        history: history,
+      prompt: input.prompt,
+      history: history,
     });
+    
     return { response: response.text };
   }
 );
 
 
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
-  return await flow(input);
+  return await assistantChatFlow(input);
 }

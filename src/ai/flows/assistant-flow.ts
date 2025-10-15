@@ -9,6 +9,7 @@
 
 import { z } from 'zod';
 import { ai } from '@/ai/genkit';
+import { Message } from 'genkit';
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({
@@ -102,7 +103,7 @@ const assistantChatFlow = ai.defineFlow(
       model: 'googleai/gemini-1.5-pro',
       system: systemPrompt,
       tools: [sendQuoteTool],
-      history: cleanHistory.map(m => ({role: m.role, parts: [{text: m.content}]})),
+      history: cleanHistory.map(m => new Message({role: m.role, content: [{text: m.content}]})),
       prompt: input.prompt,
     });
     

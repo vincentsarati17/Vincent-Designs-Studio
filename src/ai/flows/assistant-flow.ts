@@ -99,12 +99,16 @@ const assistantChatFlow = ai.defineFlow(
   },
   async (input) => {
     const history = (input.history || []).map(
-      (m) => new Message(m.role, [{ text: m.content }])
+      (m) => new Message({ role: m.role, content: [{ text: m.content }] })
     );
 
+    const messages = [
+      ...history,
+      new Message({ role: 'user', content: [{ text: input.prompt }] }),
+    ];
+
     const response = await assistantPrompt({
-      prompt: input.prompt,
-      history: history,
+      history: messages,
     });
     
     return { response: response.text };

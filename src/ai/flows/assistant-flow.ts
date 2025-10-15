@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A file containing the AI assistant flow for Namib Essence Designs.
@@ -100,7 +99,6 @@ const flow = ai.defineFlow(
   },
   async (input) => {
     const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
-
     const messages = [
         ...history,
         new Message('user', [{ text: input.prompt }]),

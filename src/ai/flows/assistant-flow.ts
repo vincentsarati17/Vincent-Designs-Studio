@@ -93,8 +93,8 @@ const assistantPrompt = ai.definePrompt({
     tools: [sendQuoteTool],
     prompt: (input) => {
       const history = (input.history || []).map(msg => new Message(msg.role, [{ text: msg.content }]));
-      history.push(new Message('user', [{text: input.prompt}]));
-      return { messages: history };
+      const messages = [...history, new Message('user', [{text: input.prompt}])];
+      return { messages };
     },
 });
 

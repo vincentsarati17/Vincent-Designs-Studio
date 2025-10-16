@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A file containing the AI assistant flow for Namib Essence Designs.
@@ -7,7 +8,7 @@
  * - AssistantOutput - The return type for the assistant-flow function.
  */
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { z } from 'genkit';
+import { z } from 'zod';
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({
@@ -65,6 +66,10 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
   );
 
   const contents = [
+    {
+        role: 'system' as const,
+        parts: [{ text: systemPrompt }]
+    },
     ...cleanHistory.map(m => ({
         role: m.role,
         parts: [{ text: m.content }]
@@ -78,10 +83,6 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
   try {
     const result = await model.generateContent({
       contents: contents,
-      systemInstruction: {
-        role: 'system',
-        parts: [{text: systemPrompt}]
-      }
     });
 
     const text = result.response.text();

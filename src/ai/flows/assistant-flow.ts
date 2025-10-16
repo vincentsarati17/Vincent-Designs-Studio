@@ -13,12 +13,13 @@ import { Message } from 'genkit';
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({
-    role: z.enum(['user', 'model', 'system']),
+    role: z.enum(['user', 'model']),
     content: z.string(),
   })).optional(),
   prompt: z.string(),
 });
 export type AssistantInput = z.infer<typeof AssistantInputSchema>;
+
 
 const AssistantOutputSchema = z.object({
   response: z.string(),
@@ -93,7 +94,7 @@ const assistantChatFlow = ai.defineFlow(
     // 1. Filter the history to ensure every message is a valid object
     // with both 'role' and 'content' properties. This is the definitive fix
     // for the 'Cannot read properties of undefined (reading 'content')' error.
-    const cleanHistory = (input.history || []).filter(m => m && m.role && m.content);
+    const cleanHistory = (input.history || []).filter(m => m && m.role && typeof m.content === 'string');
 
     // Optional: Log the messages being sent to the model for debugging.
     // console.log('Cleaned History:', JSON.stringify(cleanHistory, null, 2));

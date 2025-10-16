@@ -30,7 +30,9 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const model = genAI.getGenerativeModel({
   model: "gemini-1.5-pro-latest",
-  systemInstruction: `
+});
+
+const systemInstruction = `
     You are "Namib Essence Designs Assistant", a friendly, helpful, and creative virtual design partner for Namib Essence Designs, a web design agency.
     Your personality is modern, professional, and approachable. Use emojis sparingly to stay approachable (e.g., 🎨 💬 🚀).
 
@@ -43,8 +45,7 @@ const model = genAI.getGenerativeModel({
         - Logo & Branding Design: We craft unique logos and brand identities that are memorable and impactful.
         - Flyer, Poster, and Social Media Design: We create stunning graphics for digital campaigns and print.
     4.  **Instant Quote Feature**:
-        - To provide a quote, you MUST ask clarifying questions like "What kind of project do you need?" and "Do you have a preferred deadline?".
-        - Once you have the details, ask for their email address.
+        - To provide a quote, you MUST ask for their name and email address.
     5.  **Booking Integration**:
         - Suggest scheduling a meeting by providing this link: "You can book a free consultation on our Calendly: [https://calendly.com/your-link](https://calendly.com/your-link)".
     6.  **Contact Handling**:
@@ -55,34 +56,7 @@ const model = genAI.getGenerativeModel({
         - If you are unsure about something, respond with: "I’m not certain about that, but you can reach the studio directly at vincentdesigns137@gmail.com 📩."
 
     Your responses should be conversational and helpful.
-  `,
-});
-
-const generationConfig = {
-  temperature: 0.9,
-  topK: 1,
-  topP: 1,
-  maxOutputTokens: 2048,
-};
-
-const safetySettings = [
-  {
-    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-  },
-];
+  `;
 
 
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
@@ -91,16 +65,29 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
   );
   
   try {
-    const chat = model.startChat({
-        history: cleanHistory.map(m => ({
+     const contents = [
+        // Add system instruction first
+        {
+          role: "user",
+          parts: [{ text: systemInstruction }],
+        },
+        {
+          role: "model",
+          parts: [{ text: "Hi there 👋 I’m your virtual design partner. How can I help you today?" }],
+        },
+        // Add the rest of the conversation history
+        ...cleanHistory.map(m => ({
             role: m.role,
             parts: [{ text: m.content }]
         })),
-        generationConfig,
-        safetySettings
-    });
+        // Add the current user prompt
+        {
+            role: "user",
+            parts: [{ text: input.prompt }]
+        }
+    ];
 
-    const result = await chat.sendMessage(input.prompt);
+    const result = await model.generateContent({ contents });
     const resultText = result.response.text();
     
     return { response: resultText };

@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A file containing the AI assistant flow for Namib Essence Designs.
@@ -7,7 +8,7 @@
  * - AssistantOutput - The return type for the assistant-flow function.
  */
 import { z } from 'zod';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({
@@ -28,12 +29,9 @@ export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
 // Initialize Gemini client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-// Use the latest supported model
 const model = genAI.getGenerativeModel({
   model: "gemini-1.5-pro-latest",
-});
-
-const systemPrompt = `
+  systemInstruction: `
     You are "Namib Essence Designs Assistant", a friendly, helpful, and creative virtual design partner for Namib Essence Designs, a web design agency.
     Your personality is modern, professional, and approachable. Use emojis sparingly to stay approachable (e.g., 🎨 💬 🚀).
 
@@ -58,20 +56,49 @@ const systemPrompt = `
         - If you are unsure about something, respond with: "I’m not certain about that, but you can reach the studio directly at vincentdesigns137@gmail.com 📩."
 
     Your responses should be conversational and helpful.
-  `;
+  `,
+});
+
+const generationConfig = {
+  temperature: 0.9,
+  topK: 1,
+  topP: 1,
+  maxOutputTokens: 2048,
+};
+
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+];
+
 
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
   const cleanHistory = (input.history || []).filter(
     (m) => m && m.role && typeof m.content === "string"
   );
-
+  
   try {
     const chat = model.startChat({
-        history: [
-            { role: 'user', parts: [{ text: systemPrompt }] },
-            { role: 'model', parts: [{ text: "Hi there 👋 I’m your virtual design partner. How can I help you today?" }] },
-            ...cleanHistory.map(m => ({ role: m.role, parts: [{ text: m.content }]})),
-        ]
+        history: cleanHistory.map(m => ({
+            role: m.role,
+            parts: [{ text: m.content }]
+        })),
+        generationConfig,
+        safetySettings
     });
 
     const result = await chat.sendMessage(input.prompt);

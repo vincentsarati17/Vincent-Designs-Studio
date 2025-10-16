@@ -7,10 +7,8 @@
  * - AssistantInput - The input type for the assistantFlow function.
  * - AssistantOutput - The return type for the assistant-flow function.
  */
-
 import { z } from 'zod';
-import { ai } from '@/ai/genkit';
-import { Message } from 'genkit';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({
@@ -27,35 +25,14 @@ const AssistantOutputSchema = z.object({
 });
 export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
 
-// Tool for the AI to send a quote via email
-const sendQuoteTool = ai.defineTool(
-  {
-    name: 'sendQuote',
-    description: 'Sends a project quote to the user\'s email address. Ask for the email address first if you don\'t have it.',
-    inputSchema: z.object({
-      email: z.string().email().describe('The user\'s email address.'),
-      projectType: z.string().describe('The type of project (e.g., Web Design, Logo Design).'),
-      deadline: z.string().describe('The user\'s preferred deadline.'),
-    }),
-    outputSchema: z.object({
-      success: z.boolean(),
-      message: z.string(),
-    }),
-  },
-  async (input) => {
-    console.log('--- SENDING QUOTE ---');
-    console.log('To:', input.email);
-    console.log('Project:', input.projectType);
-    console.log('Deadline:', input.deadline);
-    // In a real app, you would integrate an email service here (e.g., Resend, SendGrid)
-    // For now, we\'ll just simulate success.
-    return {
-      success: true,
-      message: `Successfully sent a quote for the ${input.projectType} project to ${input.email}.`,
-    };
-  }
-);
 
+// Initialize Gemini client
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+// Use the latest supported model
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-pro-latest",
+});
 
 const systemPrompt = `
     You are "Namib Essence Designs Assistant", a friendly, helpful, and creative virtual design partner for Namib Essence Designs, a web design agency.
@@ -70,9 +47,8 @@ const systemPrompt = `
         - Logo & Branding Design: We craft unique logos and brand identities that are memorable and impactful.
         - Flyer, Poster, and Social Media Design: We create stunning graphics for digital campaigns and print.
     4.  **Instant Quote Feature**:
-        - To provide a quote, you MUST use the 'sendQuote' tool.
-        - First, ask clarifying questions like "What kind of project do you need?" and "Do you have a preferred deadline?".
-        - Once you have the details, ask for their email address and then call the 'sendQuote' tool.
+        - To provide a quote, you MUST ask clarifying questions like "What kind of project do you need?" and "Do you have a preferred deadline?".
+        - Once you have the details, ask for their email address.
     5.  **Booking Integration**:
         - Suggest scheduling a meeting by providing this link: "You can book a free consultation on our Calendly: [https://calendly.com/your-link](https://calendly.com/your-link)".
     6.  **Contact Handling**:
@@ -85,30 +61,39 @@ const systemPrompt = `
     Your responses should be conversational and helpful.
   `;
 
-const assistantChatFlow = ai.defineFlow(
-  {
-    name: 'assistantChatFlow',
-    inputSchema: AssistantInputSchema,
-    outputSchema: AssistantOutputSchema,
-  },
-  async (input) => {
-    const cleanHistory = (input.history || []).filter(m => m && m.role && typeof m.content === 'string');
-    
-    const response = await ai.generate({
-      model: 'models/gemini-1.5-pro-latest',
-      tools: [sendQuoteTool],
-      history: [
-          new Message({ role: 'system', content: [{ text: systemPrompt }] }),
-          ...cleanHistory.map(m => new Message({role: m.role as 'user' | 'model', content: [{text: m.content}]}))
-      ],
-      prompt: input.prompt,
-    });
-    
-    return { response: response.text };
-  }
-);
-
-
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
-  return await assistantChatFlow(input);
+  const cleanHistory = (input.history || []).filter(
+    (m) => m && m.role && typeof m.content === "string"
+  );
+
+  // Map history to the format expected by the new SDK
+  const contents = [
+      ...cleanHistory.map((m) => ({
+          role: m.role,
+          parts: [{ text: m.content }],
+      })),
+      {
+          role: "user" as const,
+          parts: [{ text: input.prompt || "Hello" }],
+      },
+  ];
+
+  try {
+    const chat = model.startChat({
+        history: cleanHistory.map(m => ({ role: m.role, parts: [{ text: m.content }]})),
+        systemInstruction: {
+            role: "system",
+            parts: [{ text: systemPrompt }]
+        }
+    });
+
+    const result = await chat.sendMessage(input.prompt);
+    const resultText = result.response.text();
+    
+    return { response: resultText };
+
+  } catch (error) {
+    console.error("Error generating content:", error);
+    return { response: "Sorry, I encountered an error while processing your request." };
+  }
 }

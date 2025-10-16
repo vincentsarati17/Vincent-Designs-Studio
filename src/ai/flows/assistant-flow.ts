@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A file containing the AI assistant flow for Namib Essence Designs.
@@ -68,11 +67,11 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
 
   try {
     const chat = model.startChat({
-        history: cleanHistory.map(m => ({ role: m.role, parts: [{ text: m.content }]})),
-        systemInstruction: {
-            role: "system",
-            parts: [{ text: systemPrompt }]
-        }
+        history: [
+            { role: 'user', parts: [{ text: systemPrompt }] },
+            { role: 'model', parts: [{ text: "Hi there 👋 I’m your virtual design partner. How can I help you today?" }] },
+            ...cleanHistory.map(m => ({ role: m.role, parts: [{ text: m.content }]})),
+        ]
     });
 
     const result = await chat.sendMessage(input.prompt);

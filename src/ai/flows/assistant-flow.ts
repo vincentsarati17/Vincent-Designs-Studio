@@ -54,30 +54,24 @@ const systemPrompt = `
 
 
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
-  if (!process.env.GEMINI_API_KEY) {
-    throw new Error('GEMINI_API_KEY environment variable is not set.');
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error('GEMINI_API_KEY environment variable is not set.');
+    return { response: "Sorry, the chatbot is not configured correctly." };
   }
   
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-  const cleanHistory = (input.history || []).filter(
-    (m) => m && m.role && typeof m.content === 'string'
-  );
+  const cleanHistory = (input.history || []).map(m => ({
+    role: m.role,
+    parts: [{ text: m.content }],
+  }));
 
   const contents = [
-    {
-        role: 'system' as const,
-        parts: [{ text: systemPrompt }]
-    },
-    ...cleanHistory.map(m => ({
-        role: m.role,
-        parts: [{ text: m.content }]
-    })),
-    {
-        role: 'user' as const,
-        parts: [{ text: input.prompt }]
-    }
+    { role: 'system', parts: [{ text: systemPrompt }] },
+    ...cleanHistory,
+    { role: 'user', parts: [{ text: input.prompt }] },
   ];
 
   try {

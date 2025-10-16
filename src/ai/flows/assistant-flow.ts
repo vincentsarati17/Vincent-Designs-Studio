@@ -6,8 +6,8 @@
  * - AssistantInput - The input type for the assistantFlow function.
  * - AssistantOutput - The return type for the assistant-flow function.
  */
-import { z } from 'zod';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({
@@ -25,14 +25,7 @@ const AssistantOutputSchema = z.object({
 export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
 
 
-// Initialize Gemini client
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-pro-latest",
-});
-
-const systemInstruction = `
+const systemPrompt = `
     You are "Namib Essence Designs Assistant", a friendly, helpful, and creative virtual design partner for Namib Essence Designs, a web design agency.
     Your personality is modern, professional, and approachable. Use emojis sparingly to stay approachable (e.g., 🎨 💬 🚀).
 
@@ -65,30 +58,17 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
   );
   
   try {
-     const contents = [
-        // Add system instruction first
-        {
-          role: "user",
-          parts: [{ text: systemInstruction }],
-        },
-        {
-          role: "model",
-          parts: [{ text: "Hi there 👋 I’m your virtual design partner. How can I help you today?" }],
-        },
-        // Add the rest of the conversation history
-        ...cleanHistory.map(m => ({
-            role: m.role,
-            parts: [{ text: m.content }]
-        })),
-        // Add the current user prompt
-        {
-            role: "user",
-            parts: [{ text: input.prompt }]
-        }
-    ];
+     const response = await ai.generate({
+      model: 'googleai/gemini-1.5-flash',
+      prompt: input.prompt,
+      history: [
+        { role: 'system', content: systemPrompt },
+        { role: 'model', content: "Hi there 👋 I’m your virtual design partner. How can I help you today?" },
+        ...cleanHistory
+      ]
+    });
 
-    const result = await model.generateContent({ contents });
-    const resultText = result.response.text();
+    const resultText = response.text;
     
     return { response: resultText };
 

@@ -59,7 +59,7 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
   }
   
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
   const cleanHistory = (input.history || []).filter(
     (m) => m && m.role && typeof m.content === 'string'

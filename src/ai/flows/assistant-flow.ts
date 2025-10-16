@@ -95,7 +95,7 @@ const assistantChatFlow = ai.defineFlow(
     const cleanHistory = (input.history || []).filter(m => m && m.role && typeof m.content === 'string');
     
     const response = await ai.generate({
-      model: 'googleai/gemini-pro',
+      model: 'models/gemini-1.5-pro-latest',
       tools: [sendQuoteTool],
       history: [
           new Message({ role: 'system', content: [{ text: systemPrompt }] }),

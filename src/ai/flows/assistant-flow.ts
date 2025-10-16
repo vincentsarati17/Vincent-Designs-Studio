@@ -13,7 +13,7 @@ import { Message } from 'genkit';
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({
-    role: z.enum(['user', 'model']),
+    role: z.enum(['user', 'model', 'system']),
     content: z.string(),
   })).optional(),
   prompt: z.string(),
@@ -101,9 +101,11 @@ const assistantChatFlow = ai.defineFlow(
     
     const response = await ai.generate({
       model: 'googleai/gemini-pro',
-      system: systemPrompt,
       tools: [sendQuoteTool],
-      history: cleanHistory.map(m => new Message({role: m.role, content: [{text: m.content}]})),
+      history: [
+          new Message({ role: 'system', content: [{ text: systemPrompt }] }),
+          ...cleanHistory.map(m => new Message({role: m.role as 'user' | 'model', content: [{text: m.content}]}))
+      ],
       prompt: input.prompt,
     });
     

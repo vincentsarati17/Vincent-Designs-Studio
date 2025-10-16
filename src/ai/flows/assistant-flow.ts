@@ -6,7 +6,7 @@
  * - AssistantInput - The input type for the assistantFlow function.
  * - AssistantOutput - The return type for the assistant-flow function.
  */
-import { ai } from '@/ai/genkit';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'genkit';
 
 const AssistantInputSchema = z.object({
@@ -53,24 +53,39 @@ const systemPrompt = `
 
 
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
-  const cleanHistory = (input.history || []).filter(
-    (m) => m && m.role && typeof m.content === "string"
-  );
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY environment variable is not set.');
+  }
   
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+  const cleanHistory = (input.history || []).filter(
+    (m) => m && m.role && typeof m.content === 'string'
+  );
+
+  const contents = [
+    ...cleanHistory.map(m => ({
+        role: m.role,
+        parts: [{ text: m.content }]
+    })),
+    {
+        role: 'user' as const,
+        parts: [{ text: input.prompt }]
+    }
+  ];
+
   try {
-     const response = await ai.generate({
-      model: 'googleai/gemini-1.5-flash',
-      prompt: input.prompt,
-      history: [
-        { role: 'system', content: systemPrompt },
-        { role: 'model', content: "Hi there 👋 I’m your virtual design partner. How can I help you today?" },
-        ...cleanHistory
-      ]
+    const result = await model.generateContent({
+      contents: contents,
+      systemInstruction: {
+        role: 'system',
+        parts: [{text: systemPrompt}]
+      }
     });
 
-    const resultText = response.text;
-    
-    return { response: resultText };
+    const text = result.response.text();
+    return { response: text };
 
   } catch (error) {
     console.error("Error generating content:", error);

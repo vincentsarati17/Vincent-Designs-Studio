@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A file containing the AI assistant flow for Namib Essence Designs.
@@ -101,7 +102,7 @@ const assistantChatFlow = ai.defineFlow(
     // console.log('Current Prompt:', input.prompt);
     
     const response = await ai.generate({
-      model: 'googleai/gemini-1.5-flash-latest',
+      model: 'googleai/gemini-1.5-flash',
       tools: [sendQuoteTool],
       history: [
           new Message({ role: 'system', content: [{ text: systemPrompt }] }),

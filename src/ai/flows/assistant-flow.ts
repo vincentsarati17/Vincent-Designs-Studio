@@ -66,18 +66,6 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
     (m) => m && m.role && typeof m.content === "string"
   );
 
-  // Map history to the format expected by the new SDK
-  const contents = [
-      ...cleanHistory.map((m) => ({
-          role: m.role,
-          parts: [{ text: m.content }],
-      })),
-      {
-          role: "user" as const,
-          parts: [{ text: input.prompt || "Hello" }],
-      },
-  ];
-
   try {
     const chat = model.startChat({
         history: cleanHistory.map(m => ({ role: m.role, parts: [{ text: m.content }]})),

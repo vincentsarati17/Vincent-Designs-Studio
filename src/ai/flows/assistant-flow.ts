@@ -17,16 +17,23 @@ const AssistantOutputSchema = z.object({
 export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
 
 // Access your API key as an environment variable
-const apiKey = process.env.API_KEY;
-if (!apiKey) {
-  throw new Error("API_KEY environment variable is not set.");
-}
+const apiKey = process.env.GOOGLE_API_KEY;
 
-const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+let genAI: GoogleGenerativeAI | undefined;
+if (apiKey) {
+  genAI = new GoogleGenerativeAI(apiKey);
+}
 
 
 export async function runAssistantFlow(input: AssistantInput): Promise<AssistantOutput> {
+  if (!genAI) {
+    console.error("GOOGLE_API_KEY is not set or is invalid.");
+    return {
+        response: "Sorry, the AI assistant is not configured correctly. The API key is missing.",
+    };
+  }
+
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
   const prompt = `You are a helpful assistant for Vincent Designs Studio. The user said: ${input.prompt}`;
   
   try {

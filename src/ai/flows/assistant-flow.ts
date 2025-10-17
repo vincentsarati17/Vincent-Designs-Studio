@@ -5,7 +5,6 @@
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { gemini15Flash } from '@genkit-ai/googleai';
 
 const AssistantInputSchema = z.object({
   prompt: z.string(),
@@ -28,7 +27,7 @@ const assistantFlow = ai.defineFlow(
   },
   async (input) => {
     const { text } = await ai.generate({
-      model: gemini15Flash,
+      model: 'gemini-1.5-flash',
       prompt: `You are a helpful assistant for Vincent Designs Studio. The user said: ${input.prompt}`,
     });
 

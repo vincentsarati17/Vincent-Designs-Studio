@@ -1,14 +1,12 @@
-
 'use server';
 /**
- * @fileOverview A simplified AI assistant flow for Namib Essence Designs.
+ * @fileOverview A simplified AI assistant flow for Vincent Designs Studio.
  */
-import { ai } from '@/ai/genkit';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
 
 const AssistantInputSchema = z.object({
   prompt: z.string(),
-  // History is not used for now to keep it simple, but schema is kept for compatibility
   history: z.array(z.any()).optional(),
 });
 export type AssistantInput = z.infer<typeof AssistantInputSchema>;
@@ -18,25 +16,25 @@ const AssistantOutputSchema = z.object({
 });
 export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
 
+// Access your API key as an environment variable
+const genAI = new GoogleGenerativeAI(process.env.API_KEY!);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 
-const assistantFlow = ai.defineFlow(
-  {
-    name: 'assistantFlow',
-    inputSchema: AssistantInputSchema,
-    outputSchema: AssistantOutputSchema,
-  },
-  async (input) => {
-    const { text } = await ai.generate({
-      model: 'googleai/gemini-1.5-flash',
-      prompt: `You are a helpful assistant for Vincent Designs Studio. The user said: ${input.prompt}`,
-    });
 
+export async function runAssistantFlow(input: AssistantInput): Promise<AssistantOutput> {
+  const prompt = `You are a helpful assistant for Vincent Designs Studio. The user said: ${input.prompt}`;
+  
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
     return {
       response: text,
     };
+  } catch (error) {
+    console.error('Error generating content with GoogleGenerativeAI:', error);
+    return {
+      response: "Sorry, I'm having trouble connecting to my brain right now. Please try again later.",
+    };
   }
-);
-
-export async function runAssistantFlow(input: AssistantInput): Promise<AssistantOutput> {
-    return await assistantFlow(input);
 }

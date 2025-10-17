@@ -1,7 +1,14 @@
 
+'use server';
+import { gemini15Flash, googleAI } from '@genkit-ai/googleai';
 import { genkit } from 'genkit';
-import { googleAI } from '@genkit-ai/google-genai';
 
 export const ai = genkit({
-  plugins: [googleAI()],
+  plugins: [
+    googleAI({
+      apiKey: process.env.API_KEY,
+    }),
+  ],
+  logLevel: 'debug',
+  enableTracing: true,
 });

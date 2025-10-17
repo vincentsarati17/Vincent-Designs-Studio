@@ -28,7 +28,7 @@ export async function runAssistantFlow(input: AssistantInput): Promise<Assistant
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
     
     // For now, we will keep it simple and not use history.
     const prompt = `You are a helpful assistant for Vincent Designs Studio. The user said: ${input.prompt}`;

@@ -9,6 +9,7 @@
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { generate } from 'genkit';
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({
@@ -23,7 +24,7 @@ export type AssistantInput = z.infer<typeof AssistantInputSchema>;
 const AssistantOutputSchema = z.object({
   response: z.string(),
 });
-export type AssistantOutput = z_infer<typeof AssistantOutputSchema>;
+export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
 
 
 const systemPrompt = `
@@ -60,16 +61,19 @@ const assistantGenkitFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-      const { text } = await ai.generate({
+      const history = input.history?.map(m => ({
+          role: m.role,
+          content: [{ text: m.content }]
+      })) || [];
+
+      const response = await generate({
         model: 'googleai/gemini-1.5-flash',
         system: systemPrompt,
-        prompt: {
-          history: input.history?.map(m => ({ role: m.role, parts: [{ text: m.content }] })) || [],
-          messages: [{ role: 'user', parts: [{ text: input.prompt }] }]
-        }
+        history: history,
+        prompt: input.prompt,
       });
       
-      return { response: text };
+      return { response: response.text };
 
     } catch (error) {
       console.error("Critical error in assistantGenkitFlow:", error);

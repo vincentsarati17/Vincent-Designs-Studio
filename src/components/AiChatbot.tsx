@@ -23,14 +23,14 @@ export default function AiChatbot() {
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      setMessages([
-        {
-          role: 'model',
-          content: 'Hi there 👋 I’m Vincent Designs Assistant — your virtual design partner. How can I help you today?',
-        },
-      ]);
+      startTransition(async () => {
+        const { response } = await assistantFlow({
+          prompt: "Hello",
+        });
+        setMessages([{ role: 'model', content: response }]);
+      });
     }
-  }, [isOpen, messages.length]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -47,6 +47,7 @@ export default function AiChatbot() {
 
     const userMessage: Message = { role: 'user', content: input };
     setMessages((prev) => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
 
     startTransition(async () => {
@@ -54,7 +55,7 @@ export default function AiChatbot() {
 
       const { response } = await assistantFlow({
         history: chatHistory,
-        prompt: input,
+        prompt: currentInput,
       });
 
       setMessages((prev) => [...prev, { role: 'model', content: response }]);
@@ -77,7 +78,7 @@ export default function AiChatbot() {
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="font-headline text-lg">Vincent Designs Assistant</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col p-0">
+          <CardContent className="flex-1 flex flex-col p-0 min-h-0">
             <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
               <div className="space-y-4">
                 {messages.map((message, index) => (
@@ -101,7 +102,7 @@ export default function AiChatbot() {
                           : 'bg-card text-card-foreground border'
                       )}
                     >
-                      <p className="text-sm leading-relaxed">{message.content}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                     </div>
                      {message.role === 'user' && (
                       <div className="p-2 bg-muted rounded-full text-muted-foreground">
@@ -110,7 +111,7 @@ export default function AiChatbot() {
                     )}
                   </div>
                 ))}
-                 {isPending && (
+                 {isPending && messages[messages.length -1].role === 'user' && (
                     <div className="flex items-start gap-3">
                       <div className="p-2 bg-primary rounded-full text-primary-foreground">
                           <Bot size={16} />
@@ -135,7 +136,7 @@ export default function AiChatbot() {
                   className="flex-1"
                   disabled={isPending}
                 />
-                <Button type="submit" size="icon" disabled={isPending}>
+                <Button type="submit" size="icon" disabled={isPending || !input.trim()}>
                   <Send className="h-4 w-4" />
                 </Button>
               </form>

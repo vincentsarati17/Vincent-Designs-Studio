@@ -6,9 +6,8 @@
  * - AssistantInput - The input type for the assistantFlow function.
  * - AssistantOutput - The return type for the assistant-flow function.
  */
-import { ai } from '@/ai/genkit';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { z } from 'zod';
-import { generate } from 'genkit';
 
 const AssistantInputSchema = z.object({
   history: z
@@ -58,21 +57,28 @@ export async function assistantFlow(
   input: AssistantInput
 ): Promise<AssistantOutput> {
   try {
-    const model = 'googleai/gemini-1.5-flash';
-
-    const { text } = await generate({
-      model,
-      prompt: input.prompt,
-      system: systemPrompt,
-      history: input.history?.map((msg) => ({
-        role: msg.role,
-        content: [{ text: msg.content }],
-      })),
+    if (!process.env.API_KEY) {
+      throw new Error('API_KEY environment variable is not set.');
+    }
+    const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      systemInstruction: systemPrompt,
     });
+
+    const history = (input.history || []).map((m) => ({
+      role: m.role,
+      parts: [{ text: m.content }],
+    }));
+
+    const chat = model.startChat({ history });
+    const result = await chat.sendMessage(input.prompt);
+    const response = result.response;
+    const text = response.text();
 
     return { response: text };
   } catch (error) {
-    console.error('🔥 Genkit Error:', error);
+    console.error('🔥 Gemini Error:', error);
     return {
       response: 'Sorry, I encountered an error while processing your request.',
     };

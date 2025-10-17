@@ -27,7 +27,7 @@ const assistantFlow = ai.defineFlow(
   },
   async (input) => {
     const { text } = await ai.generate({
-      model: 'gemini-1.5-flash',
+      model: 'googleai/gemini-1.5-flash',
       prompt: `You are a helpful assistant for Vincent Designs Studio. The user said: ${input.prompt}`,
     });
 

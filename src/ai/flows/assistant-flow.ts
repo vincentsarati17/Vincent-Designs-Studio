@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A file containing the AI assistant flow for Namib Essence Designs.
@@ -54,8 +53,8 @@ const systemPrompt = `
 
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
   try {
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const genAI = new GoogleGenerativeAI(process.env.API_KEY || "");
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
 
     // Create user + history messages
     const history = (input.history || []).map((m) => ({

@@ -7,9 +7,8 @@
  * - AssistantInput - The input type for the assistantFlow function.
  * - AssistantOutput - The return type for the assistant-flow function.
  */
-import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { generate } from 'genkit';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({
@@ -25,7 +24,6 @@ const AssistantOutputSchema = z.object({
   response: z.string(),
 });
 export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
-
 
 const systemPrompt = `
     You are "Namib Essence Designs Assistant", a friendly, helpful, and creative virtual design partner for Namib Essence Designs, a web design agency.
@@ -53,36 +51,39 @@ const systemPrompt = `
     Your responses should be conversational and helpful.
   `;
 
-const assistantGenkitFlow = ai.defineFlow(
-  {
-    name: 'assistantGenkitFlow',
-    inputSchema: AssistantInputSchema,
-    outputSchema: AssistantOutputSchema,
-  },
-  async (input) => {
-    try {
-      const history = input.history?.map(m => ({
-          role: m.role,
-          content: [{ text: m.content }]
-      })) || [];
-
-      const response = await generate({
-        model: 'googleai/gemini-1.5-flash',
-        system: systemPrompt,
-        history: history,
-        prompt: input.prompt,
-      });
-      
-      return { response: response.text };
-
-    } catch (error) {
-      console.error("Critical error in assistantGenkitFlow:", error);
-      return { response: "Sorry, I encountered an error while processing your request." };
-    }
-  }
-);
-
 
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
-  return await assistantGenkitFlow(input);
+  try {
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    // Create user + history messages
+    const history = (input.history || []).map((m) => ({
+      role: m.role,
+      parts: [{ text: m.content }],
+    }));
+
+    const userMessage = {
+      role: "user",
+      parts: [{ text: input.prompt || "Hello!" }],
+    };
+
+    // Prepend the system prompt to the history
+    const contents = [
+        { role: 'system', parts: [{ text: systemPrompt }] },
+        ...history,
+        userMessage,
+    ];
+
+    // Generate response
+    const result = await model.generateContent({
+      contents: contents,
+    });
+
+    const text = result.response.text();
+    return { response: text };
+  } catch (error) {
+    console.error("🔥 Gemini Error:", error);
+    return { response: "Sorry, I encountered an error while processing your request." };
+  }
 }

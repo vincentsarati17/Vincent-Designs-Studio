@@ -23,7 +23,7 @@ export type AssistantInput = z.infer<typeof AssistantInputSchema>;
 const AssistantOutputSchema = z.object({
   response: z.string(),
 });
-export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
+export type AssistantOutput = z_infer<typeof AssistantOutputSchema>;
 
 
 const systemPrompt = `
@@ -52,28 +52,6 @@ const systemPrompt = `
     Your responses should be conversational and helpful.
   `;
 
-const assistantPrompt = ai.definePrompt(
-    {
-        name: 'assistantPrompt',
-        system: systemPrompt,
-        input: {
-            schema: AssistantInputSchema,
-        },
-        output: {
-            schema: AssistantOutputSchema,
-        },
-    },
-    async (input) => {
-        return {
-            messages: [
-                ...(input.history?.map(m => ({ role: m.role, content: [{ text: m.content }] })) || []),
-                { role: 'user', content: [{ text: input.prompt }] }
-            ]
-        }
-    }
-);
-
-
 const assistantGenkitFlow = ai.defineFlow(
   {
     name: 'assistantGenkitFlow',
@@ -81,26 +59,21 @@ const assistantGenkitFlow = ai.defineFlow(
     outputSchema: AssistantOutputSchema,
   },
   async (input) => {
-
     try {
-        const result = await assistantPrompt.generate(
-            input,
-            {
-                model: 'googleai/gemini-1.5-flash',
-            }
-        );
-        
-        const output = result.output();
-
-        if (!output) {
-            throw new Error("No output from AI model");
+      const { text } = await ai.generate({
+        model: 'googleai/gemini-1.5-flash',
+        system: systemPrompt,
+        prompt: {
+          history: input.history?.map(m => ({ role: m.role, parts: [{ text: m.content }] })) || [],
+          messages: [{ role: 'user', parts: [{ text: input.prompt }] }]
         }
-
-        return output;
+      });
+      
+      return { response: text };
 
     } catch (error) {
-        console.error("Error in assistantGenkitFlow:", error);
-        return { response: "Sorry, I encountered an error while processing your request." };
+      console.error("Critical error in assistantGenkitFlow:", error);
+      return { response: "Sorry, I encountered an error while processing your request." };
     }
   }
 );

@@ -6,8 +6,9 @@
  * - AssistantInput - The input type for the assistantFlow function.
  * - AssistantOutput - The return type for the assistant-flow function.
  */
+import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { generate } from 'genkit/ai';
 
 const AssistantInputSchema = z.object({
   history: z.array(z.object({
@@ -53,36 +54,21 @@ const systemPrompt = `
 
 export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
   try {
-    const genAI = new GoogleGenerativeAI(process.env.API_KEY || "");
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
+    const model = 'googleai/gemini-1.5-flash';
 
-    // Create user + history messages
-    const history = (input.history || []).map((m) => ({
-      role: m.role,
-      parts: [{ text: m.content }],
-    }));
-
-    const userMessage = {
-      role: "user",
-      parts: [{ text: input.prompt || "Hello!" }],
-    };
-
-    // Prepend the system prompt to the history
-    const contents = [
-        { role: 'system', parts: [{ text: systemPrompt }] },
-        ...history,
-        userMessage,
-    ];
-
-    // Generate response
-    const result = await model.generateContent({
-      contents: contents,
+    const { text } = await generate({
+      model,
+      prompt: input.prompt,
+      system: systemPrompt,
+      history: input.history?.map(msg => ({
+        role: msg.role,
+        content: [{ text: msg.content }]
+      })),
     });
 
-    const text = result.response.text();
     return { response: text };
   } catch (error) {
-    console.error("🔥 Gemini Error:", error);
+    console.error("🔥 Genkit Error:", error);
     return { response: "Sorry, I encountered an error while processing your request." };
   }
 }

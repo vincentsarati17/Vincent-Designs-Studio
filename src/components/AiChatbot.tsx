@@ -1,7 +1,7 @@
 
 'use client';
 
-import { assistantFlow } from '@/ai/flows/assistant-flow';
+import { runAssistantFlow } from '@/ai/flows/assistant-flow';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -22,13 +22,17 @@ export default function AiChatbot() {
   const [isPending, startTransition] = useTransition();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  const getGreeting = async () => {
+    const { response } = await runAssistantFlow({
+      prompt: "Introduce yourself briefly. You are the Vincent Designs Studio assistant.",
+    });
+    setMessages([{ role: 'model', content: response }]);
+  }
+
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       startTransition(async () => {
-        const { response } = await assistantFlow({
-          prompt: "Hello",
-        });
-        setMessages([{ role: 'model', content: response }]);
+        await getGreeting();
       });
     }
   }, [isOpen]);
@@ -40,7 +44,7 @@ export default function AiChatbot() {
         behavior: 'smooth',
       });
     }
-  }, [messages]);
+  }, [messages, isPending]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +58,7 @@ export default function AiChatbot() {
     startTransition(async () => {
       const chatHistory = messages.map(msg => ({ role: msg.role, content: msg.content }));
 
-      const { response } = await assistantFlow({
+      const { response } = await runAssistantFlow({
         history: chatHistory,
         prompt: currentInput,
       });
@@ -112,7 +116,7 @@ export default function AiChatbot() {
                     )}
                   </div>
                 ))}
-                 {isPending && messages.length > 0 && messages[messages.length -1].role === 'user' && (
+                 {isPending && (
                     <div className="flex items-start gap-3">
                       <div className="p-2 bg-primary rounded-full text-primary-foreground">
                           <Bot size={16} />

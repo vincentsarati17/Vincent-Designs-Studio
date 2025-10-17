@@ -34,8 +34,8 @@ export default function AiChatbot() {
 
   useEffect(() => {
     if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
+      scrollAreaRef.current.querySelector('[data-viewport]')?.scrollTo({
+        top: scrollAreaRef.current.querySelector('[data-viewport]')?.scrollHeight,
         behavior: 'smooth',
       });
     }
@@ -111,7 +111,7 @@ export default function AiChatbot() {
                     )}
                   </div>
                 ))}
-                 {isPending && messages[messages.length -1].role === 'user' && (
+                 {isPending && messages.length > 0 && messages[messages.length -1].role === 'user' && (
                     <div className="flex items-start gap-3">
                       <div className="p-2 bg-primary rounded-full text-primary-foreground">
                           <Bot size={16} />

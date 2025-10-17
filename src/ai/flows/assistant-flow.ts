@@ -17,7 +17,12 @@ const AssistantOutputSchema = z.object({
 export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
 
 // Access your API key as an environment variable
-const genAI = new GoogleGenerativeAI(process.env.API_KEY!);
+const apiKey = process.env.API_KEY;
+if (!apiKey) {
+  throw new Error("API_KEY environment variable is not set.");
+}
+
+const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 
 

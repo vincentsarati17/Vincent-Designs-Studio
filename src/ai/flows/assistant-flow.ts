@@ -8,17 +8,20 @@
  */
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { generate } from 'genkit/ai';
+import { generate } from 'genkit';
 
 const AssistantInputSchema = z.object({
-  history: z.array(z.object({
-    role: z.enum(['user', 'model']),
-    content: z.string(),
-  })).optional(),
+  history: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'model']),
+        content: z.string(),
+      })
+    )
+    .optional(),
   prompt: z.string(),
 });
 export type AssistantInput = z.infer<typeof AssistantInputSchema>;
-
 
 const AssistantOutputSchema = z.object({
   response: z.string(),
@@ -51,8 +54,9 @@ const systemPrompt = `
     Your responses should be conversational and helpful.
   `;
 
-
-export async function assistantFlow(input: AssistantInput): Promise<AssistantOutput> {
+export async function assistantFlow(
+  input: AssistantInput
+): Promise<AssistantOutput> {
   try {
     const model = 'googleai/gemini-1.5-flash';
 
@@ -60,15 +64,17 @@ export async function assistantFlow(input: AssistantInput): Promise<AssistantOut
       model,
       prompt: input.prompt,
       system: systemPrompt,
-      history: input.history?.map(msg => ({
+      history: input.history?.map((msg) => ({
         role: msg.role,
-        content: [{ text: msg.content }]
+        content: [{ text: msg.content }],
       })),
     });
 
     return { response: text };
   } catch (error) {
-    console.error("🔥 Genkit Error:", error);
-    return { response: "Sorry, I encountered an error while processing your request." };
+    console.error('🔥 Genkit Error:', error);
+    return {
+      response: 'Sorry, I encountered an error while processing your request.',
+    };
   }
 }

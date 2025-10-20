@@ -8,17 +8,9 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import type { AssistantInput, AssistantOutput } from '@/lib/ai-types';
+import { AssistantInputSchema, AssistantOutputSchema } from '@/lib/ai-types';
 
-const AssistantInputSchema = z.object({
-  prompt: z.string(),
-  history: z.array(z.any()).optional(),
-});
-export type AssistantInput = z.infer<typeof AssistantInputSchema>;
-
-const AssistantOutputSchema = z.object({
-  response: z.string(),
-});
-export type AssistantOutput = z.infer<typeof AssistantOutputSchema>;
 
 // This is the exported wrapper function that will be called by the client component.
 export async function runAssistantFlow(input: AssistantInput): Promise<AssistantOutput> {

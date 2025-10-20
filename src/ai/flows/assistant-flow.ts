@@ -35,8 +35,8 @@ The user said: ${input.prompt}`;
 
     try {
       const { output } = await ai.generate({
-        // Use the correct, prefixed model name for the googleAI plugin.
-        model: 'googleai/gemini-pro',
+        // Use a stable, widely available model to avoid 404 errors.
+        model: 'googleai/gemini-pro-vision',
         prompt: systemPrompt,
       });
 

@@ -10,6 +10,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import PageTransition from "@/components/PageTransition";
 import { cn } from "@/lib/utils";
 import { Lora, Poppins } from 'next/font/google';
+import Script from "next/script";
 
 const VDS_JSON_LD = {
   '@context': 'https://schema.org',
@@ -126,6 +127,12 @@ export default function RootLayout({
           <WhatsAppButton />
           <Toaster />
         </ThemeProvider>
+        {process.env.NEXT_PUBLIC_TIDIO_SRC && (
+          <Script 
+            src={process.env.NEXT_PUBLIC_TIDIO_SRC}
+            strategy="afterInteractive" 
+          />
+        )}
       </body>
     </html>
   );

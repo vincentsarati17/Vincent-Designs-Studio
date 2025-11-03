@@ -6,8 +6,6 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -23,6 +21,12 @@ export async function handleFormSubmission(values: FormValues) {
   if (!parsedData.success) {
     return { success: false, message: 'Invalid data.' };
   }
+
+  // Check for Resend API key before proceeding
+  if (!process.env.RESEND_API_KEY) {
+    console.error('RESEND_API_KEY is not configured.');
+    return { success: false, message: 'Server configuration error. Could not send email.' };
+  }
   
   try {
     // 1. Save submission to Firestore
@@ -34,6 +38,7 @@ export async function handleFormSubmission(values: FormValues) {
     await addDoc(collection(db, 'submissions'), submission);
 
     // 2. Send email notification
+    const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
       from: 'onboarding@resend.dev', // This must be a domain you have verified with Resend
       to: 'vincentdesigns137@gmail.com',

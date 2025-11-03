@@ -39,10 +39,14 @@ export async function handleFormSubmission(values: FormValues) {
 
     // 2. Send email notification
     const resend = new Resend(process.env.RESEND_API_KEY);
+    
+    // IMPORTANT: The 'from' address MUST be from a domain you have verified in your Resend account.
+    // The 'to' address is where you will receive the notifications.
     await resend.emails.send({
-      from: 'onboarding@resend.dev', // This must be a domain you have verified with Resend
-      to: 'vincentdesigns137@gmail.com',
+      from: 'onboarding@resend.dev', // Replace with your verified domain, e.g., 'noreply@vincentdesigns.studio'
+      to: 'vincentdesigns137@gmail.com', // This should be your personal email to receive notifications
       subject: `New Message from ${parsedData.data.name} via your website`,
+      reply_to: parsedData.data.email, // So you can reply directly to the user
       html: `
         <h1>New Contact Form Submission</h1>
         <p><strong>Name:</strong> ${parsedData.data.name}</p>

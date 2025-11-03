@@ -16,8 +16,8 @@ const VDS_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
   name: 'Vincent Designs Studio',
-  url: 'https://www.vincentdesigns.studio',
-  logo: 'https://www.vincentdesigns.studio/image/VDS-logo.png',
+  url: 'https://vvincent-designs-studio.vercel.app',
+  logo: 'https://vvincent-designs-studio.vercel.app/image/VDS-logo.png',
   contactPoint: {
     '@type': 'ContactPoint',
     telephone: '+264-81-819-0591',
@@ -55,7 +55,7 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.vincentdesigns.studio'),
+  metadataBase: new URL('https://vvincent-designs-studio.vercel.app'),
   title: {
     default: "Graphic & Web Design in Namibia | Vincent Designs Studio",
     template: "%s | Vincent Designs Studio",
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Graphic & Web Design in Namibia | Vincent Designs Studio',
     description: 'Bespoke graphic and web design in Namibia. We build exceptional brands and websites for businesses ready to make their mark.',
-    url: 'https://www.vincentdesigns.studio',
+    url: 'https://vvincent-designs-studio.vercel.app',
     siteName: 'Vincent Designs Studio',
     images: [
       {

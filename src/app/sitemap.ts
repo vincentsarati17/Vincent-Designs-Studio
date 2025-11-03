@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next';
 import { getProjects } from '@/services/projects';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://www.vincentdesigns.studio'; // Replace with your actual domain
+  const baseUrl = 'https://vvincent-designs-studio.vercel.app'; // Replace with your actual domain
 
   // Static pages
   const staticRoutes = [

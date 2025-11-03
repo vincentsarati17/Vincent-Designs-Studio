@@ -127,12 +127,10 @@ export default function RootLayout({
           <WhatsAppButton />
           <Toaster />
         </ThemeProvider>
-        {process.env.NEXT_PUBLIC_TIDIO_SRC && (
-          <Script 
-            src={process.env.NEXT_PUBLIC_TIDIO_SRC}
+        <Script 
+            src="//code.tidio.co/mpvkt5ph0fqhszh4dhggtm0dhm2le4qn.js"
             strategy="afterInteractive" 
           />
-        )}
       </body>
     </html>
   );

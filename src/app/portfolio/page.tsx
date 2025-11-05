@@ -20,7 +20,7 @@ const placeholderProjects: Project[] = [
     title: "Professional Flyer Design",
     description: "We designed a professional flyer for Dyax's Electrical Company.",
     category: "Graphic Design",
-    imageUrl: placeholderImages.portfolio.project1.src,
+    imageUrl: "/image/Dyax-electrical-cc.jpg",
     isFeatured: true,
     slug: "#",
     details: [],
@@ -41,6 +41,17 @@ const placeholderProjects: Project[] = [
 const PlaceholderProjectCard = ({ project }: { project: Project }) => {
   return (
       <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 block bg-card rounded-lg">
+        {project.imageUrl && (
+            <div className="relative aspect-video w-full bg-muted">
+                <Image
+                    src={project.imageUrl}
+                    alt={project.title}
+                    fill
+                    className="object-contain transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                />
+            </div>
+        )}
         <div className="p-6">
             <Badge variant="secondary">{project.category}</Badge>
             <h3 className="font-headline text-xl font-bold mt-2">{project.title}</h3>

@@ -40,9 +40,9 @@ const placeholderProjects: Project[] = [
 
 const PlaceholderProjectCard = ({ project }: { project: Project }) => {
   return (
-      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 block bg-card rounded-lg">
+      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 block rounded-lg bg-card/50 backdrop-blur-sm border border-white/10">
         {project.imageUrl && (
-            <div className="relative aspect-video w-full bg-muted">
+            <div className="relative aspect-video w-full bg-muted/50">
                 <Image
                     src={project.imageUrl}
                     alt={project.title}

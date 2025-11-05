@@ -13,7 +13,7 @@ type ServiceCardProps = {
 
 export default function ServiceCard({ title, description, href, className }: ServiceCardProps) {
   return (
-    <Card className={cn("overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col", className)}>
+    <Card className={cn("overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col rounded-2xl", className)}>
       <div className="p-6 flex flex-col flex-grow">
         <h2 className="font-headline text-2xl font-bold">{title}</h2>
         <p className="mt-2 text-muted-foreground flex-grow">{description}</p>

@@ -88,42 +88,9 @@ const placeholderProjects: Project[] = [
 
 
 const PlaceholderProjectCard = ({ project }: { project: Project }) => {
-  const cardRef = React.useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const rotateX = useTransform(y, [-150, 150], [10, -10]);
-  const rotateY = useTransform(x, [-150, 150], [-10, 10]);
-
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (cardRef.current) {
-      const rect = cardRef.current.getBoundingClientRect();
-      const newX = event.clientX - rect.left - rect.width / 2;
-      const newY = event.clientY - rect.top - rect.height / 2;
-      x.set(newX);
-      y.set(newY);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-  
   return (
-    <motion.div
-      ref={cardRef}
-      style={{
-        rotateX,
-        rotateY,
-        transformStyle: 'preserve-3d',
-        perspective: 1000,
-      }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="relative"
-    >
-      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-2xl block rounded-lg bg-card/50 backdrop-blur-sm border border-white/10 w-full h-full" style={{ transform: 'translateZ(8px)' }}>
+    <div>
+      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-2xl block rounded-lg bg-card/50 backdrop-blur-sm border border-white/10 w-full h-full">
         {project.imageUrl && (
             <div className="relative aspect-video w-full bg-muted/50">
                 <Image
@@ -141,6 +108,6 @@ const PlaceholderProjectCard = ({ project }: { project: Project }) => {
             <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 };

@@ -17,9 +17,9 @@ export const metadata: Metadata = {
 const placeholderProjects: Project[] = [
   {
     id: "placeholder-1",
-    title: "Modern E-Commerce Platform",
-    description: "A sleek and fast e-commerce site for a local fashion brand.",
-    category: "Web Design",
+    title: "Professional Flyer Design",
+    description: "Eye-catching flyer designs for events, promotions, and business marketing.",
+    category: "Graphic Design",
     imageUrl: placeholderImages.portfolio.project1.src,
     isFeatured: true,
     slug: "#",
@@ -59,7 +59,6 @@ const placeholderProjects: Project[] = [
 
 
 const PlaceholderProjectCard = ({ project }: { project: Project }) => {
-  const image = placeholderImages.portfolio[`project${project.id.split('-')[1]}` as keyof typeof placeholderImages.portfolio]
   return (
       <Card className="overflow-hidden group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 block bg-card rounded-lg">
         <div className="p-6">

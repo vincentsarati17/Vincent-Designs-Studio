@@ -10,8 +10,9 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Card, CardContent } from "@/components/ui/card";
 import type { Metadata } from 'next';
+import React from 'react';
+import Autoplay from "embla-carousel-autoplay";
 
 // Disabling metadata generation for client component
 // export const metadata: Metadata = {
@@ -53,6 +54,10 @@ const services = [
 ];
 
 export default function ServicesPage() {
+  const plugin = React.useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: true })
+  )
+
   return (
     <Section>
       <SectionHeader 
@@ -61,6 +66,9 @@ export default function ServicesPage() {
       />
       <div className="mt-16 flex justify-center">
         <Carousel
+          plugins={[plugin.current]}
+          onMouseEnter={plugin.current.stop}
+          onMouseLeave={plugin.current.reset}
           opts={{
             align: "start",
             loop: true,

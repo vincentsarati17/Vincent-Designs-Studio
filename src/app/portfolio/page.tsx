@@ -1,4 +1,6 @@
 
+'use client';
+
 import ProjectCard from "@/components/ProjectCard";
 import { getProjects } from "@/services/projects";
 import type { Metadata } from 'next';
@@ -8,11 +10,58 @@ import Image from "next/image";
 import Link from "next/link";
 import placeholderImages from '@/app/lib/placeholder-images.json';
 import type { Project } from "@/lib/types";
+import { motion, useMotionValue, useTransform } from 'framer-motion';
+import React from "react";
 
-export const metadata: Metadata = {
-    title: "Our Work",
-    description: "Explore a selection of our best work. See how we've helped businesses with web design, branding, and graphic design to make their mark.",
-};
+export default function PortfolioPage() {
+  const [projects, setProjects] = React.useState<Project[] | null>(null);
+
+  React.useEffect(() => {
+    async function loadProjects() {
+      const fetchedProjects = await getProjects();
+      if (fetchedProjects.length > 0) {
+        setProjects(fetchedProjects);
+      } else {
+        // If no projects from DB, use placeholders
+        setProjects(placeholderProjects);
+      }
+    }
+    loadProjects();
+  }, []);
+
+  return (
+    <div className="container py-16 md:py-24">
+      <div className="text-center max-w-3xl mx-auto">
+        <h1 className="font-headline text-3xl md:text-4xl font-bold text-balance">Our Work</h1>
+        <p className="mt-4 text-lg text-muted-foreground text-balance">
+          We take pride in our work. Here's a selection of projects that showcase our dedication to quality, creativity, and impact.
+        </p>
+      </div>
+      
+        <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {projects ? (
+            projects.map((project) => (
+              project.slug === '#' 
+                ? <PlaceholderProjectCard key={project.id} project={project} />
+                : <ProjectCard key={project.id} project={project} />
+            ))
+          ) : (
+            // Skeleton loaders
+            Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="bg-card/50 rounded-lg p-6 space-y-4">
+                <div className="h-40 bg-muted/50 rounded-md animate-pulse"></div>
+                <div className="h-4 w-1/4 bg-muted/50 rounded animate-pulse"></div>
+                <div className="h-6 w-3/4 bg-muted/50 rounded animate-pulse"></div>
+                <div className="h-4 w-full bg-muted/50 rounded animate-pulse"></div>
+              </div>
+            ))
+          )}
+        </div>
+      
+    </div>
+  );
+}
+
 
 const placeholderProjects: Project[] = [
   {
@@ -39,8 +88,42 @@ const placeholderProjects: Project[] = [
 
 
 const PlaceholderProjectCard = ({ project }: { project: Project }) => {
+  const cardRef = React.useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const rotateX = useTransform(y, [-150, 150], [10, -10]);
+  const rotateY = useTransform(x, [-150, 150], [-10, 10]);
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (cardRef.current) {
+      const rect = cardRef.current.getBoundingClientRect();
+      const newX = event.clientX - rect.left - rect.width / 2;
+      const newY = event.clientY - rect.top - rect.height / 2;
+      x.set(newX);
+      y.set(newY);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+  
   return (
-      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 block rounded-lg bg-card/50 backdrop-blur-sm border border-white/10">
+    <motion.div
+      ref={cardRef}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: 'preserve-3d',
+        perspective: 1000,
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative"
+    >
+      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-2xl block rounded-lg bg-card/50 backdrop-blur-sm border border-white/10 w-full h-full" style={{ transform: 'translateZ(8px)' }}>
         {project.imageUrl && (
             <div className="relative aspect-video w-full bg-muted/50">
                 <Image
@@ -58,34 +141,6 @@ const PlaceholderProjectCard = ({ project }: { project: Project }) => {
             <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
         </div>
       </Card>
+    </motion.div>
   );
 };
-
-
-export default async function PortfolioPage() {
-  const projects = (await getProjects()) || [];
-
-  return (
-    <div className="container py-16 md:py-24">
-      <div className="text-center max-w-3xl mx-auto">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold text-balance">Our Work</h1>
-        <p className="mt-4 text-lg text-muted-foreground text-balance">
-          We take pride in our work. Here's a selection of projects that showcase our dedication to quality, creativity, and impact.
-        </p>
-      </div>
-      
-        <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.length > 0 ? (
-            projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))
-          ) : (
-            placeholderProjects.map((project) => (
-              <PlaceholderProjectCard key={project.id} project={project} />
-            ))
-          )}
-        </div>
-      
-    </div>
-  );
-}

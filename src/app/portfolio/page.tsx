@@ -35,16 +35,6 @@ const placeholderProjects: Project[] = [
     slug: "#",
     details: [],
   },
-  {
-    id: "placeholder-4",
-    title: "Marketing Website for SaaS",
-    description: "A high-converting landing page and website for a software product.",
-    category: "Web Development",
-    imageUrl: placeholderImages.portfolio.project4.src,
-    isFeatured: false,
-    slug: "#",
-    details: [],
-  },
 ];
 
 

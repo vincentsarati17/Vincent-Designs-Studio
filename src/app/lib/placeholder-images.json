@@ -8,10 +8,6 @@
     "project2": {
       "src": "https://picsum.photos/seed/2/600/400",
       "hint": "web app"
-    },
-    "project4": {
-      "src": "https://picsum.photos/seed/4/600/400",
-      "hint": "marketing website"
     }
   }
 }

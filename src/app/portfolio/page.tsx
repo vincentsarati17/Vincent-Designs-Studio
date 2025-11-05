@@ -27,7 +27,7 @@ export default async function PortfolioPage() {
         </div>
       ) : (
         <div className="mt-16 text-center">
-          <p className="text-muted-foreground">Could not load projects. Please check your connection or try again later.</p>
+          {/* Projects will be displayed here once added to the database. */}
         </div>
       )}
     </div>

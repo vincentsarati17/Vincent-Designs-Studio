@@ -1,0 +1,21 @@
+
+{
+  "portfolio": {
+    "project1": {
+      "src": "https://picsum.photos/seed/1/600/400",
+      "hint": "brand design"
+    },
+    "project2": {
+      "src": "https://picsum.photos/seed/2/600/400",
+      "hint": "web app"
+    },
+    "project3": {
+      "src": "https://picsum.photos/seed/3/600/400",
+      "hint": "mobile design"
+    },
+    "project4": {
+      "src": "https://picsum.photos/seed/4/600/400",
+      "hint": "marketing website"
+    }
+  }
+}

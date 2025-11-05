@@ -18,7 +18,7 @@ const placeholderProjects: Project[] = [
   {
     id: "placeholder-1",
     title: "Professional Flyer Design",
-    description: "Eye-catching flyer designs for events, promotions, and business marketing.",
+    description: "We designed a professional flyer for Dyax's Electrical Company.",
     category: "Graphic Design",
     imageUrl: placeholderImages.portfolio.project1.src,
     isFeatured: true,

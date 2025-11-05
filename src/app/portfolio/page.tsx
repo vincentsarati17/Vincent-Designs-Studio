@@ -10,7 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import placeholderImages from '@/app/lib/placeholder-images.json';
 import type { Project } from "@/lib/types";
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import React from "react";
 
 export default function PortfolioPage() {
@@ -78,26 +78,61 @@ const placeholderProjects: Project[] = [
 
 
 const PlaceholderProjectCard = ({ project }: { project: Project }) => {
+  const [isFlipped, setIsFlipped] = React.useState(false);
+
+  const cardVariants = {
+    unflipped: { rotateY: 0 },
+    flipped: { rotateY: 180 },
+  };
+
   return (
-    <div>
-      <Card className="overflow-hidden group transition-all duration-300 hover:shadow-2xl block rounded-lg bg-card/50 backdrop-blur-sm border border-white/10 w-full h-full">
-        {project.imageUrl && (
-            <div className="relative aspect-video w-full bg-muted/50">
-                <Image
-                    src={project.imageUrl}
-                    alt={project.title}
-                    fill
-                    className="object-contain transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                />
+    <div 
+      className="relative w-full h-[250px] [perspective:1000px]"
+      onMouseEnter={() => setIsFlipped(true)}
+      onMouseLeave={() => setIsFlipped(false)}
+    >
+      <motion.div
+        className="relative w-full h-full transition-transform duration-700"
+        style={{ transformStyle: 'preserve-3d' }}
+        variants={cardVariants}
+        animate={isFlipped ? 'flipped' : 'unflipped'}
+        transition={{ duration: 0.7, ease: 'easeInOut' }}
+      >
+        {/* Front of the card */}
+        <div className="absolute w-full h-full" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+          <Card className="overflow-hidden group transition-all duration-300 block rounded-lg bg-card/50 backdrop-blur-sm border border-white/10 w-full h-full">
+            {project.imageUrl && (
+                <div className="relative aspect-video w-full bg-muted/50">
+                    <Image
+                        src={project.imageUrl}
+                        alt={project.title}
+                        fill
+                        className="object-contain transition-transform duration-300"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                </div>
+            )}
+            <div className="p-6">
+                <Badge variant="secondary">{project.category}</Badge>
+                <h3 className="font-headline text-xl font-bold mt-2">{project.title}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
             </div>
-        )}
-        <div className="p-6">
-            <Badge variant="secondary">{project.category}</Badge>
-            <h3 className="font-headline text-xl font-bold mt-2">{project.title}</h3>
-            <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
+          </Card>
         </div>
-      </Card>
+
+        {/* Back of the card */}
+        <div className="absolute w-full h-full" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+           <Card className="overflow-hidden group transition-all duration-300 block rounded-lg bg-card/50 backdrop-blur-sm border border-white/10 w-full h-full flex flex-col items-center justify-center p-6">
+              <h3 className="font-headline text-xl font-bold text-center">Vincent Designs Studio</h3>
+              <p className="text-sm text-muted-foreground mt-2 text-center">High-quality design services.</p>
+              <Button asChild variant="link" className="mt-4">
+                <Link href="/contact">
+                  Get a quote
+                </Link>
+              </Button>
+            </Card>
+        </div>
+      </motion.div>
     </div>
   );
 };

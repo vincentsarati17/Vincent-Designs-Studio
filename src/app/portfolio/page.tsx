@@ -47,7 +47,7 @@ export default function PortfolioPage() {
             ))
           ) : (
             // Skeleton loaders
-            Array.from({ length: 2 }).map((_, i) => (
+            Array.from({ length: 1 }).map((_, i) => (
               <div key={i} className="bg-card/50 rounded-lg p-6 space-y-4">
                 <div className="h-40 bg-muted/50 rounded-md animate-pulse"></div>
                 <div className="h-4 w-1/4 bg-muted/50 rounded animate-pulse"></div>
@@ -70,16 +70,6 @@ const placeholderProjects: Project[] = [
     description: "We designed a professional flyer for Dyax's Electrical Company.",
     category: "Graphic Design",
     imageUrl: "/image/Dyax-electrical-cc.jpg",
-    isFeatured: true,
-    slug: "#",
-    details: [],
-  },
-  {
-    id: "placeholder-2",
-    title: "Corporate Branding Refresh",
-    description: "A complete brand identity overhaul for a financial services company.",
-    category: "Branding",
-    imageUrl: "", // Removed image URL
     isFeatured: true,
     slug: "#",
     details: [],

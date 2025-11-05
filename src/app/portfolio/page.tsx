@@ -36,16 +36,6 @@ const placeholderProjects: Project[] = [
     details: [],
   },
   {
-    id: "placeholder-3",
-    title: "Mobile App for a Startup",
-    description: "An intuitive and engaging mobile app for a new tech startup.",
-    category: "UI/UX Design",
-    imageUrl: placeholderImages.portfolio.project3.src,
-    isFeatured: false,
-    slug: "#",
-    details: [],
-  },
-    {
     id: "placeholder-4",
     title: "Marketing Website for SaaS",
     description: "A high-converting landing page and website for a software product.",

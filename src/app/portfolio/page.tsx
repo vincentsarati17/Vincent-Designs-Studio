@@ -57,7 +57,7 @@ export default async function PortfolioPage() {
   return (
     <div className="container py-16 md:py-24">
       <div className="text-center max-w-3xl mx-auto">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold text-balance">Our Work</h1>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold text-balance">Our Work</h1>
         <p className="mt-4 text-lg text-muted-foreground text-balance">
           We take pride in our work. Here's a selection of projects that showcase our dedication to quality, creativity, and impact.
         </p>

@@ -30,7 +30,7 @@ const placeholderProjects: Project[] = [
     title: "Corporate Branding Refresh",
     description: "A complete brand identity overhaul for a financial services company.",
     category: "Branding",
-    imageUrl: placeholderImages.portfolio.project2.src,
+    imageUrl: "", // Removed image URL
     isFeatured: true,
     slug: "#",
     details: [],

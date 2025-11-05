@@ -12,6 +12,7 @@ import placeholderImages from '@/app/lib/placeholder-images.json';
 import type { Project } from "@/lib/types";
 import { motion } from 'framer-motion';
 import React from "react";
+import { Button } from "@/components/ui/button";
 
 export default function PortfolioPage() {
   const [projects, setProjects] = React.useState<Project[] | null>(null);

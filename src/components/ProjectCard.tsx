@@ -24,7 +24,7 @@ export default function ProjectCard({ project }: { project: Project }) {
         </motion.div>
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
           <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-            <Badge variant="secondary">{project.category}</Badge>
+            <Badge>{project.category}</Badge>
             <motion.h3 layoutId={`title-${project.id}`} className="font-headline text-xl font-bold mt-2 text-white">{project.title}</motion.h3>
             <p className="text-sm text-white/80 mt-1">{project.description}</p>
           </div>

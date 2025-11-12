@@ -91,7 +91,7 @@ const PlaceholderProjectCard = ({ project }: { project: Project }) => {
       )}
       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
           <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-            <Badge variant="secondary">{project.category}</Badge>
+            <Badge>{project.category}</Badge>
             <h3 className="font-headline text-xl font-bold mt-2 text-white">{project.title}</h3>
             <p className="text-sm text-white/80 mt-1">{project.description}</p>
           </div>

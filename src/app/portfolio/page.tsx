@@ -77,9 +77,9 @@ const placeholderProjects: Project[] = [
 
 const PlaceholderProjectCard = ({ project }: { project: Project }) => {
   return (
-    <Card className="overflow-hidden group transition-all duration-300 block rounded-lg bg-card/50 backdrop-blur-sm border border-white/10">
+    <Card className="overflow-hidden group transition-all duration-300 block rounded-lg bg-card/50 backdrop-blur-sm border border-white/10 w-full h-full relative aspect-video">
       {project.imageUrl && (
-          <div className="relative aspect-video w-full bg-muted/50">
+          <div className="relative w-full h-full bg-muted/50">
               <Image
                   src={project.imageUrl}
                   alt={project.title}
@@ -89,10 +89,12 @@ const PlaceholderProjectCard = ({ project }: { project: Project }) => {
               />
           </div>
       )}
-      <div className="p-6">
-          <Badge variant="secondary">{project.category}</Badge>
-          <h3 className="font-headline text-xl font-bold mt-2">{project.title}</h3>
-          <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
+      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+          <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+            <Badge variant="secondary">{project.category}</Badge>
+            <h3 className="font-headline text-xl font-bold mt-2 text-white">{project.title}</h3>
+            <p className="text-sm text-white/80 mt-1">{project.description}</p>
+          </div>
       </div>
     </Card>
   );

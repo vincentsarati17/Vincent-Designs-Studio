@@ -93,7 +93,7 @@ const PlaceholderProjectCard = ({ project }: { project: Project }) => {
           <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
             <Badge>{project.category}</Badge>
             <h3 className="font-headline text-xl font-bold mt-2 text-white">{project.title}</h3>
-            <p className="text-sm text-primary mt-1 font-semibold">{project.description}</p>
+            <p className="text-sm text-white mt-1 font-semibold">{project.description}</p>
           </div>
       </div>
     </Card>

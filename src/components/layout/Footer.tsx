@@ -58,6 +58,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} Vincent Designs Studio. All rights
             reserved.
           </p>
+          <p className="mt-2">Website developed by Vincent Designs Studio</p>
         </div>
       </div>
     </footer>

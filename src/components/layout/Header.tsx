@@ -32,13 +32,8 @@ export default function Header({ settings }: { settings: BrandingSettings }) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between">
-        <Link href="/" className="flex items-center h-full py-2">
-          {/* 
-            Use a container to control the responsive size of the logo.
-            The Image component uses the `fill` prop to adapt to this container.
-            This is the correct Next.js pattern for responsive images.
-          */}
-          <div className="relative h-full transition-all" style={{ width: `${logoWidth}px` }}>
+        <Link href="/" className="flex items-center">
+          <div className="relative h-16 transition-all" style={{ width: `${logoWidth}px` }}>
             <Image 
               src={logoUrl} 
               alt="Vincent Designs Studio Logo" 

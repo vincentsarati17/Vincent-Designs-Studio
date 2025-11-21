@@ -31,9 +31,9 @@ export default function Header({ settings }: { settings: BrandingSettings }) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-20 items-center justify-between">
+      <div className="container flex h-24 items-center justify-between">
         <Link href="/" className="flex items-center">
-          <div className="relative transition-all" style={{ width: `${logoWidth}px`, height: `auto`, aspectRatio: '4/1' }}>
+          <div className="relative transition-all" style={{ width: `${logoWidth}px`, height: 'auto', aspectRatio: '4/1' }}>
             <Image 
               src={logoUrl} 
               alt="Vincent Designs Studio Logo" 
@@ -79,7 +79,7 @@ export default function Header({ settings }: { settings: BrandingSettings }) {
       
       {/* Mobile Menu Dropdown */}
       {isOpen && (
-        <div className="md:hidden absolute top-20 left-0 w-full bg-background border-b pb-4 animate-in fade-in-20 slide-in-from-top-4">
+        <div className="md:hidden absolute top-24 left-0 w-full bg-background border-b pb-4 animate-in fade-in-20 slide-in-from-top-4">
           <nav className="flex flex-col items-center gap-4 pt-4">
             {navLinks.map((link) => (
               <Link

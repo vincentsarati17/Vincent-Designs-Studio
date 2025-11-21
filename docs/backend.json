@@ -1,0 +1,68 @@
+
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user with administrative access to the website.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "username": {
+          "type": "string",
+          "description": "The user's username for login.",
+          "format": "string"
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email",
+        "firstName",
+        "lastName"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Collection to store admin user IDs. Presence of a document with a userId grants admin privileges.  Authentication depends solely on `request.auth.uid`.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Auth UID of the admin user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "Given the requirement for an admin login page, and the provided User entity, the most straightforward approach is to store admin user credentials in a dedicated collection. This allows for easy role management without custom claims. The structure focuses on simplicity and security by limiting access based on the existence of a user ID within the `/roles_admin` collection. This approach adheres to Authorization Independence (CRITICAL), and provides Clarity of Intent (Debuggability).\n\nThe structure supports the required QAPs by:\n\n*   **Segregation:**  Admin user data is segregated into its own collection (`/roles_admin`), allowing for specific security rules that apply only to administrative users.\n*   **Global Roles (DBAC):** The existence of a document in `/roles_admin/{uid}` signifies admin status."
+  }
+}

@@ -5,11 +5,14 @@
 // The functions to fetch data from Firestore are commented out
 // to prevent any errors while the collection doesn't exist.
 
-import { db } from '@/lib/firebase';
+import { initializeFirebase } from '@/firebase';
 import { collection, getDocs, query, where, limit, getDoc, doc } from 'firebase/firestore';
 import type { Project } from '@/lib/types';
 
 export async function getProjects(): Promise<Project[]> {
+  const firebase = initializeFirebase();
+  if (!firebase) return [];
+  const { db } = firebase;
   try {
     const projectsCol = collection(db, 'projects');
     const projectSnapshot = await getDocs(projectsCol);
@@ -22,6 +25,9 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 export async function getFeaturedProjects(): Promise<Project[]> {
+  const firebase = initializeFirebase();
+  if (!firebase) return [];
+  const { db } = firebase;
   try {
     const projectsQuery = query(collection(db, 'projects'), where('isFeatured', '==', true), limit(2));
     const projectSnapshot = await getDocs(projectsQuery);
@@ -33,7 +39,31 @@ export async function getFeaturedProjects(): Promise<Project[]> {
   }
 }
 
+export async function getProjectById(id: string): Promise<Project | null> {
+  const firebase = initializeFirebase();
+  if (!firebase) return null;
+  const { db } = firebase;
+  try {
+    const projectDocRef = doc(db, 'projects', id);
+    const projectDoc = await getDoc(projectDocRef);
+
+    if (!projectDoc.exists()) {
+        return null;
+    }
+
+    return { id: projectDoc.id, ...projectDoc.data() } as Project;
+  } catch (error)
+  {
+    console.error(`Failed to fetch project by id ${id}:`, error);
+    return null;
+  }
+}
+
+
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
+  const firebase = initializeFirebase();
+  if (!firebase) return null;
+  const { db } = firebase;
   try {
     const projectsQuery = query(collection(db, 'projects'), where('slug', '==', slug), limit(1));
     const projectSnapshot = await getDocs(projectsQuery);

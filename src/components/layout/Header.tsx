@@ -1,12 +1,16 @@
-
 "use client";
 
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggleButton } from "../ThemeToggleButton";
 import Image from "next/image";
+import type { BrandingSettings } from "@/services/settings";
+import dynamic from 'next/dynamic';
+
+const ClientThemeToggleButton = dynamic(() => import('./ClientThemeToggleButton'), {
+  ssr: false,
+});
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -15,7 +19,7 @@ const navLinks = [
   { href: "/about", label: "Our Story" },
 ];
 
-export default function Header() {
+export default function Header({ settings }: { settings: BrandingSettings }) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -23,11 +27,28 @@ export default function Header() {
     setMounted(true);
   }, []);
 
+  const { logoUrl } = settings;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/image/VINCEDSTUDIO.icon.png" alt="Vincent Designs Studio Logo" width={180} height={40} className="h-auto" priority />
+        <Link href="/" className="flex items-center h-full">
+          {/* 
+            Use a container to control the responsive size of the logo.
+            The Image component uses the `fill` prop to adapt to this container.
+            This is the correct Next.js pattern for responsive images.
+          */}
+          <div className="relative h-full w-44 transition-all">
+            <Image 
+              src={logoUrl} 
+              alt="Vincent Designs Studio Logo" 
+              fill
+              className="object-contain" 
+              priority 
+              unoptimized
+              sizes="(max-width: 768px) 176px, 176px"
+            />
+          </div>
         </Link>
         
         {/* Desktop Navigation */}
@@ -41,7 +62,7 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
-          <ThemeToggleButton />
+          {mounted && <ClientThemeToggleButton />}
           <Button asChild>
             <Link href="/contact">Contact Us</Link>
           </Button>
@@ -49,24 +70,20 @@ export default function Header() {
         
         {/* Mobile Menu Toggle and Theme Toggle */}
         <div className="md:hidden flex items-center gap-2">
-          {mounted ? (
+          {mounted && (
             <>
-              <ThemeToggleButton />
+              <ClientThemeToggleButton />
               <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
                 {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </>
-          ) : (
-            // Render a placeholder on the server and during initial client render
-            // to prevent hydration mismatch. The width is set to match the two buttons.
-            <div style={{width: '88px'}}></div>
           )}
         </div>
       </div>
       
       {/* Mobile Menu Dropdown */}
-      {mounted && isOpen && (
+      {isOpen && (
         <div className="md:hidden absolute top-20 left-0 w-full bg-background border-b pb-4 animate-in fade-in-20 slide-in-from-top-4">
           <nav className="flex flex-col items-center gap-4 pt-4">
             {navLinks.map((link) => (

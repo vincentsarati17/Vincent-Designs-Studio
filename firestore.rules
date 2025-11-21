@@ -1,24 +1,134 @@
 
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow public read access to the projects collection
+
+    // =====================================================================
+    // Development Security Rules (INSECURE - FOR LOCAL DEV ONLY)
+    // =====================================================================
+    
+    // WARNING: These rules are insecure and are for local development only.
+    // They allow anyone to read and write to the database.
+    // Revert to the production rules before deploying.
+
+    // match /{document=**} {
+    //   allow read, write: if true;
+    // }
+
+    // =====================================================================
+    // Production Security Rules (Commented out for development)
+    // =====================================================================
+    
+    // Helper function to check if a user is signed in.
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper function to get the requesting user's admin role document.
+    function getAdminRole() {
+        return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
+    }
+
+    // Helper function to check if the signed-in user is an admin of any kind.
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    // Helper function to check if the user is a Super Admin.
+    function isSuperAdmin() {
+        return isAdmin() && getAdminRole().role == 'Super Admin';
+    }
+
+    // Helper function to check if the user is a standard Admin.
+    function isStandardAdmin() {
+        return isAdmin() && getAdminRole().role == 'Admin';
+    }
+
+    // Helper function to check if the user is a Content Admin.
+    function isContentAdmin() {
+        return isAdmin() && getAdminRole().role == 'Content';
+    }
+    
+    // Helper function to check if the user is a Support Admin.
+    function isSupportAdmin() {
+        return isAdmin() && getAdminRole().role == 'Support';
+    }
+
+
+    // Rules for the 'admins' collection
+    match /admins/{adminId} {
+      // Only Super Admins can view the list of admins.
+      allow read: if isSuperAdmin();
+      // Super Admins can manage all admins.
+      allow write: if isSuperAdmin();
+      // Super Admins cannot delete themselves.
+      allow delete: if isSuperAdmin() && resource.id != request.auth.uid;
+    }
+
+    // Rules for the 'clients' collection and their subcollections
+    match /clients/{clientId} {
+      // Any admin can read client data for the dashboard.
+      allow read: if isAdmin();
+      // Support, Admins, and Super Admins can manage clients.
+      allow write: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
+
+      // Same roles for notes and requests subcollections.
+      match /notes/{noteId} {
+        allow read: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
+        allow write: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
+      }
+
+      match /requests/{requestId} {
+        allow read: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
+        allow write: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
+      }
+    }
+
+    // Rules for the 'page_views' collection
+    match /page_views/{viewId} {
+      // Anyone can create a page view log.
+      allow create: if true;
+      // Only Admins and Super Admins can read analytics data.
+      allow read, list: if isStandardAdmin() || isSuperAdmin();
+      // No one can update or delete page view logs.
+      allow update, delete: if false;
+    }
+
+    // Rules for the 'projects' collection
     match /projects/{projectId} {
+      // Anyone can read public project information.
       allow read: if true;
-      allow write: if request.auth != null; // Only authenticated users can write
+      // Content Admins, standard Admins, and Super Admins can write.
+      allow write: if isContentAdmin() || isStandardAdmin() || isSuperAdmin();
+    }
+    
+    // Rules for 'admin_logs' collection
+    match /admin_logs/{logId} {
+        // Any admin can create a log.
+        allow create: if isAdmin();
+        // Any admin can read logs for the dashboard.
+        allow read, list: if isAdmin();
+        // Logs are immutable.
+        allow update, delete: if false;
     }
 
-    // Submissions should only be readable/writable by authenticated users
-    // And should not be deletable by client-side requests.
+    // Rules for the 'settings' collection
+    match /settings/{settingId} {
+        // Settings are publicly readable for the client-side app to function.
+        allow read: if true;
+        // Only Super Admins and standard Admins can change settings.
+        allow write: if isStandardAdmin() || isSuperAdmin();
+    }
+
+    // Rules for the 'submissions' collection
     match /submissions/{submissionId} {
-        allow read, write: if request.auth != null;
-        allow delete: if false;
+      // Anyone can create a submission (from the contact form).
+      allow create: if true;
+      // Any admin can read submissions.
+      allow read: if isAdmin();
+      // Support Admins, standard Admins, and Super Admins can manage submissions.
+      allow update, delete: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
     }
-
-    // Deny all other access by default
-    match /{document=**} {
-      allow read, write: if false;
-    }
+    
   }
 }

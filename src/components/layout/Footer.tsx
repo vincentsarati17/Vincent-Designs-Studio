@@ -1,14 +1,18 @@
 
-import Link from "next/link";
+'use client';
 
-export default function Footer() {
+import Link from "next/link";
+import type { SiteIdentitySettings } from "@/services/settings";
+
+export default function Footer({ settings }: { settings: SiteIdentitySettings }) {
+
   return (
     <footer className="bg-background text-card-foreground border-t">
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="font-headline text-lg font-bold">
-              Vincent Designs Studio
+              {settings.siteName}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground text-balance">
               Specializing in bespoke graphic and web design, we build exceptional brands and websites for businesses ready to make their mark.
@@ -46,7 +50,7 @@ export default function Footer() {
           <div>
             <h4 className="font-headline font-semibold">Contact Us</h4>
             <p className="text-sm mt-4 text-muted-foreground">
-              vincentdesigns137@gmail.com
+              {settings.publicEmail}
             </p>
             <p className="text-sm mt-2 text-muted-foreground">
               +264 81 819 0591
@@ -55,10 +59,10 @@ export default function Footer() {
         </div>
         <div className="mt-8 border-t pt-6 text-center text-xs text-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} Vincent Designs Studio. All rights
+            &copy; {new Date().getFullYear()} {settings.siteName}. All rights
             reserved.
           </p>
-          <p className="mt-2">Website developed by Vincent Designs Studio</p>
+          <p className="mt-2">Website developed by {settings.siteName}</p>
         </div>
       </div>
     </footer>

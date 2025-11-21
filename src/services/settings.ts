@@ -70,13 +70,15 @@ export async function saveSecuritySettings(settings: SecuritySettings) {
  */
 export async function getSiteIdentitySettings(): Promise<SiteIdentitySettings> {
     const firebase = initializeFirebase();
+    const defaultSettings = {
+      siteName: 'Vincent Designs Studio',
+      publicEmail: 'vincentdesigns137@gmail.com',
+    };
+
     if (!firebase) {
-      console.warn("Firebase not initialized. Returning default site identity settings.");
-      return {
-          siteName: 'Vincent Designs Studio',
-          publicEmail: 'vincentdesigns137@gmail.com',
-      };
+      return defaultSettings;
     }
+
     const { db } = firebase;
     const siteIdentityDocRef = doc(db, 'settings', 'identity');
     try {
@@ -84,17 +86,11 @@ export async function getSiteIdentitySettings(): Promise<SiteIdentitySettings> {
         if (docSnap.exists()) {
             return docSnap.data() as SiteIdentitySettings;
         } else {
-            return {
-                siteName: 'Vincent Designs Studio',
-                publicEmail: 'vincentdesigns137@gmail.com',
-            };
+            return defaultSettings;
         }
     } catch (error) {
         console.error('Error fetching site identity settings:', error);
-        return {
-            siteName: 'Vincent Designs Studio',
-            publicEmail: 'vincentdesigns137@gmail.com',
-        };
+        return defaultSettings;
     }
 }
 

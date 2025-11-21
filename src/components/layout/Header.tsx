@@ -44,7 +44,6 @@ export default function Header({ settings }: { settings: BrandingSettings }) {
             fill
             sizes={`${logoWidth}px`}
             style={{ objectFit: 'contain' }}
-            className="object-contain transition-all" 
             priority 
             unoptimized
           />

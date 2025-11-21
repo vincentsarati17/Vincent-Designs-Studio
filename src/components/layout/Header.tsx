@@ -32,20 +32,18 @@ export default function Header({ settings }: { settings: BrandingSettings }) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-20 items-center justify-between">
+      <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center">
-          <div className="relative transition-all" style={{ width: `${logoWidth}px` }}>
-            <Image 
-              src={logoUrl} 
-              alt="Vincent Designs Studio Logo" 
-              width={logoWidth}
-              height={0}
-              style={{ height: 'auto', width: '100%' }}
-              className="object-contain" 
-              priority 
-              unoptimized
-            />
-          </div>
+          <Image 
+            src={logoUrl} 
+            alt="Vincent Designs Studio Logo" 
+            width={logoWidth}
+            height={0}
+            style={{ width: `${logoWidth}px`, height: 'auto' }}
+            className="object-contain transition-all" 
+            priority 
+            unoptimized
+          />
         </Link>
         
         {/* Desktop Navigation */}

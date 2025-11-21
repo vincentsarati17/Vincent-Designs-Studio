@@ -1,5 +1,4 @@
 
-'use server';
 
 import { initializeFirebase } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -126,7 +125,7 @@ export async function getBrandingSettings(): Promise<BrandingSettings> {
       console.warn("Firebase not initialized. Returning default branding settings.");
       return {
           logoUrl: '/image/VINCEDSTUDIO.icon.png',
-          logoWidth: 280,
+          logoWidth: 220,
       };
     }
     const { db } = firebase;
@@ -138,14 +137,14 @@ export async function getBrandingSettings(): Promise<BrandingSettings> {
         } else {
             return {
                 logoUrl: '/image/VINCEDSTUDIO.icon.png',
-                logoWidth: 280,
+                logoWidth: 220,
             };
         }
     } catch (error) {
         console.error('Error fetching branding settings:', error);
         return {
             logoUrl: '/image/VINCEDSTUDIO.icon.png',
-            logoWidth: 280,
+            logoWidth: 220,
         };
     }
 }

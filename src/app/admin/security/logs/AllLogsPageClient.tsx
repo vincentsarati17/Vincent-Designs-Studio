@@ -15,12 +15,14 @@ import {
 } from "@/components/ui/table";
 import React from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
-import { db } from "@/lib/firebase";
+import { initializeFirebase } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { AdminLog } from "@/lib/types";
 import { format } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+
+const { db } = initializeFirebase();
 
 export default function AllLogsPageClient() {
   const [logs, setLogs] = React.useState<AdminLog[] | null>(null);

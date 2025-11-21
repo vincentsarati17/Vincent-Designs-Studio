@@ -36,7 +36,7 @@ export default function Header({ settings }: { settings: BrandingSettings }) {
         <Link 
           href="/" 
           className="relative"
-          style={{ width: `${logoWidth}px`, height: `${logoWidth / 4}px` }}
+          style={{ width: `${logoWidth}px` }}
         >
           <Image 
             src={logoUrl} 

@@ -117,11 +117,12 @@ export async function saveSiteIdentitySettings(settings: SiteIdentitySettings) {
  */
 export async function getBrandingSettings(): Promise<BrandingSettings> {
     const firebase = initializeFirebase();
+    const defaultSettings = {
+        logoUrl: '/image/VINCEDSTUDIO.icon.png',
+        logoWidth: 220,
+    };
     if (!firebase) {
-      return {
-          logoUrl: '/image/VINCEDSTUDIO.icon.png',
-          logoWidth: 180,
-      };
+      return defaultSettings;
     }
     const { db } = firebase;
     const brandingDocRef = doc(db, 'settings', 'branding');
@@ -130,21 +131,15 @@ export async function getBrandingSettings(): Promise<BrandingSettings> {
         if (docSnap.exists()) {
             const data = docSnap.data();
             return {
-                logoUrl: data.logoUrl || '/image/VINCEDSTUDIO.icon.png',
-                logoWidth: data.logoWidth || 180,
+                logoUrl: data.logoUrl || defaultSettings.logoUrl,
+                logoWidth: data.logoWidth || defaultSettings.logoWidth,
             };
         } else {
-            return {
-                logoUrl: '/image/VINCEDSTUDIO.icon.png',
-                logoWidth: 180,
-            };
+            return defaultSettings;
         }
     } catch (error) {
         console.error('Error fetching branding settings:', error);
-        return {
-            logoUrl: '/image/VINCEDSTUDIO.icon.png',
-            logoWidth: 180,
-        };
+        return defaultSettings;
     }
 }
 

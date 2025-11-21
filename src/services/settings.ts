@@ -125,7 +125,7 @@ export async function getBrandingSettings(): Promise<BrandingSettings> {
       console.warn("Firebase not initialized. Returning default branding settings.");
       return {
           logoUrl: '/image/VINCEDSTUDIO.icon.png',
-          logoWidth: 210,
+          logoWidth: 200,
       };
     }
     const { db } = firebase;
@@ -137,14 +137,14 @@ export async function getBrandingSettings(): Promise<BrandingSettings> {
         } else {
             return {
                 logoUrl: '/image/VINCEDSTUDIO.icon.png',
-                logoWidth: 210,
+                logoWidth: 200,
             };
         }
     } catch (error) {
         console.error('Error fetching branding settings:', error);
         return {
             logoUrl: '/image/VINCEDSTUDIO.icon.png',
-            logoWidth: 210,
+            logoWidth: 200,
         };
     }
 }

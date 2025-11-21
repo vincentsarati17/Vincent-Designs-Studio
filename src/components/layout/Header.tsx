@@ -33,7 +33,7 @@ export default function Header({ settings }: { settings: BrandingSettings }) {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between">
         <Link href="/" className="flex items-center">
-          <div className="relative h-16 transition-all" style={{ width: `${logoWidth}px` }}>
+          <div className="relative transition-all" style={{ width: `${logoWidth}px`, height: `auto`, aspectRatio: '4/1' }}>
             <Image 
               src={logoUrl} 
               alt="Vincent Designs Studio Logo" 

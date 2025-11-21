@@ -4,8 +4,6 @@
 import { initializeFirebase } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-const { db } = initializeFirebase();
-
 /**
  * Logs an administrative action to the 'admin_logs' collection in Firestore.
  * @param action - A string describing the action, e.g., 'Admin Login', 'Create Project'.
@@ -13,6 +11,12 @@ const { db } = initializeFirebase();
  */
 export async function logAdminAction(action: string, details: Record<string, any>) {
   try {
+    const firebase = initializeFirebase();
+    if (!firebase) {
+      console.warn(`Firebase not initialized. Could not log action: ${action}`);
+      return;
+    }
+    const { db } = firebase;
     await addDoc(collection(db, 'admin_logs'), {
       action,
       ...details,

@@ -11,7 +11,10 @@ import type { Project } from '@/lib/types';
 
 export async function getProjects(): Promise<Project[]> {
   const firebase = initializeFirebase();
-  if (!firebase) return [];
+  if (!firebase) {
+    console.warn("Firebase not initialized, can't fetch projects.");
+    return [];
+  }
   const { db } = firebase;
   try {
     const projectsCol = collection(db, 'projects');
@@ -26,7 +29,10 @@ export async function getProjects(): Promise<Project[]> {
 
 export async function getFeaturedProjects(): Promise<Project[]> {
   const firebase = initializeFirebase();
-  if (!firebase) return [];
+  if (!firebase) {
+    console.warn("Firebase not initialized, can't fetch featured projects.");
+    return [];
+  }
   const { db } = firebase;
   try {
     const projectsQuery = query(collection(db, 'projects'), where('isFeatured', '==', true), limit(2));
@@ -41,7 +47,10 @@ export async function getFeaturedProjects(): Promise<Project[]> {
 
 export async function getProjectById(id: string): Promise<Project | null> {
   const firebase = initializeFirebase();
-  if (!firebase) return null;
+  if (!firebase) {
+    console.warn("Firebase not initialized, can't fetch project by ID.");
+    return null;
+  }
   const { db } = firebase;
   try {
     const projectDocRef = doc(db, 'projects', id);
@@ -62,7 +71,10 @@ export async function getProjectById(id: string): Promise<Project | null> {
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
   const firebase = initializeFirebase();
-  if (!firebase) return null;
+  if (!firebase) {
+    console.warn("Firebase not initialized, can't fetch project by slug.");
+    return null;
+  }
   const { db } = firebase;
   try {
     const projectsQuery = query(collection(db, 'projects'), where('slug', '==', slug), limit(1));

@@ -6,7 +6,12 @@ import type { Client, ClientNote, ClientRequest } from '@/lib/types';
 import { collection, getDocs, addDoc, deleteDoc, doc, query, where, serverTimestamp, updateDoc, orderBy } from 'firebase/firestore';
 
 export async function getClients(): Promise<Client[]> {
-  const { db } = initializeFirebase();
+  const firebase = initializeFirebase();
+  if (!firebase) {
+    console.warn("Firebase not initialized, can't fetch clients.");
+    return [];
+  }
+  const { db } = firebase;
   const clientsCol = collection(db, 'clients');
   const clientSnapshot = await getDocs(clientsCol);
   const clientList = clientSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Client));
@@ -16,7 +21,9 @@ export async function getClients(): Promise<Client[]> {
 type ClientData = Omit<Client, 'id' | 'createdAt'>;
 
 export async function addClient(clientData: ClientData): Promise<Client> {
-  const { db } = initializeFirebase();
+  const firebase = initializeFirebase();
+  if (!firebase) throw new Error("Firebase is not initialized. Cannot add client.");
+  const { db } = firebase;
   const q = query(collection(db, 'clients'), where('email', '==', clientData.email));
   const snapshot = await getDocs(q);
   if (!snapshot.empty) {
@@ -37,7 +44,9 @@ export async function addClient(clientData: ClientData): Promise<Client> {
 }
 
 export async function updateClient(id: string, clientData: ClientData): Promise<void> {
-    const { db } = initializeFirebase();
+    const firebase = initializeFirebase();
+    if (!firebase) throw new Error("Firebase is not initialized. Cannot update client.");
+    const { db } = firebase;
     const clientDoc = doc(db, 'clients', id);
     // Check for email conflicts, excluding the current client
     const q = query(collection(db, 'clients'), where('email', '==', clientData.email));
@@ -53,14 +62,21 @@ export async function updateClient(id: string, clientData: ClientData): Promise<
 }
 
 export async function deleteClient(id: string): Promise<void> {
-  const { db } = initializeFirebase();
+  const firebase = initializeFirebase();
+  if (!firebase) throw new Error("Firebase is not initialized. Cannot delete client.");
+  const { db } = firebase;
   const clientDoc = doc(db, 'clients', id);
   await deleteDoc(clientDoc);
 }
 
 // Functions for Client Notes
 export async function getNotesForClient(clientId: string): Promise<ClientNote[]> {
-    const { db } = initializeFirebase();
+    const firebase = initializeFirebase();
+    if (!firebase) {
+      console.warn("Firebase not initialized, can't fetch client notes.");
+      return [];
+    }
+    const { db } = firebase;
     const notesQuery = query(collection(db, `clients/${clientId}/notes`), orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(notesQuery);
     return snapshot.docs.map(doc => ({
@@ -71,7 +87,9 @@ export async function getNotesForClient(clientId: string): Promise<ClientNote[]>
 }
 
 export async function addNoteForClient(clientId: string, noteData: Omit<ClientNote, 'id' | 'createdAt'>) {
-    const { db } = initializeFirebase();
+    const firebase = initializeFirebase();
+    if (!firebase) throw new Error("Firebase is not initialized. Cannot add note.");
+    const { db } = firebase;
     const notesCol = collection(db, `clients/${clientId}/notes`);
     await addDoc(notesCol, {
         ...noteData,
@@ -81,7 +99,12 @@ export async function addNoteForClient(clientId: string, noteData: Omit<ClientNo
 
 // Functions for Client Requests
 export async function getRequestsForClient(clientId: string): Promise<ClientRequest[]> {
-    const { db } = initializeFirebase();
+    const firebase = initializeFirebase();
+    if (!firebase) {
+      console.warn("Firebase not initialized, can't fetch client requests.");
+      return [];
+    }
+    const { db } = firebase;
     const requestsQuery = query(collection(db, `clients/${clientId}/requests`), orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(requestsQuery);
     return snapshot.docs.map(doc => ({
@@ -92,7 +115,9 @@ export async function getRequestsForClient(clientId: string): Promise<ClientRequ
 }
 
 export async function addRequestForClient(clientId: string, requestData: Omit<ClientRequest, 'id' | 'createdAt'>) {
-    const { db } = initializeFirebase();
+    const firebase = initializeFirebase();
+    if (!firebase) throw new Error("Firebase is not initialized. Cannot add request.");
+    const { db } = firebase;
     const requestsCol = collection(db, `clients/${clientId}/requests`);
     await addDoc(requestsCol, {
         ...requestData,

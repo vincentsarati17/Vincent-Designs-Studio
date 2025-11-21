@@ -9,8 +9,6 @@ import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
 
-const { db, storage } = initializeFirebase();
-
 const projectSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
   slug: z.string().min(3, 'Slug must be at least 3 characters.').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.'),
@@ -51,6 +49,10 @@ export async function handleAddProject(prevState: any, formData: FormData) {
   const { image, ...projectData } = parsed.data;
 
   try {
+    const firebase = initializeFirebase();
+    if (!firebase) throw new Error("Firebase not initialized");
+    const { db, storage } = firebase;
+    
     const slugQuery = query(collection(db, 'projects'), where('slug', '==', projectData.slug));
     const slugSnapshot = await getDocs(slugQuery);
     if (!slugSnapshot.empty) {
@@ -112,6 +114,10 @@ export async function handleUpdateProject(projectId: string, prevState: any, for
   const { image, currentImageUrl, currentSlug, ...projectData } = parsed.data;
 
   try {
+    const firebase = initializeFirebase();
+    if (!firebase) throw new Error("Firebase not initialized");
+    const { db, storage } = firebase;
+
     if (projectData.slug !== currentSlug) {
       const slugQuery = query(collection(db, 'projects'), where('slug', '==', projectData.slug));
       const slugSnapshot = await getDocs(slugQuery);
@@ -180,6 +186,9 @@ export async function handleDeleteProject(id: string) {
   }
 
   try {
+    const firebase = initializeFirebase();
+    if (!firebase) throw new Error("Firebase not initialized");
+    const { db } = firebase;
     await deleteDoc(doc(db, 'projects', id));
     await logAdminAction('Project Deleted', {
       user: user.email,

@@ -13,7 +13,12 @@ export async function trackPageView(path: string) {
   if (!path) return;
 
   try {
-    const { db } = initializeFirebase();
+    const firebase = initializeFirebase();
+    if (!firebase) {
+      console.warn("Firebase not initialized. Page view tracking is disabled.");
+      return;
+    }
+    const { db } = firebase;
     await addDoc(collection(db, 'page_views'), {
       path,
       timestamp: serverTimestamp(),

@@ -53,7 +53,9 @@ export async function getSecuritySettings(): Promise<SecuritySettings> {
  * @param settings - The new security settings to save.
  */
 export async function saveSecuritySettings(settings: SecuritySettings) {
-  const { db } = initializeFirebase();
+  const firebase = initializeFirebase();
+  if (!firebase) throw new Error("Firebase is not initialized. Cannot save settings.");
+  const { db } = firebase;
   const securitySettingsDocRef = doc(db, 'settings', 'security');
   try {
     await setDoc(securitySettingsDocRef, settings, { merge: true });
@@ -69,10 +71,13 @@ export async function saveSecuritySettings(settings: SecuritySettings) {
  */
 export async function getSiteIdentitySettings(): Promise<SiteIdentitySettings> {
     const firebase = initializeFirebase();
-    if (!firebase) return {
-        siteName: 'Vincent Designs Studio',
-        publicEmail: 'vincentdesigns137@gmail.com',
-    };
+    if (!firebase) {
+      console.warn("Firebase not initialized. Returning default site identity settings.");
+      return {
+          siteName: 'Vincent Designs Studio',
+          publicEmail: 'vincentdesigns137@gmail.com',
+      };
+    }
     const { db } = firebase;
     const siteIdentityDocRef = doc(db, 'settings', 'identity');
     try {
@@ -99,7 +104,9 @@ export async function getSiteIdentitySettings(): Promise<SiteIdentitySettings> {
  * @param settings - The new site identity settings.
  */
 export async function saveSiteIdentitySettings(settings: SiteIdentitySettings) {
-    const { db } = initializeFirebase();
+    const firebase = initializeFirebase();
+    if (!firebase) throw new Error("Firebase is not initialized. Cannot save settings.");
+    const { db } = firebase;
     const siteIdentityDocRef = doc(db, 'settings', 'identity');
     try {
         await setDoc(siteIdentityDocRef, settings);
@@ -115,10 +122,13 @@ export async function saveSiteIdentitySettings(settings: SiteIdentitySettings) {
  */
 export async function getBrandingSettings(): Promise<BrandingSettings> {
     const firebase = initializeFirebase();
-    if (!firebase) return {
-        logoUrl: '/image/VINCEDSTUDIO.icon.png',
-        logoWidth: 180,
-    };
+    if (!firebase) {
+      console.warn("Firebase not initialized. Returning default branding settings.");
+      return {
+          logoUrl: '/image/VINCEDSTUDIO.icon.png',
+          logoWidth: 180,
+      };
+    }
     const { db } = firebase;
     const brandingDocRef = doc(db, 'settings', 'branding');
     try {
@@ -145,7 +155,9 @@ export async function getBrandingSettings(): Promise<BrandingSettings> {
  * @param settings - The new branding settings. Can be a partial object.
  */
 export async function saveBrandingSettings(settings: Partial<BrandingSettings>) {
-    const { db } = initializeFirebase();
+    const firebase = initializeFirebase();
+    if (!firebase) throw new Error("Firebase is not initialized. Cannot save settings.");
+    const { db } = firebase;
     const brandingDocRef = doc(db, 'settings', 'branding');
     try {
         await setDoc(brandingDocRef, settings, { merge: true });
@@ -180,7 +192,9 @@ export async function getMaintenanceModeSettings(): Promise<MaintenanceSettings>
  * Saves the maintenance mode settings to Firestore.
  */
 export async function saveMaintenanceModeSettings(settings: MaintenanceSettings) {
-  const { db } = initializeFirebase();
+  const firebase = initializeFirebase();
+  if (!firebase) throw new Error("Firebase is not initialized. Cannot save settings.");
+  const { db } = firebase;
   const maintenanceSettingsDocRef = doc(db, 'settings', 'maintenance');
   try {
     await setDoc(maintenanceSettingsDocRef, settings);

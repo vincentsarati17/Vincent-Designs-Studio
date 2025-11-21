@@ -10,8 +10,6 @@ import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
 
-const { db } = initializeFirebase();
-
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -34,6 +32,9 @@ export async function handleFormSubmission(values: FormValues) {
   }
   
   try {
+    const firebase = initializeFirebase();
+    if (!firebase) throw new Error("Firebase not initialized");
+    const { db } = firebase;
     const submission = {
       ...parsedData.data,
       isRead: false,

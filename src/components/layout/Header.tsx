@@ -35,15 +35,14 @@ export default function Header({ settings }: { settings: BrandingSettings }) {
       <div className="container flex h-20 items-center justify-between">
         <Link 
           href="/" 
-          className="relative"
-          style={{ width: `${logoWidth}px` }}
+          className="flex items-center"
         >
           <Image 
             src={logoUrl} 
             alt="Vincent Designs Studio Logo" 
-            fill
-            sizes={`${logoWidth}px`}
-            style={{ objectFit: 'contain' }}
+            width={logoWidth}
+            height={0}
+            style={{ height: 'auto' }}
             priority 
             unoptimized
           />

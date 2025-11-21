@@ -24,7 +24,7 @@ const initialSettings: CombinedSettings = {
   },
   branding: {
     logoUrl: '/image/VINCEDSTUDIO.icon.png',
-    logoWidth: 220,
+    logoWidth: 210,
   }
 };
 

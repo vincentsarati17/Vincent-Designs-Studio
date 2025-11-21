@@ -26,22 +26,22 @@ export function initializeFirebase() {
   // Server-side logic
   if (!process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
     if (process.env.NODE_ENV === 'production') {
-      // In production builds without service account, we should not proceed.
-      throw new Error('Firebase should not be initialized during server-side build without service account credentials.');
+      // In production builds (like Vercel), if server credentials are not set,
+      // we return null to prevent build-time functions from crashing.
+      console.warn("FIREBASE_SERVICE_ACCOUNT_BASE64 not found. Firebase Admin features will be unavailable during build.");
+      return null;
     }
-    // In local dev, we might not have server creds, but we also don't want to throw. Return null instead.
-    // Functions that need server-side firebase will have to handle this.
+    // In local dev, we also return null if no server creds are found.
     return null;
   }
   
   if (!getApps().length) {
     let firebaseApp;
     try {
+      // This path is for environments with Application Default Credentials
       firebaseApp = initializeApp();
     } catch (e) {
-      if (process.env.NODE_ENV === "production") {
-        console.warn('Automatic initialization failed. Falling back to firebase config object.', e);
-      }
+      // Fallback for other server environments
       const firebaseConfig = getFirebaseConfig();
       firebaseApp = initializeApp(firebaseConfig);
     }

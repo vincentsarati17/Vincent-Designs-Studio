@@ -38,11 +38,12 @@ export async function generateMetadata(
   }
 }
 
+// This function attempts to run at build time, which causes issues in Vercel
+// when Firebase server credentials are not available. By returning an empty array,
+// we tell Next.js not to pre-render any project pages at build time.
+// They will be generated on-demand instead.
 export async function generateStaticParams() {
-  const projects = await getProjects();
-  return projects.map((project) => ({
-    slug: project.slug,
-  }));
+  return [];
 }
 
 

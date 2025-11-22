@@ -15,7 +15,7 @@ export function getFirebaseConfig(): FirebaseOptions {
 
   // Basic validation
   if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-    throw new Error('Firebase configuration is missing or incomplete. Please check your environment variables.');
+    throw new Error('Firebase configuration is missing or incomplete. Please check your .env.local file or environment variables.');
   }
 
   return firebaseConfig;

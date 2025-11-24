@@ -34,9 +34,10 @@ function initializeAdminApp(): App {
   // Local development or environments with Application Default Credentials
   // This will try to use credentials found in the environment, but might fail outside a GCP context.
   try {
+    // This will only succeed if you have GOOGLE_APPLICATION_CREDENTIALS set locally
     return initializeApp();
   } catch(e: any) {
-     console.error('Firebase Admin SDK default initialization failed. For Vercel, ensure FIREBASE_SERVICE_ACCOUNT_BASE64 is set. For local dev, ensure you have credentials set up.');
+     console.error('Firebase Admin SDK default initialization failed. For Vercel, ensure FIREBASE_SERVICE_ACCOUNT_BASE64 is set. For local dev, ensure GOOGLE_APPLICATION_CREDENTIALS points to your service account file.');
      throw e;
   }
 }

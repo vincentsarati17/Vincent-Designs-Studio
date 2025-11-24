@@ -31,25 +31,14 @@ export function initializeFirebase() {
       console.warn("FIREBASE_SERVICE_ACCOUNT_BASE64 not found. Firebase Admin features will be unavailable during build.");
       return null;
     }
-    // In local dev, we also return null if no server creds are found.
+     // In local dev, we also return null if no server creds are found.
     return null;
   }
   
-  if (!getApps().length) {
-    let firebaseApp;
-    try {
-      // This path is for environments with Application Default Credentials
-      firebaseApp = initializeApp();
-    } catch (e) {
-      // Fallback for other server environments
-      const firebaseConfig = getFirebaseConfig();
-      firebaseApp = initializeApp(firebaseConfig);
-    }
-
-    return getSdks(firebaseApp);
-  }
-
-  return getSdks(getApp());
+  // For server-side, we now rely on the admin SDK initialization.
+  // We dynamically and safely import it here.
+  const { adminApp } = require('./admin');
+  return getSdks(adminApp);
 }
 
 export function getSdks(firebaseApp: FirebaseApp) {

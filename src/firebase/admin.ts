@@ -8,7 +8,10 @@ let adminApp: App | null = null;
 
 function initializeAdminApp(): App {
   if (getApps().length > 0) {
-    return getApps()[0]!;
+    const existingApp = getApps().find(app => app.name === '[DEFAULT]');
+    if (existingApp) {
+      return existingApp;
+    }
   }
 
   if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
@@ -18,7 +21,8 @@ function initializeAdminApp(): App {
       
       adminApp = initializeApp({
         credential: cert(serviceAccount),
-        projectId: serviceAccount.project_id,
+        // Explicitly set the projectId to prevent auto-discovery errors on Vercel
+        projectId: 'vincent-designs', 
       });
       return adminApp;
     } catch (e: any) {
@@ -27,8 +31,11 @@ function initializeAdminApp(): App {
     }
   }
 
+  // Fallback for local development using GOOGLE_APPLICATION_CREDENTIALS file path
   try {
-    adminApp = initializeApp();
+    adminApp = initializeApp({
+        projectId: 'vincent-designs',
+    });
     return adminApp;
   } catch(e: any) {
      console.error('Firebase Admin SDK default initialization failed. For Vercel, ensure FIREBASE_SERVICE_ACCOUNT_BASE64 is set. For local dev, ensure GOOGLE_APPLICATION_CREDENTIALS points to your service account file.');
@@ -36,18 +43,11 @@ function initializeAdminApp(): App {
   }
 }
 
-// Lazy initialization of the admin app
-function getAdminApp(): App {
-    if (adminApp) {
-        return adminApp;
-    }
-    return initializeAdminApp();
-}
-
+// Lazy initialization functions for Auth and Firestore
 export function getAdminAuth(): Auth {
-    return getAuth(getAdminApp());
+    return getAuth(initializeAdminApp());
 }
 
 export function getAdminDb(): Firestore {
-    return getFirestore(getAdminApp());
+    return getFirestore(initializeAdminApp());
 }

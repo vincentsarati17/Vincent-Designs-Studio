@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { adminAuth, adminDb } from '@/firebase/admin';
+import { getAdminAuth, getAdminDb } from '@/firebase/admin';
 
 export async function POST(request: NextRequest) {
     const authorization = request.headers.get('Authorization');
@@ -10,6 +10,9 @@ export async function POST(request: NextRequest) {
         const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
 
         try {
+            const adminAuth = getAdminAuth();
+            const adminDb = getAdminDb();
+            
             const decodedToken = await adminAuth.verifyIdToken(idToken);
             
             // **Admin Role Verification**

@@ -10,7 +10,6 @@ function initializeAdminApp(): App {
     return adminApp;
   }
 
-  // Ensure we don't try to re-initialize an already existing default app.
   if (getApps().length > 0) {
     adminApp = getApps()[0];
     return adminApp;
@@ -36,12 +35,12 @@ function initializeAdminApp(): App {
       throw new Error('Firebase Admin SDK initialization failed.');
     }
   }
-
-  console.error('Firebase Admin SDK environment variables not set. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.');
-  throw new Error('Firebase Admin SDK is not configured. Please set the required environment variables.');
+  
+  // This warning is crucial for debugging missing environment variables on Vercel
+  console.warn('Firebase Admin SDK environment variables not set. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY. Admin features will be unavailable.');
+  throw new Error('Firebase Admin SDK is not configured. Please set the required environment variables in your Vercel project settings.');
 }
 
-// Lazy initialization functions for Auth and Firestore
 export function getAdminAuth(): Auth {
     return getAuth(initializeAdminApp());
 }

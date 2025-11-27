@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    // This explicitly tells Next.js where to find the middleware logic.
+    middleware: './src/proxy.ts',
+  },
 };
 
 export default nextConfig;

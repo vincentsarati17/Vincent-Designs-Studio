@@ -36,7 +36,6 @@ function initializeAdminApp(): App {
     }
   }
   
-  // This warning is crucial for debugging missing environment variables on Vercel
   console.warn('Firebase Admin SDK environment variables not set. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY. Admin features will be unavailable.');
   throw new Error('Firebase Admin SDK is not configured. Please set the required environment variables in your Vercel project settings.');
 }

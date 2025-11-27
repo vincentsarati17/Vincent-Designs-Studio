@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth } from '@/firebase/admin';
+import { getAdminAuth } from '@/firebase/admin';
 import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
+        const adminAuth = getAdminAuth();
         const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
         // You can return whatever user data you need on the client
         return NextResponse.json({ success: true, user: { uid: decodedToken.uid, email: decodedToken.email } });

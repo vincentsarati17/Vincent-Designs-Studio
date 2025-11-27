@@ -2,7 +2,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { adminAuth } from '@/firebase/admin';
+import { getAdminAuth } from '@/firebase/admin';
 
 /**
  * Gets the currently authenticated user from the session cookie.
@@ -16,6 +16,7 @@ export async function getCurrentUser() {
   }
 
   try {
+    const adminAuth = getAdminAuth();
     const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
     return decodedToken;
   } catch (error) {

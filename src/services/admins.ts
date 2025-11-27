@@ -2,11 +2,12 @@
 'use server';
 
 import { collection, getDocs, setDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
-import { adminAuth, adminDb } from '@/firebase/admin';
+import { getAdminAuth, getAdminDb } from '@/firebase/admin';
 import type { AdminUser } from '@/lib/types';
 
 
 export async function getAdmins(): Promise<AdminUser[]> {
+  const adminDb = getAdminDb();
   const adminsCol = collection(adminDb, 'admins');
   const adminSnapshot = await getDocs(adminsCol);
   const adminList = adminSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminUser));
@@ -15,6 +16,8 @@ export async function getAdmins(): Promise<AdminUser[]> {
 
 export async function addAdmin(email: string, role: AdminUser['role']): Promise<{success: boolean, message: string}> {
   try {
+    const adminDb = getAdminDb();
+    const adminAuth = getAdminAuth();
     // Check if user already exists in Firestore 'admins' collection by email
     const q = query(collection(adminDb, 'admins'), where('email', '==', email));
     const snapshot = await getDocs(q);
@@ -54,11 +57,13 @@ export async function addAdmin(email: string, role: AdminUser['role']): Promise<
 }
 
 export async function deleteAdmin(id: string): Promise<void> {
+  const adminDb = getAdminDb();
   // `id` is the UID of the admin
   const adminDoc = doc(adminDb, 'admins', id);
   await deleteDoc(adminDoc);
   
   // Optional: Disable or delete the user from Firebase Authentication as well
   // Be careful with this, as it's a destructive action.
+  // const adminAuth = getAdminAuth();
   // await adminAuth.deleteUser(id);
 }

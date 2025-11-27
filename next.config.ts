@@ -2,7 +2,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  skipMiddlewareUrlNormalize: false,
+  skipProxyUrlNormalize: false,
   typescript: {
     ignoreBuildErrors: true,
   },

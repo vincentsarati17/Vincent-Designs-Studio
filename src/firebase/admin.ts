@@ -1,5 +1,4 @@
 
-import admin from 'firebase-admin';
 import { getApps, initializeApp, App, cert } from 'firebase-admin/app';
 import { getAuth, Auth } from 'firebase-admin/auth';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
@@ -7,40 +6,39 @@ import { getFirestore, Firestore } from 'firebase-admin/firestore';
 let adminApp: App | null = null;
 
 function initializeAdminApp(): App {
-  if (getApps().length > 0) {
-    const existingApp = getApps().find(app => app.name === '[DEFAULT]');
-    if (existingApp) {
-      return existingApp;
-    }
+  if (adminApp) {
+    return adminApp;
   }
 
-  if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+  // Ensure we don't try to re-initialize an already existing default app.
+  if (getApps().length > 0) {
+    adminApp = getApps()[0];
+    return adminApp;
+  }
+
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (projectId && clientEmail && privateKey) {
     try {
-      const serviceAccountString = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf8');
-      const serviceAccount = JSON.parse(serviceAccountString);
-      
       adminApp = initializeApp({
-        credential: cert(serviceAccount),
-        // Explicitly set the projectId to prevent auto-discovery errors on Vercel
-        projectId: 'vincent-designs', 
+        credential: cert({
+          projectId: projectId,
+          clientEmail: clientEmail,
+          privateKey: privateKey.replace(/\\n/g, '\n'),
+        }),
+        databaseURL: `https://${projectId}.firebaseio.com`,
       });
       return adminApp;
     } catch (e: any) {
-      console.error('Firebase Admin SDK initialization failed from Base64 env var:', e.message);
-      throw new Error('Invalid or missing FIREBASE_SERVICE_ACCOUNT_BASE64 environment variable.');
+      console.error('Firebase Admin SDK initialization failed from environment variables:', e.message);
+      throw new Error('Firebase Admin SDK initialization failed.');
     }
   }
 
-  // Fallback for local development using GOOGLE_APPLICATION_CREDENTIALS file path
-  try {
-    adminApp = initializeApp({
-        projectId: 'vincent-designs',
-    });
-    return adminApp;
-  } catch(e: any) {
-     console.error('Firebase Admin SDK default initialization failed. For Vercel, ensure FIREBASE_SERVICE_ACCOUNT_BASE64 is set. For local dev, ensure GOOGLE_APPLICATION_CREDENTIALS points to your service account file.');
-     throw e;
-  }
+  console.error('Firebase Admin SDK environment variables not set. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.');
+  throw new Error('Firebase Admin SDK is not configured. Please set the required environment variables.');
 }
 
 // Lazy initialization functions for Auth and Firestore

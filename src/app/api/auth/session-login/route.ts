@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getAdminAuth, getAdminDb } from '@/firebase/admin';
+import { getDoc } from 'firebase/firestore';
 
 export async function POST(request: NextRequest) {
     const authorization = request.headers.get('Authorization');

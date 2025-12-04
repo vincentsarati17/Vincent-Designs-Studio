@@ -126,8 +126,8 @@ function CTASection() {
   return (
     <Section className="bg-card">
         <SectionHeader
-          title="Ready to grow your Namibian business?"
-          description="Let's collaborate to create a brand and website that truly represents you. Contact the leading design studio in Namibia today."
+          title="Ready to grow your business?"
+          description="Let's collaborate to create a brand and website that truly represents you. Contact the leading design studio today."
         />
         <div className="text-center mt-8">
             <Button asChild size="lg">

@@ -4,7 +4,6 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PenTool } from 'lucide-react';
 import { motion } from "framer-motion";
 
 const tools = [
@@ -73,9 +72,9 @@ export default function AboutClientPage() {
                 <div className="flex w-max animate-scroll">
                     {[...tools, ...tools].map((tool, index) => (
                         <div key={`${tool.name}-${index}`} className="flex flex-col items-center gap-2 mx-6 flex-shrink-0">
-                            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-muted text-primary">
-                                <div className="relative w-10 h-10">
-                                    <Image src={tool.src} alt={`${tool.name} Logo`} fill sizes="40px" className="object-contain" />
+                            <div className="w-24 h-24 flex items-center justify-center rounded-full bg-muted text-primary">
+                                <div className="relative w-12 h-12">
+                                    <Image src={tool.src} alt={`${tool.name} Logo`} fill sizes="48px" className="object-contain" />
                                 </div>
                             </div>
                             <span className="font-semibold">{tool.name}</span>

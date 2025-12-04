@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -12,7 +11,7 @@ const tools = [
     { name: 'Framer', icon: <Framer /> },
     { name: 'React', icon: <Code /> },
     { name: 'Next.js', icon: <Code /> },
-    { name: 'Photoshop', icon: <PenTool /> },
+    { name: 'Affinity', icon: <PenTool /> },
 ];
 
 export default function AboutClientPage() {

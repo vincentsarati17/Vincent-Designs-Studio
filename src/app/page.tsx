@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -127,7 +126,7 @@ function CTASection() {
     <Section className="bg-card">
         <SectionHeader
           title="Ready to grow your business?"
-          description="Let's collaborate to create a brand and website that truly represents you. Contact the leading design studio today."
+          description="Let's collaborate to create a brand and website that truly represents you. Contact our design studio today."
         />
         <div className="text-center mt-8">
             <Button asChild size="lg">

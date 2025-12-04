@@ -1,13 +1,14 @@
+
 "use client";
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Code, PenTool, Figma, Framer } from 'lucide-react';
+import { Code, PenTool, Framer } from 'lucide-react';
 import { motion } from "framer-motion";
 
 const tools = [
-    { name: 'Figma', icon: <Figma /> },
+    { name: 'Figma', icon: <Image src="/image/figma-logo.png" alt="Figma Logo" width={40} height={40} /> },
     { name: 'Framer', icon: <Framer /> },
     { name: 'React', icon: <Code /> },
     { name: 'Next.js', icon: <Code /> },

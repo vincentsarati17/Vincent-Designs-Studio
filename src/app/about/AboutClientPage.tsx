@@ -75,7 +75,7 @@ export default function AboutClientPage() {
                         <div key={`${tool.name}-${index}`} className="flex flex-col items-center gap-2 mx-6 flex-shrink-0">
                             <div className="w-20 h-20 flex items-center justify-center rounded-full bg-muted text-primary">
                                 <div className="relative w-10 h-10">
-                                    <Image src={tool.src} alt={`${tool.name} Logo`} fill className="object-contain" />
+                                    <Image src={tool.src} alt={`${tool.name} Logo`} fill sizes="40px" className="object-contain" />
                                 </div>
                             </div>
                             <span className="font-semibold">{tool.name}</span>

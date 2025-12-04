@@ -19,7 +19,7 @@ export default function Home() {
 }
 
 function HeroSection() {
-  const heroDescription = "Specializing in bespoke graphic and web design in Namibia. We build exceptional brands and websites for businesses ready to make their mark.";
+  const heroDescription = "Specializing in bespoke graphic and web design. We build exceptional brands and websites for businesses ready to make their mark.";
   return (
     <Section className="!pt-16 md:!pt-24">
       <div className="grid lg:grid-cols-2 gap-12 items-center">

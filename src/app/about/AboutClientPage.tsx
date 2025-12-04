@@ -8,11 +8,11 @@ import { PenTool } from 'lucide-react';
 import { motion } from "framer-motion";
 
 const tools = [
-    { name: 'figma', icon: <Image src="/image/figma-logo.png" alt="Figma Logo" width={40} height={40} /> },
-    { name: 'framer', icon: <Image src="/image/framer-logo.png" alt="Framer Logo" width={40} height={40} /> },
-    { name: 'react', icon: <Image src="/image/react-logo.png" alt="React Logo" width={40} height={40} /> },
-    { name: 'next.js', icon: <Image src="/image/next.js-logo.png" alt="Next.js Logo" width={40} height={40} /> },
-    { name: 'affinity', icon: <Image src="/image/affinity-logo.png" alt="Affinity Logo" width={40} height={40} /> },
+    { name: 'figma', src: "/image/figma-logo.png" },
+    { name: 'framer', src: "/image/framer-logo.png" },
+    { name: 'react', src: "/image/react-logo.png" },
+    { name: 'next.js', src: "/image/next.js-logo.png" },
+    { name: 'affinity', src: "/image/affinity-logo.png" },
 ];
 
 export default function AboutClientPage() {
@@ -74,7 +74,9 @@ export default function AboutClientPage() {
                     {[...tools, ...tools].map((tool, index) => (
                         <div key={`${tool.name}-${index}`} className="flex flex-col items-center gap-2 mx-6 flex-shrink-0">
                             <div className="w-20 h-20 flex items-center justify-center rounded-full bg-muted text-primary">
-                                {tool.icon}
+                                <div className="relative w-10 h-10">
+                                    <Image src={tool.src} alt={`${tool.name} Logo`} fill className="object-contain" />
+                                </div>
                             </div>
                             <span className="font-semibold">{tool.name}</span>
                         </div>

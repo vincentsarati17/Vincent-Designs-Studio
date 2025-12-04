@@ -74,7 +74,7 @@ function WhatWeDoSection() {
             <p className="text-muted-foreground text-lg">
               We specialize in creating unique brand identities and
               high-performance websites that capture the essence of your
-              business and connect with your audience in Namibia.
+              business and connect with your audience.
             </p>
             <div className="flex gap-4 pt-4">
               <Button asChild variant="outline">

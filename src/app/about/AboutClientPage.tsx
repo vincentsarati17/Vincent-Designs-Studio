@@ -4,14 +4,14 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Code, PenTool } from 'lucide-react';
+import { PenTool } from 'lucide-react';
 import { motion } from "framer-motion";
 
 const tools = [
     { name: 'Figma', icon: <Image src="/image/figma-logo.png" alt="Figma Logo" width={40} height={40} /> },
     { name: 'Framer', icon: <Image src="/image/framer-logo.png" alt="Framer Logo" width={40} height={40} /> },
     { name: 'React', icon: <Image src="/image/react-logo.png" alt="React Logo" width={40} height={40} /> },
-    { name: 'Next.js', icon: <Code /> },
+    { name: 'Next.js', icon: <Image src="/image/next.js-logo" alt="Next.js Logo" width={40} height={40} /> },
     { name: 'Affinity', icon: <PenTool /> },
 ];
 

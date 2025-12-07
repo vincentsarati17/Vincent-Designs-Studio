@@ -17,8 +17,21 @@ export interface AnalyticsData {
   conversionRate: number;
 }
 
+const defaultAnalyticsData: AnalyticsData = {
+    trafficData: Array.from({ length: 6 }).map((_, i) => ({
+      date: format(subMonths(new Date(), 5 - i), 'MMM'),
+      visits: 0,
+    })),
+    totalVisits: 0,
+    newLeads: 0,
+    conversionRate: 0,
+};
+
 async function getMonthlyTraffic(startDate: Date, endDate: Date): Promise<TrafficDataPoint[]> {
     const db = getAdminDb();
+    if (!db) {
+        return defaultAnalyticsData.trafficData;
+    }
     const pageViewsRef = collection(db, 'page_views');
     const q = query(
         pageViewsRef,
@@ -28,7 +41,6 @@ async function getMonthlyTraffic(startDate: Date, endDate: Date): Promise<Traffi
 
     const snapshot = await getDocs(q);
     
-    // Aggregate by month
     const monthlyCounts: { [key: string]: number } = {};
     snapshot.docs.forEach(doc => {
         const timestamp = (doc.data().timestamp as Timestamp).toDate();
@@ -36,7 +48,6 @@ async function getMonthlyTraffic(startDate: Date, endDate: Date): Promise<Traffi
         monthlyCounts[monthKey] = (monthlyCounts[monthKey] || 0) + 1;
     });
 
-    // Create a list of all months in the range
     const trafficData: TrafficDataPoint[] = [];
     let currentDate = new Date(startDate);
     while (currentDate <= endDate) {
@@ -54,10 +65,13 @@ async function getMonthlyTraffic(startDate: Date, endDate: Date): Promise<Traffi
 
 export async function getAnalyticsData(): Promise<AnalyticsData> {
   try {
+    const db = getAdminDb();
+    if (!db) {
+        console.warn('Firebase Admin is not available. Returning default analytics data.');
+        return defaultAnalyticsData;
+    }
     const sixMonthsAgo = startOfMonth(subMonths(new Date(), 5));
     const today = new Date();
-
-    const db = getAdminDb();
     
     const trafficPromise = getMonthlyTraffic(sixMonthsAgo, today);
 
@@ -76,7 +90,6 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
     const totalVisits = totalVisitsSnapshot.data().count;
     const newLeads = newLeadsSnapshot.data().count;
     
-    // Calculate conversion rate (submissions / total visits in last month)
     const lastMonthStart = startOfMonth(subMonths(new Date(), 1));
     const lastMonthEnd = endOfMonth(subMonths(new Date(), 1));
     const visitsLastMonthQuery = query(collection(db, 'page_views'), where('timestamp', '>=', lastMonthStart), where('timestamp', '<=', lastMonthEnd));
@@ -101,11 +114,6 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
 
   } catch (error) {
     console.warn('Error fetching analytics data, likely due to missing admin credentials. Returning default data.', error);
-    return {
-        trafficData: [],
-        totalVisits: 0,
-        newLeads: 0,
-        conversionRate: 0,
-    };
+    return defaultAnalyticsData;
   }
 }

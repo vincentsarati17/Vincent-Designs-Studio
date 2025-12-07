@@ -33,6 +33,9 @@ export async function handleFormSubmission(values: FormValues) {
   
   try {
     const db = getAdminDb();
+    if (!db) {
+      throw new Error("Firebase Admin is not configured. Cannot process submission.");
+    }
     const submission = {
       ...parsedData.data,
       isRead: false,

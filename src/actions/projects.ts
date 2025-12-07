@@ -61,6 +61,9 @@ export async function handleAddProject(prevState: any, formData: FormData) {
 
   try {
     const db = getAdminDb();
+    if (!db) {
+      throw new Error("Firebase Admin is not configured. Cannot add project.");
+    }
     const storage = getClientStorage();
     
     const slugQuery = query(collection(db, 'projects'), where('slug', '==', projectData.slug));
@@ -125,6 +128,9 @@ export async function handleUpdateProject(projectId: string, prevState: any, for
 
   try {
     const db = getAdminDb();
+    if (!db) {
+      throw new Error("Firebase Admin is not configured. Cannot update project.");
+    }
     const storage = getClientStorage();
 
     if (projectData.slug !== currentSlug) {
@@ -196,6 +202,9 @@ export async function handleDeleteProject(id: string) {
 
   try {
     const db = getAdminDb();
+    if (!db) {
+      throw new Error("Firebase Admin is not configured. Cannot delete project.");
+    }
     await deleteDoc(doc(db, 'projects', id));
     await logAdminAction('Project Deleted', {
       user: user.email,

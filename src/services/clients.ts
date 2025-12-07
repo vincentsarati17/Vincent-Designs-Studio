@@ -7,6 +7,7 @@ import { collection, getDocs, addDoc, deleteDoc, doc, query, where, serverTimest
 
 export async function getClients(): Promise<Client[]> {
   const db = getAdminDb();
+  if (!db) return [];
   const clientsCol = collection(db, 'clients');
   const clientSnapshot = await getDocs(clientsCol);
   const clientList = clientSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Client));
@@ -17,6 +18,9 @@ type ClientData = Omit<Client, 'id' | 'createdAt'>;
 
 export async function addClient(clientData: ClientData): Promise<Client> {
   const db = getAdminDb();
+  if (!db) {
+      throw new Error('Firebase Admin is not configured. Cannot add client.');
+  }
   const q = query(collection(db, 'clients'), where('email', '==', clientData.email));
   const snapshot = await getDocs(q);
   if (!snapshot.empty) {
@@ -38,6 +42,9 @@ export async function addClient(clientData: ClientData): Promise<Client> {
 
 export async function updateClient(id: string, clientData: ClientData): Promise<void> {
     const db = getAdminDb();
+    if (!db) {
+        throw new Error('Firebase Admin is not configured. Cannot update client.');
+    }
     const clientDoc = doc(db, 'clients', id);
     // Check for email conflicts, excluding the current client
     const q = query(collection(db, 'clients'), where('email', '==', clientData.email));
@@ -54,6 +61,9 @@ export async function updateClient(id: string, clientData: ClientData): Promise<
 
 export async function deleteClient(id: string): Promise<void> {
   const db = getAdminDb();
+  if (!db) {
+      throw new Error('Firebase Admin is not configured. Cannot delete client.');
+  }
   const clientDoc = doc(db, 'clients', id);
   await deleteDoc(clientDoc);
 }
@@ -61,6 +71,7 @@ export async function deleteClient(id: string): Promise<void> {
 // Functions for Client Notes
 export async function getNotesForClient(clientId: string): Promise<ClientNote[]> {
     const db = getAdminDb();
+    if (!db) return [];
     const notesQuery = query(collection(db, `clients/${clientId}/notes`), orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(notesQuery);
     return snapshot.docs.map(doc => ({
@@ -72,6 +83,9 @@ export async function getNotesForClient(clientId: string): Promise<ClientNote[]>
 
 export async function addNoteForClient(clientId: string, noteData: Omit<ClientNote, 'id' | 'createdAt'>) {
     const db = getAdminDb();
+    if (!db) {
+        throw new Error('Firebase Admin is not configured. Cannot add note.');
+    }
     const notesCol = collection(db, `clients/${clientId}/notes`);
     await addDoc(notesCol, {
         ...noteData,
@@ -82,6 +96,7 @@ export async function addNoteForClient(clientId: string, noteData: Omit<ClientNo
 // Functions for Client Requests
 export async function getRequestsForClient(clientId: string): Promise<ClientRequest[]> {
     const db = getAdminDb();
+    if (!db) return [];
     const requestsQuery = query(collection(db, `clients/${clientId}/requests`), orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(requestsQuery);
     return snapshot.docs.map(doc => ({
@@ -93,6 +108,9 @@ export async function getRequestsForClient(clientId: string): Promise<ClientRequ
 
 export async function addRequestForClient(clientId: string, requestData: Omit<ClientRequest, 'id' | 'createdAt'>) {
     const db = getAdminDb();
+    if (!db) {
+        throw new Error('Firebase Admin is not configured. Cannot add request.');
+    }
     const requestsCol = collection(db, `clients/${clientId}/requests`);
     await addDoc(requestsCol, {
         ...requestData,

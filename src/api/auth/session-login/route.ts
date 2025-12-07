@@ -13,6 +13,10 @@ export async function POST(request: NextRequest) {
             const adminAuth = getAdminAuth();
             const adminDb = getAdminDb();
             
+            if (!adminAuth || !adminDb) {
+                return NextResponse.json({ success: false, message: 'Server is not configured for authentication.' }, { status: 500 });
+            }
+            
             const decodedToken = await adminAuth.verifyIdToken(idToken);
             
             // **Admin Role Verification**

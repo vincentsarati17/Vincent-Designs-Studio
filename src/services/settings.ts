@@ -35,10 +35,13 @@ const defaultMaintenanceSettings = { isEnabled: false };
 async function getSettings<T>(collectionId: string, defaultSettings: T): Promise<T> {
     try {
         const db = getAdminDb();
+        if (!db) {
+            console.warn(`Firebase Admin is not available. Returning default settings for '${collectionId}'.`);
+            return defaultSettings;
+        }
         const settingsDocRef = doc(db, 'settings', collectionId);
         const docSnap = await getDoc(settingsDocRef);
         if (docSnap.exists()) {
-            // Merge defaults with fetched data to ensure all keys are present
             return { ...defaultSettings, ...docSnap.data() };
         }
         return defaultSettings;
@@ -50,6 +53,9 @@ async function getSettings<T>(collectionId: string, defaultSettings: T): Promise
 
 async function saveSettings<T>(collectionId: string, settings: T, merge = false) {
     const db = getAdminDb();
+    if (!db) {
+        throw new Error("Firebase Admin is not configured. Cannot save settings.");
+    }
     const settingsDocRef = doc(db, 'settings', collectionId);
     try {
         await setDoc(settingsDocRef, settings, { merge });

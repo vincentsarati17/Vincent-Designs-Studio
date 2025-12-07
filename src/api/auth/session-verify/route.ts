@@ -12,6 +12,9 @@ export async function GET(request: NextRequest) {
 
     try {
         const adminAuth = getAdminAuth();
+        if (!adminAuth) {
+            return NextResponse.json({ success: false, message: 'Server is not configured for authentication.' }, { status: 500 });
+        }
         const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
         // You can return whatever user data you need on the client
         return NextResponse.json({ success: true, user: { uid: decodedToken.uid, email: decodedToken.email } });

@@ -12,6 +12,10 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 export async function logAdminAction(action: string, details: Record<string, any>) {
   try {
     const db = getAdminDb();
+    if (!db) {
+        // Silently fail if admin is not configured.
+        return;
+    }
     await addDoc(collection(db, 'admin_logs'), {
       action,
       ...details,

@@ -14,6 +14,10 @@ export async function trackPageView(path: string) {
 
   try {
     const db = getAdminDb();
+    if (!db) {
+        // Silently fail if admin is not configured.
+        return;
+    }
     await addDoc(collection(db, 'page_views'), {
       path,
       timestamp: serverTimestamp(),

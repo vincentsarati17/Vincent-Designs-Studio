@@ -17,6 +17,9 @@ export async function getCurrentUser() {
 
   try {
     const adminAuth = getAdminAuth();
+    if (!adminAuth) {
+        return null;
+    }
     const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
     return decodedToken;
   } catch (error) {

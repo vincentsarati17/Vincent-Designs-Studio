@@ -9,6 +9,7 @@ import type { AdminUser } from '@/lib/types';
 export async function getAdmins(): Promise<AdminUser[]> {
   try {
     const adminDb = getAdminDb();
+    if (!adminDb) return [];
     const adminsCol = collection(adminDb, 'admins');
     const adminSnapshot = await getDocs(adminsCol);
     const adminList = adminSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminUser));
@@ -19,11 +20,16 @@ export async function getAdmins(): Promise<AdminUser[]> {
   }
 }
 
-// Seed the first super admin if no admins exist
 async function seedInitialAdmin() {
   try {
     const adminDb = getAdminDb();
     const adminAuth = getAdminAuth();
+    
+    if (!adminDb || !adminAuth) {
+        console.log("Admin seeding skipped: Firebase Admin not configured.");
+        return;
+    }
+
     const adminsCol = collection(adminDb, 'admins');
     const snapshot = await getCountFromServer(adminsCol);
 
@@ -44,7 +50,7 @@ async function seedInitialAdmin() {
           });
            console.log(`Successfully created initial Super Admin auth user: ${initialAdminEmail}`);
         } else {
-          throw error; // Re-throw other auth errors
+          throw error;
         }
       }
       
@@ -64,8 +70,6 @@ async function seedInitialAdmin() {
   }
 }
 
-// Call the seeding function when this module is loaded on the server.
-// Only run if explicitly enabled, to prevent issues in environments without credentials.
 if (process.env.IS_SEEDING_ENABLED === 'true') {
     seedInitialAdmin();
 }
@@ -75,7 +79,10 @@ export async function addAdmin(email: string, role: AdminUser['role']): Promise<
   try {
     const adminDb = getAdminDb();
     const adminAuth = getAdminAuth();
-    // Check if user already exists in Firestore 'admins' collection by email
+    if (!adminDb || !adminAuth) {
+        return { success: false, message: 'Firebase Admin is not configured. Cannot add admin.' };
+    }
+
     const q = query(collection(adminDb, 'admins'), where('email', '==', email));
     const snapshot = await getDocs(q);
     if (!snapshot.empty) {
@@ -84,24 +91,19 @@ export async function addAdmin(email: string, role: AdminUser['role']): Promise<
 
     let userRecord;
     try {
-        // Check if user exists in Firebase Auth
         userRecord = await adminAuth.getUserByEmail(email);
     } catch (error: any) {
         if (error.code === 'auth/user-not-found') {
-            // If user does not exist, create them
             userRecord = await adminAuth.createUser({
                 email: email,
-                emailVerified: true, // Or false, depending on your flow
-                // A temporary strong random password. User should reset this.
+                emailVerified: true,
                 password: `temp-password-${Math.random().toString(36).slice(-8)}`,
             });
         } else {
-            // For other auth errors (e.g., malformed email), re-throw
             throw error;
         }
     }
 
-    // Now we have a userRecord (either existing or newly created), use its UID as doc ID
     const adminDocRef = doc(adminDb, 'admins', userRecord.uid);
     await setDoc(adminDocRef, { email, role });
     
@@ -115,12 +117,9 @@ export async function addAdmin(email: string, role: AdminUser['role']): Promise<
 
 export async function deleteAdmin(id: string): Promise<void> {
   const adminDb = getAdminDb();
-  // `id` is the UID of the admin
+  if (!adminDb) {
+      throw new Error('Firebase Admin is not configured. Cannot delete admin.');
+  }
   const adminDoc = doc(adminDb, 'admins', id);
   await deleteDoc(adminDoc);
-  
-  // Optional: Disable or delete the user from Firebase Authentication as well
-  // Be careful with this, as it's a destructive action.
-  // const adminAuth = getAdminAuth();
-  // await adminAuth.deleteUser(id);
 }

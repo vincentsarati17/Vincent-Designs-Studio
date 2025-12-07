@@ -4,14 +4,15 @@ import { getAuth, Auth } from 'firebase-admin/auth';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
 
 let adminApp: App | null = null;
+let appInitialized = false;
 
-function initializeAdminApp(): App {
-  if (adminApp) {
+function initializeAdminApp(): App | null {
+  if (appInitialized) {
     return adminApp;
   }
+  appInitialized = true; // Attempt initialization only once
 
   if (getApps().length > 0) {
-    // Check if an app with the default name '[DEFAULT]' already exists.
     const defaultApp = getApps().find(app => app.name === '[DEFAULT]');
     if (defaultApp) {
         adminApp = defaultApp;
@@ -36,22 +37,26 @@ function initializeAdminApp(): App {
       return adminApp;
     } catch (e: any) {
       console.error('Firebase Admin SDK initialization failed from environment variables:', e.message);
-      throw new Error('Firebase Admin SDK initialization failed.');
+      adminApp = null;
+      return null;
     }
   }
   
-  console.warn('Firebase Admin SDK environment variables not set. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY. Admin features will be unavailable.');
-  throw new Error('Firebase Admin SDK is not configured. Please set the required environment variables in your Vercel project settings.');
+  console.warn('Firebase Admin SDK environment variables not set. Admin features will be unavailable.');
+  adminApp = null;
+  return null;
 }
 
-export function getAdminApp(): App {
+export function getAdminApp(): App | null {
     return initializeAdminApp();
 }
 
-export function getAdminAuth(): Auth {
-    return getAuth(initializeAdminApp());
+export function getAdminAuth(): Auth | null {
+    const app = initializeAdminApp();
+    return app ? getAuth(app) : null;
 }
 
-export function getAdminDb(): Firestore {
-    return getFirestore(initializeAdminApp());
+export function getAdminDb(): Firestore | null {
+    const app = initializeAdminApp();
+    return app ? getFirestore(app) : null;
 }

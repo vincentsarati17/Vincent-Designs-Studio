@@ -1,7 +1,7 @@
 
 'use server';
 
-import { collection, getDocs, setDoc, deleteDoc, doc, query, where, getCountFromServer } from 'firebase/firestore';
+import { collection, getDocs, setDoc, deleteDoc, doc, query, where, getCountFromServer, getDoc } from 'firebase/firestore';
 import { getAdminAuth, getAdminDb } from '@/firebase/admin';
 import type { AdminUser } from '@/lib/types';
 
@@ -27,29 +27,34 @@ async function seedInitialAdmin() {
     const initialAdminPassword = "VINCENT12032002";
     
     try {
-      let userRecord = await adminAuth.createUser({
-        email: initialAdminEmail,
-        password: initialAdminPassword,
-        emailVerified: true,
-      });
-
+      let userRecord;
+      try {
+        userRecord = await adminAuth.getUserByEmail(initialAdminEmail);
+      } catch (error: any) {
+        if (error.code === 'auth/user-not-found') {
+          userRecord = await adminAuth.createUser({
+            email: initialAdminEmail,
+            password: initialAdminPassword,
+            emailVerified: true,
+          });
+           console.log(`Successfully created initial Super Admin auth user: ${initialAdminEmail}`);
+        } else {
+          throw error; // Re-throw other auth errors
+        }
+      }
+      
       const adminDocRef = doc(adminDb, 'admins', userRecord.uid);
-      await setDoc(adminDocRef, { email: initialAdminEmail, role: 'Super Admin' });
-      console.log(`Successfully created initial Super Admin: ${initialAdminEmail}`);
+      const adminDoc = await getDoc(adminDocRef);
+
+      if (!adminDoc.exists()) {
+        await setDoc(adminDocRef, { email: initialAdminEmail, role: 'Super Admin' });
+        console.log(`Successfully seeded Firestore with Super Admin role for ${initialAdminEmail}`);
+      } else {
+        console.log(`Admin document already exists in Firestore for ${initialAdminEmail}.`);
+      }
 
     } catch (error: any) {
-      if (error.code === 'auth/email-already-exists') {
-        console.log("Initial admin email already exists in Auth. Ensuring it's in Firestore.");
-        const userRecord = await adminAuth.getUserByEmail(initialAdminEmail);
-        const adminDocRef = doc(adminDb, 'admins', userRecord.uid);
-        const adminDoc = await getDoc(adminDocRef);
-        if (!adminDoc.exists()) {
-             await setDoc(adminDocRef, { email: initialAdminEmail, role: 'Super Admin' });
-             console.log(`Added existing auth user to Firestore as Super Admin: ${initialAdminEmail}`);
-        }
-      } else {
-        console.error("Failed to seed initial admin:", error);
-      }
+      console.error("Failed to seed initial admin:", error);
     }
   }
 }

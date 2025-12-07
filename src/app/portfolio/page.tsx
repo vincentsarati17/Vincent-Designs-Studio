@@ -3,32 +3,24 @@
 
 import ProjectCard from "@/components/ProjectCard";
 import { getProjects } from "@/services/projects";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
-import Link from "next/link";
 import type { Project } from "@/lib/types";
 import React from "react";
-import { Button } from "@/components/ui/button";
-import placeholderData from "@/app/lib/placeholder-images.json";
 
 export default function PortfolioPage() {
   const [projects, setProjects] = React.useState<Project[] | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     async function loadProjects() {
+      setIsLoading(true);
       try {
         const fetchedProjects = await getProjects();
-        if (fetchedProjects && fetchedProjects.length > 0) {
-          setProjects(fetchedProjects);
-        } else {
-          // If no projects from DB, use placeholders from JSON
-          setProjects(placeholderData.portfolio as Project[]);
-        }
+        setProjects(fetchedProjects || []);
       } catch (error) {
-        console.error("Error loading projects, falling back to placeholders:", error);
-        setProjects(placeholderData.portfolio as Project[]);
+        console.error("Error loading projects:", error);
+        setProjects([]);
       }
+      setIsLoading(false);
     }
     loadProjects();
   }, []);
@@ -43,13 +35,7 @@ export default function PortfolioPage() {
       </div>
       
         <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects ? (
-            projects.map((project) => (
-              project.slug === '#' 
-                ? <PlaceholderProjectCard key={project.id} project={project} />
-                : <ProjectCard key={project.id} project={project} />
-            ))
-          ) : (
+          {isLoading ? (
             // Skeleton loaders
             Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="bg-card/50 rounded-lg p-6 space-y-4">
@@ -59,35 +45,18 @@ export default function PortfolioPage() {
                 <div className="h-10 w-full bg-muted rounded animate-pulse"></div>
               </div>
             ))
+          ) : projects && projects.length > 0 ? (
+            projects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))
+          ) : (
+             <div className="md:col-span-2 lg:col-span-3 text-center py-16">
+                <h3 className="font-headline text-2xl font-bold">Our Portfolio is Growing</h3>
+                <p className="text-muted-foreground mt-2">New and exciting projects are coming soon. Please check back later!</p>
+             </div>
           )}
         </div>
       
     </div>
   );
 }
-
-const PlaceholderProjectCard = ({ project }: { project: Project & { hint?: string } }) => {
-  return (
-    <Card className="overflow-hidden group transition-all duration-300 block rounded-lg bg-card/50 backdrop-blur-sm border-white/10 w-full relative aspect-[3/2]">
-      {project.imageUrl && (
-          <div className="relative w-full h-full bg-muted/50">
-              <Image
-                  src={project.imageUrl}
-                  alt={project.title}
-                  fill
-                  className="object-cover transition-transform duration-300"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  data-ai-hint={project.hint}
-              />
-          </div>
-      )}
-      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-          <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-            <Badge>{project.category}</Badge>
-            <h3 className="font-headline text-xl font-bold mt-2 text-white">{project.title}</h3>
-            <p className="text-sm text-white/90 mt-1 font-semibold">{project.description}</p>
-          </div>
-      </div>
-    </Card>
-  );
-};

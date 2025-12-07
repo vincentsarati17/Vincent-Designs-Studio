@@ -57,9 +57,9 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
     const sixMonthsAgo = startOfMonth(subMonths(new Date(), 5));
     const today = new Date();
 
-    const trafficPromise = getMonthlyTraffic(sixMonthsAgo, today);
-    
     const db = getAdminDb();
+    
+    const trafficPromise = getMonthlyTraffic(sixMonthsAgo, today);
 
     const totalVisitsQuery = query(collection(db, 'page_views'), where('timestamp', '>=', sixMonthsAgo));
     const totalVisitsPromise = getCountFromServer(totalVisitsQuery);
@@ -100,8 +100,7 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
     };
 
   } catch (error) {
-    console.error('Error fetching analytics data:', error);
-    // Return empty/default data on error so the app doesn't crash
+    console.warn('Error fetching analytics data, likely due to missing admin credentials. Returning default data.', error);
     return {
         trafficData: [],
         totalVisits: 0,

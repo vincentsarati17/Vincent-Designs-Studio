@@ -38,17 +38,13 @@ async function getSettings<T>(collectionId: string, defaultSettings: T): Promise
         const settingsDocRef = doc(db, 'settings', collectionId);
         const docSnap = await getDoc(settingsDocRef);
         if (docSnap.exists()) {
-            return docSnap.data() as T;
+            // Merge defaults with fetched data to ensure all keys are present
+            return { ...defaultSettings, ...docSnap.data() };
         }
         return defaultSettings;
     } catch (error) {
-        console.error(`Error fetching '${collectionId}' settings:`, error);
-        // During build, suppress errors and return defaults to avoid breaking the build.
-        if (process.env.NODE_ENV === 'production') {
-            return defaultSettings;
-        }
-        // During development, re-throw to make the error visible.
-        throw error;
+        console.warn(`Could not fetch '${collectionId}' settings, likely due to missing admin credentials. Returning default settings.`);
+        return defaultSettings;
     }
 }
 
@@ -84,11 +80,7 @@ export async function saveSiteIdentitySettings(settings: SiteIdentitySettings) {
 
 
 export async function getBrandingSettings(): Promise<BrandingSettings> {
-    const fetched = await getSettings('branding', defaultBrandingSettings);
-    return {
-        logoUrl: fetched.logoUrl || defaultBrandingSettings.logoUrl,
-        logoWidth: fetched.logoWidth || defaultBrandingSettings.logoWidth,
-    };
+    return getSettings('branding', defaultBrandingSettings);
 }
 
 

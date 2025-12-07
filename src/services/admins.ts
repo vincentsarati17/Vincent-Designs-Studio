@@ -7,26 +7,31 @@ import type { AdminUser } from '@/lib/types';
 
 
 export async function getAdmins(): Promise<AdminUser[]> {
-  const adminDb = getAdminDb();
-  const adminsCol = collection(adminDb, 'admins');
-  const adminSnapshot = await getDocs(adminsCol);
-  const adminList = adminSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminUser));
-  return adminList;
+  try {
+    const adminDb = getAdminDb();
+    const adminsCol = collection(adminDb, 'admins');
+    const adminSnapshot = await getDocs(adminsCol);
+    const adminList = adminSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminUser));
+    return adminList;
+  } catch (error) {
+    console.warn("Could not fetch admins, likely due to missing admin credentials.", error);
+    return [];
+  }
 }
 
 // Seed the first super admin if no admins exist
 async function seedInitialAdmin() {
-  const adminDb = getAdminDb();
-  const adminAuth = getAdminAuth();
-  const adminsCol = collection(adminDb, 'admins');
-  const snapshot = await getCountFromServer(adminsCol);
+  try {
+    const adminDb = getAdminDb();
+    const adminAuth = getAdminAuth();
+    const adminsCol = collection(adminDb, 'admins');
+    const snapshot = await getCountFromServer(adminsCol);
 
-  if (snapshot.data().count === 0) {
-    console.log("No admins found. Seeding initial Super Admin...");
-    const initialAdminEmail = "admin@vincentdesignsstudio.org";
-    const initialAdminPassword = "VINCENT12032002";
-    
-    try {
+    if (snapshot.data().count === 0) {
+      console.log("No admins found. Seeding initial Super Admin...");
+      const initialAdminEmail = "admin@vincentdesignsstudio.org";
+      const initialAdminPassword = "VINCENT12032002";
+      
       let userRecord;
       try {
         userRecord = await adminAuth.getUserByEmail(initialAdminEmail);
@@ -53,16 +58,16 @@ async function seedInitialAdmin() {
         console.log(`Admin document already exists in Firestore for ${initialAdminEmail}.`);
       }
 
-    } catch (error: any) {
-      console.error("Failed to seed initial admin:", error);
     }
+  } catch (error: any) {
+      console.error("Failed to seed initial admin. This is expected if admin credentials are not set.", error.message);
   }
 }
 
 // Call the seeding function when this module is loaded on the server.
-// This ensures that the seed function is only called when the server starts.
-if (process.env.NODE_ENV !== 'production' || process.env.IS_SEEDING_ENABLED) {
-    seedInitialAdmin().catch(console.error);
+// Only run if explicitly enabled, to prevent issues in environments without credentials.
+if (process.env.IS_SEEDING_ENABLED === 'true') {
+    seedInitialAdmin();
 }
 
 

@@ -8,48 +8,23 @@ import WhatsAppButton from '@/components/WhatsAppButton';
 import PageTransition from '@/components/PageTransition';
 import { cn } from '@/lib/utils';
 import type React from 'react';
-import { getBrandingSettings, getSiteIdentitySettings, SiteIdentitySettings, BrandingSettings } from '@/services/settings';
-import { useEffect, useState } from 'react';
+import { SiteIdentitySettings, BrandingSettings } from '@/services/settings';
+import { useEffect } from 'react';
 import { trackPageView } from '@/services/tracking';
 
-type CombinedSettings = {
-  identity: SiteIdentitySettings;
-  branding: BrandingSettings;
-}
-
-const initialSettings: CombinedSettings = {
-  identity: {
-    siteName: 'Namib Essence Designs',
-    publicEmail: 'vincentdesigns137@gmail.com',
-  },
-  branding: {
-    logoUrl: '/image/VINCEDSTUDIO.icon.png',
-    logoWidth: 220,
-  }
+type SiteLayoutProps = {
+  children: React.ReactNode;
+  identitySettings: SiteIdentitySettings;
+  brandingSettings: BrandingSettings;
 };
-
 
 export default function SiteLayout({ 
   children,
-}: { 
-  children: React.ReactNode,
-}) {
+  identitySettings,
+  brandingSettings,
+}: SiteLayoutProps) {
   const pathname = usePathname();
   const isSiteRoute = !pathname.startsWith('/admin');
-  const [settings, setSettings] = useState<CombinedSettings>(initialSettings);
-
-  useEffect(() => {
-    async function fetchSettings() {
-      if (isSiteRoute) {
-        const [identity, branding] = await Promise.all([
-          getSiteIdentitySettings(),
-          getBrandingSettings(),
-        ]);
-        setSettings({ identity, branding });
-      }
-    }
-    fetchSettings();
-  }, [isSiteRoute]);
 
   useEffect(() => {
     if (isSiteRoute && process.env.NODE_ENV === 'production') {
@@ -59,13 +34,13 @@ export default function SiteLayout({
 
   return (
     <>
-      {isSiteRoute && <Header settings={settings.branding} />}
+      {isSiteRoute && <Header settings={brandingSettings} />}
       <main className={cn("flex-grow", { "flex flex-col": !isSiteRoute })}>
         <PageTransition>{children}</PageTransition>
       </main>
       {isSiteRoute && (
         <>
-          <Footer settings={settings.identity} />
+          <Footer settings={identitySettings} />
           <WhatsAppButton />
         </>
       )}

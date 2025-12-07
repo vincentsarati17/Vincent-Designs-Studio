@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 import { Lora, Poppins } from 'next/font/google';
 import Script from "next/script";
 import SiteLayout from "@/components/layout/SiteLayout";
-import { getSiteIdentitySettings } from "@/services/settings";
-import { FirebaseClientProvider } from "@/firebase";
+import { getBrandingSettings, getSiteIdentitySettings } from "@/services/settings";
+import { FirebaseClientProvider } from "@/firebase/client-provider";
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -74,12 +74,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
+  const [identitySettings, brandingSettings] = await Promise.all([
+    getSiteIdentitySettings(),
+    getBrandingSettings(),
+  ]);
+
   return (
     <html lang="en" className={`${poppins.variable} ${lora.variable} scroll-smooth`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
@@ -95,7 +99,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FirebaseClientProvider>
-            <SiteLayout>{children}</SiteLayout>
+            <SiteLayout 
+              identitySettings={identitySettings}
+              brandingSettings={brandingSettings}
+            >
+              {children}
+            </SiteLayout>
           </FirebaseClientProvider>
           <Toaster />
         </ThemeProvider>

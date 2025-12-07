@@ -1,13 +1,49 @@
 
 {
-  "portfolio": {
-    "project1": {
-      "src": "https://picsum.photos/seed/1/600/400",
+  "portfolio": [
+    {
+      "id": "placeholder-1",
+      "title": "Stellar Branding Mockup",
+      "description": "A complete branding package for a modern tech startup.",
+      "category": "Branding",
+      "imageUrl": "https://picsum.photos/seed/stellar/600/400",
+      "isFeatured": true,
+      "slug": "#",
+      "details": [],
       "hint": "brand design"
     },
-    "project2": {
-      "src": "https://picsum.photos/seed/2/600/400",
+    {
+      "id": "placeholder-2",
+      "title": "E-commerce Website Design",
+      "description": "A sleek and intuitive user interface for an online fashion retailer.",
+      "category": "Web Design",
+      "imageUrl": "https://picsum.photos/seed/ecomm/600/400",
+      "isFeatured": true,
+      "slug": "#",
+      "details": [],
       "hint": "web app"
+    },
+    {
+      "id": "placeholder-3",
+      "title": "Mobile Banking App",
+      "description": "A user-friendly mobile app design focused on security and ease of use.",
+      "category": "UI/UX Design",
+      "imageUrl": "https://picsum.photos/seed/mobileapp/600/400",
+      "isFeatured": false,
+      "slug": "#",
+      "details": [],
+      "hint": "mobile ui"
+    },
+    {
+      "id": "placeholder-4",
+      "title": "Coffee Brand Packaging",
+      "description": "Vibrant and earthy packaging design for an artisanal coffee brand.",
+      "category": "Graphic Design",
+      "imageUrl": "https://picsum.photos/seed/coffee/600/400",
+      "isFeatured": false,
+      "slug": "#",
+      "details": [],
+      "hint": "product packaging"
     }
-  }
+  ]
 }

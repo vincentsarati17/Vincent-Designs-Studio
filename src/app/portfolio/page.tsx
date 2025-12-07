@@ -10,18 +10,24 @@ import Link from "next/link";
 import type { Project } from "@/lib/types";
 import React from "react";
 import { Button } from "@/components/ui/button";
+import placeholderData from "@/app/lib/placeholder-images.json";
 
 export default function PortfolioPage() {
   const [projects, setProjects] = React.useState<Project[] | null>(null);
 
   React.useEffect(() => {
     async function loadProjects() {
-      const fetchedProjects = await getProjects();
-      if (fetchedProjects.length > 0) {
-        setProjects(fetchedProjects);
-      } else {
-        // If no projects from DB, use placeholders
-        setProjects(placeholderProjects);
+      try {
+        const fetchedProjects = await getProjects();
+        if (fetchedProjects && fetchedProjects.length > 0) {
+          setProjects(fetchedProjects);
+        } else {
+          // If no projects from DB, use placeholders from JSON
+          setProjects(placeholderData.portfolio as Project[]);
+        }
+      } catch (error) {
+        console.error("Error loading projects, falling back to placeholders:", error);
+        setProjects(placeholderData.portfolio as Project[]);
       }
     }
     loadProjects();
@@ -45,12 +51,12 @@ export default function PortfolioPage() {
             ))
           ) : (
             // Skeleton loaders
-            Array.from({ length: 1 }).map((_, i) => (
+            Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="bg-card/50 rounded-lg p-6 space-y-4">
-                <div className="h-40 bg-muted/50 rounded-md animate-pulse"></div>
-                <div className="h-4 w-1/4 bg-muted/50 rounded animate-pulse"></div>
-                <div className="h-6 w-3/4 bg-muted/50 rounded animate-pulse"></div>
-                <div className="h-4 w-full bg-muted/50 rounded animate-pulse"></div>
+                <div className="aspect-[3/2] bg-muted rounded-md animate-pulse"></div>
+                <div className="h-4 w-1/4 bg-muted rounded animate-pulse"></div>
+                <div className="h-6 w-3/4 bg-muted rounded animate-pulse"></div>
+                <div className="h-10 w-full bg-muted rounded animate-pulse"></div>
               </div>
             ))
           )}
@@ -60,40 +66,26 @@ export default function PortfolioPage() {
   );
 }
 
-
-const placeholderProjects: Project[] = [
-  {
-    id: "placeholder-1",
-    title: "Professional Flyer Design",
-    description: "We designed a professional flyer for Dyax's Electrical Company.",
-    category: "Graphic Design",
-    imageUrl: "/image/Dyax-electrical-cc.jpg",
-    isFeatured: true,
-    slug: "#",
-    details: [],
-  },
-];
-
-
-const PlaceholderProjectCard = ({ project }: { project: Project }) => {
+const PlaceholderProjectCard = ({ project }: { project: Project & { hint?: string } }) => {
   return (
-    <Card className="overflow-hidden group transition-all duration-300 block rounded-lg bg-card/50 backdrop-blur-sm border border-white/10 w-full relative h-96">
+    <Card className="overflow-hidden group transition-all duration-300 block rounded-lg bg-card/50 backdrop-blur-sm border-white/10 w-full relative aspect-[3/2]">
       {project.imageUrl && (
           <div className="relative w-full h-full bg-muted/50">
               <Image
                   src={project.imageUrl}
                   alt={project.title}
                   fill
-                  className="object-contain transition-transform duration-300"
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  data-ai-hint={project.hint}
               />
           </div>
       )}
-      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
           <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
             <Badge>{project.category}</Badge>
             <h3 className="font-headline text-xl font-bold mt-2 text-white">{project.title}</h3>
-            <p className="text-sm text-white mt-1 font-semibold">{project.description}</p>
+            <p className="text-sm text-white/90 mt-1 font-semibold">{project.description}</p>
           </div>
       </div>
     </Card>

@@ -1,7 +1,5 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  skipProxyUrlNormalize: false,
   typescript: {
     ignoreBuildErrors: true,
   },

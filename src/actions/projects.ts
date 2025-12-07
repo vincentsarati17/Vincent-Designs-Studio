@@ -2,12 +2,23 @@
 'use server';
 
 import { z } from 'zod';
-import { initializeFirebase } from '@/firebase';
 import { collection, addDoc, serverTimestamp, query, where, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
+import { getAdminDb } from '@/firebase/admin';
+import { getStorage } from 'firebase/storage';
+import { initializeApp, getApps } from 'firebase/app';
+import { getFirebaseConfig } from '@/firebase/config';
+
+// Helper to get client-side storage instance
+function getClientStorage() {
+    if (!getApps().length) {
+        initializeApp(getFirebaseConfig());
+    }
+    return getStorage();
+}
 
 const projectSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
@@ -49,9 +60,8 @@ export async function handleAddProject(prevState: any, formData: FormData) {
   const { image, ...projectData } = parsed.data;
 
   try {
-    const firebase = initializeFirebase();
-    if (!firebase) throw new Error("Firebase not initialized");
-    const { db, storage } = firebase;
+    const db = getAdminDb();
+    const storage = getClientStorage();
     
     const slugQuery = query(collection(db, 'projects'), where('slug', '==', projectData.slug));
     const slugSnapshot = await getDocs(slugQuery);
@@ -114,9 +124,8 @@ export async function handleUpdateProject(projectId: string, prevState: any, for
   const { image, currentImageUrl, currentSlug, ...projectData } = parsed.data;
 
   try {
-    const firebase = initializeFirebase();
-    if (!firebase) throw new Error("Firebase not initialized");
-    const { db, storage } = firebase;
+    const db = getAdminDb();
+    const storage = getClientStorage();
 
     if (projectData.slug !== currentSlug) {
       const slugQuery = query(collection(db, 'projects'), where('slug', '==', projectData.slug));
@@ -186,9 +195,7 @@ export async function handleDeleteProject(id: string) {
   }
 
   try {
-    const firebase = initializeFirebase();
-    if (!firebase) throw new Error("Firebase not initialized");
-    const { db } = firebase;
+    const db = getAdminDb();
     await deleteDoc(doc(db, 'projects', id));
     await logAdminAction('Project Deleted', {
       user: user.email,

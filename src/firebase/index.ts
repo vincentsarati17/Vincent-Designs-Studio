@@ -5,40 +5,15 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage';
 
-// IMPORTANT: DO NOT MODIFY THIS FUNCTION
+// This function is now purely for client-side Firebase initialization.
 export function initializeFirebase() {
-  // This function is now primarily for server-side initialization.
-  // Client-side initialization is handled in FirebaseClientProvider.
-  if (typeof window !== 'undefined') {
-    // On the client, initialization is handled by the provider.
-    // If an app already exists, return its SDKs. Otherwise, something is wrong.
-    if (getApps().length > 0) {
-      return getSdks(getApps()[0]);
-    }
-    // This should ideally not be reached on the client.
-    console.error("Client-side Firebase initialization should be handled by FirebaseClientProvider.");
-    // Fallback to old method just in case, but it's not the intended path.
-    const firebaseConfig = getFirebaseConfig();
-    const app = initializeApp(firebaseConfig);
-    return getSdks(app);
-  }
-
-  // Server-side logic
-  if (!process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
-    if (process.env.NODE_ENV === 'production') {
-      // In production builds (like Vercel), if server credentials are not set,
-      // we return null to prevent build-time functions from crashing.
-      console.warn("FIREBASE_SERVICE_ACCOUNT_BASE64 not found. Firebase Admin features will be unavailable during build.");
-      return null;
-    }
-     // In local dev, we also return null if no server creds are found.
-    return null;
+  if (getApps().length > 0) {
+    return getSdks(getApp());
   }
   
-  // For server-side, we now rely on the admin SDK initialization.
-  // We dynamically and safely import it here.
-  const { adminApp } = require('./admin');
-  return getSdks(adminApp);
+  const firebaseConfig = getFirebaseConfig();
+  const app = initializeApp(firebaseConfig);
+  return getSdks(app);
 }
 
 export function getSdks(firebaseApp: FirebaseApp) {

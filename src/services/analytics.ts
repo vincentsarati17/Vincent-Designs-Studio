@@ -1,7 +1,7 @@
 
 'use server';
 
-import { initializeFirebase } from '@/firebase';
+import { getAdminDb } from '@/firebase/admin';
 import { collection, getDocs, query, where, Timestamp, getCountFromServer } from 'firebase/firestore';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
@@ -18,9 +18,7 @@ export interface AnalyticsData {
 }
 
 async function getMonthlyTraffic(startDate: Date, endDate: Date): Promise<TrafficDataPoint[]> {
-    const firebase = initializeFirebase();
-    if (!firebase) return [];
-    const { db } = firebase;
+    const db = getAdminDb();
     const pageViewsRef = collection(db, 'page_views');
     const q = query(
         pageViewsRef,
@@ -61,9 +59,7 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
 
     const trafficPromise = getMonthlyTraffic(sixMonthsAgo, today);
     
-    const firebase = initializeFirebase();
-    if (!firebase) throw new Error("Firebase not initialized");
-    const { db } = firebase;
+    const db = getAdminDb();
 
     const totalVisitsQuery = query(collection(db, 'page_views'), where('timestamp', '>=', sixMonthsAgo));
     const totalVisitsPromise = getCountFromServer(totalVisitsQuery);

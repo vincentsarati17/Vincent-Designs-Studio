@@ -6,8 +6,18 @@ import { saveSecuritySettings, saveSiteIdentitySettings, saveBrandingSettings, s
 import { logAdminAction } from '@/services/logs';
 import { revalidatePath } from 'next/cache';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { initializeFirebase } from '@/firebase';
 import { getCurrentUser } from '@/lib/auth-utils';
+import { getStorage } from 'firebase/storage';
+import { initializeApp, getApps } from 'firebase/app';
+import { getFirebaseConfig } from '@/firebase/config';
+
+// Helper to get client-side storage instance
+function getClientStorage() {
+    if (!getApps().length) {
+        initializeApp(getFirebaseConfig());
+    }
+    return getStorage();
+}
 
 const securitySettingsSchema = z.object({
   is2faEnabled: z.boolean(),
@@ -123,9 +133,7 @@ export async function updateBrandingSettings(prevState: any, formData: FormData)
   let logoUrl: string | undefined = undefined;
 
   try {
-    const firebase = initializeFirebase();
-    if (!firebase) throw new Error("Firebase not initialized");
-    const { storage } = firebase;
+    const storage = getClientStorage();
 
     if (logo && logo.size > 0) {
       const storageRef = ref(storage, `branding/logo-${Date.now()}`);

@@ -1,7 +1,7 @@
 
 'use server';
 
-import { initializeFirebase } from '@/firebase';
+import { getAdminDb } from '@/firebase/admin';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 /**
@@ -13,12 +13,7 @@ export async function trackPageView(path: string) {
   if (!path) return;
 
   try {
-    const firebase = initializeFirebase();
-    if (!firebase) {
-      console.warn("Firebase not initialized. Page view tracking is disabled.");
-      return;
-    }
-    const { db } = firebase;
+    const db = getAdminDb();
     await addDoc(collection(db, 'page_views'), {
       path,
       timestamp: serverTimestamp(),

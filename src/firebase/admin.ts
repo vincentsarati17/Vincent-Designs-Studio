@@ -11,8 +11,12 @@ function initializeAdminApp(): App {
   }
 
   if (getApps().length > 0) {
-    adminApp = getApps()[0];
-    return adminApp;
+    // Check if an app with the default name '[DEFAULT]' already exists.
+    const defaultApp = getApps().find(app => app.name === '[DEFAULT]');
+    if (defaultApp) {
+        adminApp = defaultApp;
+        return adminApp;
+    }
   }
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
@@ -38,6 +42,10 @@ function initializeAdminApp(): App {
   
   console.warn('Firebase Admin SDK environment variables not set. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY. Admin features will be unavailable.');
   throw new Error('Firebase Admin SDK is not configured. Please set the required environment variables in your Vercel project settings.');
+}
+
+export function getAdminApp(): App {
+    return initializeAdminApp();
 }
 
 export function getAdminAuth(): Auth {

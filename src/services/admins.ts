@@ -60,7 +60,11 @@ async function seedInitialAdmin() {
 }
 
 // Call the seeding function when this module is loaded on the server.
-seedInitialAdmin().catch(console.error);
+// This ensures that the seed function is only called when the server starts.
+if (process.env.NODE_ENV !== 'production' || process.env.IS_SEEDING_ENABLED) {
+    seedInitialAdmin().catch(console.error);
+}
+
 
 export async function addAdmin(email: string, role: AdminUser['role']): Promise<{success: boolean, message: string}> {
   try {

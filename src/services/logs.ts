@@ -1,7 +1,7 @@
 
 'use server';
 
-import { initializeFirebase } from '@/firebase';
+import { getAdminDb } from '@/firebase/admin';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 /**
@@ -11,12 +11,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
  */
 export async function logAdminAction(action: string, details: Record<string, any>) {
   try {
-    const firebase = initializeFirebase();
-    if (!firebase) {
-      console.warn(`Firebase not initialized. Could not log action: ${action}`);
-      return;
-    }
-    const { db } = firebase;
+    const db = getAdminDb();
     await addDoc(collection(db, 'admin_logs'), {
       action,
       ...details,

@@ -2,13 +2,13 @@
 'use server';
 
 import { z } from 'zod';
-import { initializeFirebase } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Resend } from 'resend';
 import { deleteSubmission as deleteSubmissionFromDb } from '@/services/submissions';
 import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
+import { getAdminDb } from '@/firebase/admin';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -32,9 +32,7 @@ export async function handleFormSubmission(values: FormValues) {
   }
   
   try {
-    const firebase = initializeFirebase();
-    if (!firebase) throw new Error("Firebase not initialized");
-    const { db } = firebase;
+    const db = getAdminDb();
     const submission = {
       ...parsedData.data,
       isRead: false,

@@ -1,6 +1,5 @@
 
-
-import { initializeFirebase } from '@/firebase';
+import { getAdminDb } from '@/firebase/admin';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export type SecuritySettings = {
@@ -21,178 +20,88 @@ export type MaintenanceSettings = {
   isEnabled: boolean;
 };
 
+const defaultSecuritySettings = { is2faEnabled: false };
+const defaultIdentitySettings = {
+    siteName: 'Vincent Designs Studio',
+    publicEmail: 'vincentdesigns137@gmail.com',
+};
+const defaultBrandingSettings = {
+    logoUrl: '/image/VINCEDSTUDIO.icon.png',
+    logoWidth: 220,
+};
+const defaultMaintenanceSettings = { isEnabled: false };
 
-/**
- * Fetches the security settings from Firestore.
- * If no settings document exists, it returns default values.
- */
+
+async function getSettings<T>(collectionId: string, defaultSettings: T): Promise<T> {
+    try {
+        const db = getAdminDb();
+        const settingsDocRef = doc(db, 'settings', collectionId);
+        const docSnap = await getDoc(settingsDocRef);
+        if (docSnap.exists()) {
+            return docSnap.data() as T;
+        }
+        return defaultSettings;
+    } catch (error) {
+        console.error(`Error fetching '${collectionId}' settings:`, error);
+        // During build, suppress errors and return defaults to avoid breaking the build.
+        if (process.env.NODE_ENV === 'production') {
+            return defaultSettings;
+        }
+        // During development, re-throw to make the error visible.
+        throw error;
+    }
+}
+
+async function saveSettings<T>(collectionId: string, settings: T, merge = false) {
+    const db = getAdminDb();
+    const settingsDocRef = doc(db, 'settings', collectionId);
+    try {
+        await setDoc(settingsDocRef, settings, { merge });
+    } catch (error) {
+        console.error(`Error saving '${collectionId}' settings:`, error);
+        throw new Error(`Could not save '${collectionId}' settings.`);
+    }
+}
+
+
 export async function getSecuritySettings(): Promise<SecuritySettings> {
-  const firebase = initializeFirebase();
-  if (!firebase) return { is2faEnabled: false };
-  const { db } = firebase;
-  const securitySettingsDocRef = doc(db, 'settings', 'security');
-  try {
-    const docSnap = await getDoc(securitySettingsDocRef);
-
-    if (docSnap.exists()) {
-      return docSnap.data() as SecuritySettings;
-    } else {
-      // Return default settings if document doesn't exist
-      return { is2faEnabled: false };
-    }
-  } catch (error) {
-    console.error('Error fetching security settings:', error);
-    // Return default settings on error
-    return { is2faEnabled: false };
-  }
+  return getSettings('security', defaultSecuritySettings);
 }
 
-/**
- * Updates the security settings in Firestore.
- * @param settings - The new security settings to save.
- */
 export async function saveSecuritySettings(settings: SecuritySettings) {
-  const firebase = initializeFirebase();
-  if (!firebase) throw new Error("Firebase is not initialized. Cannot save settings.");
-  const { db } = firebase;
-  const securitySettingsDocRef = doc(db, 'settings', 'security');
-  try {
-    await setDoc(securitySettingsDocRef, settings, { merge: true });
-  } catch (error) {
-    console.error('Error saving security settings:', error);
-    throw new Error('Could not save security settings.');
-  }
+  await saveSettings('security', settings, true);
 }
 
-/**
- * Fetches the site identity settings from Firestore.
- * If no settings document exists, it returns default values.
- */
+
 export async function getSiteIdentitySettings(): Promise<SiteIdentitySettings> {
-    const firebase = initializeFirebase();
-    const defaultSettings = {
-      siteName: 'Vincent Designs Studio',
-      publicEmail: 'vincentdesigns137@gmail.com',
-    };
-
-    if (!firebase) {
-      return defaultSettings;
-    }
-
-    const { db } = firebase;
-    const siteIdentityDocRef = doc(db, 'settings', 'identity');
-    try {
-        const docSnap = await getDoc(siteIdentityDocRef);
-        if (docSnap.exists()) {
-            return docSnap.data() as SiteIdentitySettings;
-        } else {
-            return defaultSettings;
-        }
-    } catch (error) {
-        console.error('Error fetching site identity settings:', error);
-        return defaultSettings;
-    }
+    return getSettings('identity', defaultIdentitySettings);
 }
 
-/**
- * Saves the site identity settings to Firestore.
- * @param settings - The new site identity settings.
- */
+
 export async function saveSiteIdentitySettings(settings: SiteIdentitySettings) {
-    const firebase = initializeFirebase();
-    if (!firebase) throw new Error("Firebase is not initialized. Cannot save settings.");
-    const { db } = firebase;
-    const siteIdentityDocRef = doc(db, 'settings', 'identity');
-    try {
-        await setDoc(siteIdentityDocRef, settings);
-    } catch (error) {
-        console.error('Error saving site identity settings:', error);
-        throw new Error('Could not save site identity settings.');
-    }
+    await saveSettings('identity', settings);
 }
 
-/**
- * Fetches the branding settings from Firestore.
- * If no settings document exists, it returns default values.
- */
+
 export async function getBrandingSettings(): Promise<BrandingSettings> {
-    const firebase = initializeFirebase();
-    const defaultSettings = {
-        logoUrl: '/image/VINCEDSTUDIO.icon.png',
-        logoWidth: 220,
+    const fetched = await getSettings('branding', defaultBrandingSettings);
+    return {
+        logoUrl: fetched.logoUrl || defaultBrandingSettings.logoUrl,
+        logoWidth: fetched.logoWidth || defaultBrandingSettings.logoWidth,
     };
-    if (!firebase) {
-      return defaultSettings;
-    }
-    const { db } = firebase;
-    const brandingDocRef = doc(db, 'settings', 'branding');
-    try {
-        const docSnap = await getDoc(brandingDocRef);
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            return {
-                logoUrl: data.logoUrl || defaultSettings.logoUrl,
-                logoWidth: data.logoWidth || defaultSettings.logoWidth,
-            };
-        } else {
-            return defaultSettings;
-        }
-    } catch (error) {
-        console.error('Error fetching branding settings:', error);
-        return defaultSettings;
-    }
 }
 
-/**
- * Saves the branding settings to Firestore.
- * @param settings - The new branding settings. Can be a partial object.
- */
+
 export async function saveBrandingSettings(settings: Partial<BrandingSettings>) {
-    const firebase = initializeFirebase();
-    if (!firebase) throw new Error("Firebase is not initialized. Cannot save settings.");
-    const { db } = firebase;
-    const brandingDocRef = doc(db, 'settings', 'branding');
-    try {
-        await setDoc(brandingDocRef, settings, { merge: true });
-    } catch (error) {
-        console.error('Error saving branding settings:', error);
-        throw new Error('Could not save branding settings.');
-    }
+    await saveSettings('branding', settings, true);
 }
 
-/**
- * Fetches the maintenance mode settings from Firestore.
- */
+
 export async function getMaintenanceModeSettings(): Promise<MaintenanceSettings> {
-  const firebase = initializeFirebase();
-  if (!firebase) return { isEnabled: false };
-  const { db } = firebase;
-  const maintenanceSettingsDocRef = doc(db, 'settings', 'maintenance');
-  try {
-    const docSnap = await getDoc(maintenanceSettingsDocRef);
-    if (docSnap.exists()) {
-      return docSnap.data() as MaintenanceSettings;
-    } else {
-      return { isEnabled: false };
-    }
-  } catch (error) {
-    console.error('Error fetching maintenance settings:', error);
-    return { isEnabled: false };
-  }
+  return getSettings('maintenance', defaultMaintenanceSettings);
 }
 
-/**
- * Saves the maintenance mode settings to Firestore.
- */
+
 export async function saveMaintenanceModeSettings(settings: MaintenanceSettings) {
-  const firebase = initializeFirebase();
-  if (!firebase) throw new Error("Firebase is not initialized. Cannot save settings.");
-  const { db } = firebase;
-  const maintenanceSettingsDocRef = doc(db, 'settings', 'maintenance');
-  try {
-    await setDoc(maintenanceSettingsDocRef, settings);
-  } catch (error) {
-    console.error('Error saving maintenance settings:', error);
-    throw new Error('Could not save maintenance settings.');
-  }
+  await saveSettings('maintenance', settings);
 }

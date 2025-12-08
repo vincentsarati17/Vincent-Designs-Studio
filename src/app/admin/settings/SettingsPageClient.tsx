@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ThemeToggleButton } from "@/components/ThemeToggleButton";
 import { Slider } from "@/components/ui/slider";
-import React, { useTransition, useActionState } from "react";
+import React, { useTransition, useState, useEffect } from "react";
 import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Trash2, PlusCircle, Upload } from "lucide-react";
@@ -137,11 +136,13 @@ export default function SettingsPageClient() {
   const [isIdentityPending, startIdentityTransition] = useTransition();
 
   const [isBrandingLoading, setIsBrandingLoading] = React.useState(true);
-  const [brandingFormState, brandingFormAction] = useActionState(updateBrandingSettings, initialBrandingState);
+  const [brandingFormState, setBrandingFormState] = useState(initialBrandingState);
   
   const [isAdminsPending, startAdminsTransition] = useTransition();
   const [isMaintenancePending, startMaintenanceTransition] = useTransition();
   const [isSettingsLoading, setIsSettingsLoading] = React.useState(true);
+  
+  const brandingFormRef = useRef<HTMLFormElement>(null);
 
   React.useEffect(() => {
     async function fetchAllSettings() {
@@ -186,7 +187,7 @@ export default function SettingsPageClient() {
     return () => unsubscribe();
   }, [toast]);
   
-  React.useEffect(() => {
+  useEffect(() => {
     if (brandingFormState.success) {
       toast({
         title: "Logo Settings Saved",
@@ -267,6 +268,13 @@ export default function SettingsPageClient() {
         }
     });
   };
+  
+  const handleBrandingSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      const formData = new FormData(event.currentTarget);
+      const result = await updateBrandingSettings(initialBrandingState, formData);
+      setBrandingFormState(result);
+  }
 
   return (
     <>
@@ -323,7 +331,7 @@ export default function SettingsPageClient() {
           </CardContent>
         </Card>
         
-        <form action={brandingFormAction}>
+        <form ref={brandingFormRef} onSubmit={handleBrandingSubmit}>
         <Card>
           <CardHeader>
             <CardTitle>Logo & Branding</CardTitle>

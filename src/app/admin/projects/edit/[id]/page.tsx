@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import React, { useEffect, useRef, useActionState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { handleUpdateProject } from '@/actions/projects';
 import { ArrowLeft, CalendarIcon, Upload } from 'lucide-react';
@@ -67,9 +67,7 @@ export default function EditProjectPage({ params }: { params: { id: string } }) 
   const [imagePreview, setImagePreview] = React.useState<string | null>(null);
   const { toast } = useToast();
   const router = useRouter();
-  
-  const updateProjectAction = handleUpdateProject.bind(null, params.id);
-  const [formState, formAction] = useActionState(updateProjectAction, initialState);
+  const [formState, setFormState] = useState(initialState);
   
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -115,7 +113,7 @@ export default function EditProjectPage({ params }: { params: { id: string } }) 
         description: formState.message,
       });
       router.push(`/admin/projects`);
-    } else if (formState.message) {
+    } else if (formState.message && !formState.success && formState.message !== '') {
       toast({
         variant: 'destructive',
         title: 'Error updating project',
@@ -136,7 +134,7 @@ export default function EditProjectPage({ params }: { params: { id: string } }) 
     }
   };
 
-  const onFormSubmit = (data: ProjectFormValues) => {
+  const onFormSubmit = async (data: ProjectFormValues) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -159,7 +157,9 @@ export default function EditProjectPage({ params }: { params: { id: string } }) 
     if (project?.slug) {
         formData.append('currentSlug', project.slug);
     }
-    formAction(formData);
+    
+    const result = await handleUpdateProject(params.id, initialState, formData);
+    setFormState(result);
   };
   
   if (isLoading) {

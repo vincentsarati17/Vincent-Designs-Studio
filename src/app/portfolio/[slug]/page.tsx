@@ -1,3 +1,4 @@
+'use client';
 
 import { getProjectBySlug, getProjects } from "@/services/projects";
 import { notFound } from "next/navigation";
@@ -6,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import type { Metadata, ResolvingMetadata } from "next";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import type { Project } from "@/lib/types";
 
 type PortfolioDetailPageProps = {
   params: {
@@ -15,43 +17,47 @@ type PortfolioDetailPageProps = {
   };
 };
 
-export async function generateMetadata(
-  { params }: PortfolioDetailPageProps,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  const project = await getProjectBySlug(params.slug);
+export default function PortfolioDetailPage({ params }: PortfolioDetailPageProps) {
+  const [project, setProject] = useState<Project | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!project) {
-    return {
-      title: 'Project Not Found',
+  useEffect(() => {
+    async function fetchProject() {
+      try {
+        const fetchedProject = await getProjectBySlug(params.slug);
+        if (!fetchedProject) {
+          notFound();
+        } else {
+          setProject(fetchedProject);
+        }
+      } catch (error) {
+        console.error("Failed to fetch project:", error);
+        // Handle error state appropriately
+      } finally {
+        setIsLoading(false);
+      }
     }
+
+    fetchProject();
+  }, [params.slug]);
+
+
+  if (isLoading) {
+    return (
+        <div className="container py-16 md:py-24">
+            <div className="max-w-4xl mx-auto">
+                <div className="h-6 w-24 bg-muted rounded-full animate-pulse mb-4"></div>
+                <div className="h-12 w-3/4 bg-muted rounded-md animate-pulse mb-4"></div>
+                <div className="h-8 w-full bg-muted rounded-md animate-pulse mb-12"></div>
+                <div className="aspect-video w-full rounded-lg bg-muted animate-pulse mb-12"></div>
+            </div>
+        </div>
+    );
   }
-
-  const previousImages = (await parent).openGraph?.images || []
-
-  return {
-    title: project.title,
-    description: project.description,
-    openGraph: {
-      images: [project.imageUrl, ...previousImages],
-    },
-  }
-}
-
-// This function attempts to run at build time, which causes issues in Vercel
-// when Firebase server credentials are not available. By returning an empty array,
-// we tell Next.js not to pre-render any project pages at build time.
-// They will be generated on-demand instead.
-export async function generateStaticParams() {
-  return [];
-}
-
-
-export default async function PortfolioDetailPage({ params }: PortfolioDetailPageProps) {
-  const project = await getProjectBySlug(params.slug);
 
   if (!project) {
-    notFound();
+    // This will be caught by notFound() earlier, but as a fallback
+    return null;
   }
 
   return (

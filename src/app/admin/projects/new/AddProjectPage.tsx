@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import React, { useEffect, useRef, useActionState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { handleAddProject } from '@/actions/projects';
 import { ArrowLeft, CalendarIcon, Upload } from 'lucide-react';
@@ -61,8 +61,7 @@ export default function AddProjectPage() {
   const [imagePreview, setImagePreview] = React.useState<string | null>(null);
   const { toast } = useToast();
   const router = useRouter();
-  const formRef = useRef<HTMLFormElement>(null);
-  const [formState, formAction] = useActionState(handleAddProject, initialState);
+  const [formState, setFormState] = useState(initialState);
   
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -84,7 +83,7 @@ export default function AddProjectPage() {
         description: formState.message,
       });
       router.push('/admin/projects');
-    } else if (formState.message) {
+    } else if (formState.message && !formState.success && formState.message !== '') {
       toast({
         variant: 'destructive',
         title: 'Error adding project',
@@ -105,7 +104,7 @@ export default function AddProjectPage() {
     }
   };
 
-  const onFormSubmit = (data: ProjectFormValues) => {
+  const onFormSubmit = async (data: ProjectFormValues) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (value) {
@@ -116,7 +115,9 @@ export default function AddProjectPage() {
         }
       }
     });
-    formAction(formData);
+    
+    const result = await handleAddProject(initialState, formData);
+    setFormState(result);
   };
 
 
@@ -130,8 +131,6 @@ export default function AddProjectPage() {
         </div>
         <Form {...form}>
           <form
-            ref={formRef}
-            action={formAction}
             onSubmit={form.handleSubmit(onFormSubmit)}
             className="space-y-6"
           >

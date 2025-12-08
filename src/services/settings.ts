@@ -1,4 +1,4 @@
-
+'use server';
 import { getAdminDb } from '@/firebase/admin';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 

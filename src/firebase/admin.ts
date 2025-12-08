@@ -6,18 +6,13 @@ import { getFirestore, Firestore } from 'firebase-admin/firestore';
 let adminApp: App | null = null;
 let appInitialized = false;
 
-function initializeAdminApp(): App | null {
-  if (appInitialized) {
-    return adminApp;
-  }
+function initializeAdminApp(): void {
+  if (appInitialized) return;
   appInitialized = true; // Attempt initialization only once
 
-  if (getApps().length > 0) {
-    const defaultApp = getApps().find(app => app.name === '[DEFAULT]');
-    if (defaultApp) {
-        adminApp = defaultApp;
-        return adminApp;
-    }
+  if (getApps().some(app => app.name === '[DEFAULT]')) {
+    adminApp = getApps().find(app => app.name === '[DEFAULT]') || null;
+    return;
   }
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
@@ -34,29 +29,27 @@ function initializeAdminApp(): App | null {
         }),
         databaseURL: `https://${projectId}.firebaseio.com`,
       });
-      return adminApp;
     } catch (e: any) {
       console.error('Firebase Admin SDK initialization failed from environment variables:', e.message);
       adminApp = null;
-      return null;
     }
+  } else {
+    console.warn('Firebase Admin SDK environment variables not set. Admin features will be unavailable.');
+    adminApp = null;
   }
-  
-  console.warn('Firebase Admin SDK environment variables not set. Admin features will be unavailable.');
-  adminApp = null;
-  return null;
 }
 
+// Call initialization logic right away
+initializeAdminApp();
+
 export function getAdminApp(): App | null {
-    return initializeAdminApp();
+    return adminApp;
 }
 
 export function getAdminAuth(): Auth | null {
-    const app = initializeAdminApp();
-    return app ? getAuth(app) : null;
+    return adminApp ? getAuth(adminApp) : null;
 }
 
 export function getAdminDb(): Firestore | null {
-    const app = initializeAdminApp();
-    return app ? getFirestore(app) : null;
+    return adminApp ? getFirestore(adminApp) : null;
 }

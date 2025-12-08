@@ -26,7 +26,7 @@ async function getSession(cookie: string | undefined) {
   }
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Check for Maintenance Mode via environment variable
@@ -77,5 +77,7 @@ export const config = {
    * - _next/image (image optimization files)
    * - favicon.ico (favicon file)
    */
-  matcher: '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|image|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$).*)',
+  ],
 };

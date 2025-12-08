@@ -1,36 +1,18 @@
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getFirebaseConfig } from '@/firebase/config';
+import { getAdminAuth } from '@/firebase/admin';
 
-// Initialize firebase config to check for maintenance mode from environment variables
-// This is a simplified check. In a real app, you might use a more robust config source.
-try {
-  getFirebaseConfig();
-} catch (e) {
-  // Silently fail if config is not present
-}
-
-
-async function getSession(cookie: string | undefined) {
-  if (!cookie) return null;
-  
-  // The site URL is required to make an absolute URL fetch to the internal API route
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!siteUrl) {
-    console.error("NEXT_PUBLIC_SITE_URL is not set. Session verification will fail.");
-    return null;
-  }
-
+async function verifySession(sessionCookie: string | undefined) {
+  if (!sessionCookie) return null;
   try {
-    const response = await fetch(`${siteUrl}/api/auth/session-verify`, {
-      headers: {
-        Cookie: `__session=${cookie}`,
-      },
-    });
-
-    if (!response.ok) return null;
-    return await response.json();
+    const adminAuth = getAdminAuth();
+    if (!adminAuth) {
+      console.error("Firebase Admin Auth is not initialized.");
+      return null;
+    }
+    return await adminAuth.verifySessionCookie(sessionCookie, true);
   } catch (error) {
-    console.error('Session verification fetch failed:', error);
+    console.warn("Could not verify session cookie:", error);
     return null;
   }
 }
@@ -38,25 +20,38 @@ async function getSession(cookie: string | undefined) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Check for Maintenance Mode
+  // 1. Check for Maintenance Mode from environment variables
   const isMaintenanceMode = process.env.MAINTENANCE_MODE === 'true';
+  const isUnderMaintenancePath = pathname === '/maintenance';
 
-  if (isMaintenanceMode && !pathname.startsWith('/admin') && !pathname.startsWith('/api/auth')) {
-      return NextResponse.rewrite(new URL('/maintenance', request.url));
+  if (isMaintenanceMode && !pathname.startsWith('/admin') && !pathname.startsWith('/api') && !isUnderMaintenancePath) {
+    return NextResponse.rewrite(new URL('/maintenance', request.url));
   }
   
+  if (!isMaintenanceMode && isUnderMaintenancePath) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
   // 2. Handle Admin Route Protection
   if (pathname.startsWith('/admin')) {
     const sessionCookie = request.cookies.get('__session')?.value;
-    const session = await getSession(sessionCookie);
+    const decodedToken = await verifySession(sessionCookie);
     const isLoginPage = pathname.startsWith('/admin/login');
 
-    if (!session && !isLoginPage) {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
-    }
-
-    if (session && isLoginPage) {
-      return NextResponse.redirect(new URL('/admin', request.url));
+    if (!decodedToken) {
+      if (!isLoginPage) {
+        // If no user and not on the login page, redirect to login
+        const url = request.nextUrl.clone();
+        url.pathname = '/admin/login';
+        return NextResponse.redirect(url);
+      }
+    } else {
+      // If user is logged in and tries to access login page, redirect to dashboard
+      if (isLoginPage) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/admin';
+        return NextResponse.redirect(url);
+      }
     }
   }
 
@@ -64,17 +59,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/ (API routes, but we exclude auth routes for maintenance mode check)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - image/ (public images)
-     */
-    '/((?!api/auth/|_next/static|_next/image|favicon.ico|image/).*)',
-    // We explicitly include /admin/login to ensure it's processed by middleware
-    '/admin/login' 
-  ],
+  /*
+   * Match all request paths except for the ones starting with:
+   * - _next/static (static files)
+   * - _next/image (image optimization files)
+   * - favicon.ico (favicon file)
+   * - image/ (public images)
+   */
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|image/).*)'],
 };

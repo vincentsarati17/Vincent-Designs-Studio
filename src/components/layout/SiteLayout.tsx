@@ -9,8 +9,6 @@ import PageTransition from '@/components/PageTransition';
 import { cn } from '@/lib/utils';
 import type React from 'react';
 import { SiteIdentitySettings, BrandingSettings } from '@/services/settings';
-import { useEffect } from 'react';
-import { trackPageView } from '@/services/tracking';
 
 type SiteLayoutProps = {
   children: React.ReactNode;
@@ -26,11 +24,9 @@ export default function SiteLayout({
   const pathname = usePathname();
   const isSiteRoute = !pathname.startsWith('/admin');
 
-  useEffect(() => {
-    if (isSiteRoute && process.env.NODE_ENV === 'production') {
-      trackPageView(pathname);
-    }
-  }, [pathname, isSiteRoute]);
+  // Removed problematic useEffect for page view tracking.
+  // This logic is better handled in specific components if needed,
+  // or with a dedicated analytics provider setup.
 
   return (
     <>

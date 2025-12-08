@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Section, SectionHeader } from "@/components/Section";
 import TypingEffect from "@/components/TypingEffect";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   return (
@@ -18,6 +20,12 @@ export default function Home() {
 }
 
 function HeroSection() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const heroDescription = "Specializing in bespoke graphic and web design. We build exceptional brands and websites for businesses ready to make their mark.";
   return (
     <Section className="!pt-16 md:!pt-24">
@@ -26,7 +34,13 @@ function HeroSection() {
           <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold text-balance">
             Web &amp; Graphic Design Agency
           </h1>
-          <TypingEffect text={heroDescription} className="font-body text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 text-balance min-h-[112px] md:min-h-[96px]" />
+          <div className="font-body text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 text-balance min-h-[112px] md:min-h-[96px]">
+            {isClient ? (
+              <TypingEffect text={heroDescription} />
+            ) : (
+              <p>{heroDescription}</p>
+            )}
+          </div>
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Button asChild size="lg">
                 <Link href="/services">

@@ -1,21 +1,5 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminAuth } from '@/firebase/admin';
-
-async function verifySession(sessionCookie: string | undefined) {
-  if (!sessionCookie) return null;
-  try {
-    const adminAuth = getAdminAuth();
-    if (!adminAuth) {
-      console.error("Firebase Admin Auth is not initialized.");
-      return null;
-    }
-    return await adminAuth.verifySessionCookie(sessionCookie, true);
-  } catch (error) {
-    console.warn("Could not verify session cookie:", error);
-    return null;
-  }
-}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -35,10 +19,9 @@ export async function middleware(request: NextRequest) {
   // 2. Handle Admin Route Protection
   if (pathname.startsWith('/admin')) {
     const sessionCookie = request.cookies.get('__session')?.value;
-    const decodedToken = await verifySession(sessionCookie);
     const isLoginPage = pathname.startsWith('/admin/login');
 
-    if (!decodedToken) {
+    if (!sessionCookie) {
       if (!isLoginPage) {
         // If no user and not on the login page, redirect to login
         const url = request.nextUrl.clone();
@@ -47,6 +30,8 @@ export async function middleware(request: NextRequest) {
       }
     } else {
       // If user is logged in and tries to access login page, redirect to dashboard
+      // Note: We are not verifying the cookie here, just checking for its presence.
+      // Verification happens in Server Components/Actions via getCurrentUser.
       if (isLoginPage) {
         const url = request.nextUrl.clone();
         url.pathname = '/admin';

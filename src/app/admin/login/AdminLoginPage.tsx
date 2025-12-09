@@ -69,10 +69,10 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm bg-black/10 backdrop-blur-lg border border-white/20 text-white">
       <CardHeader>
         <CardTitle className="font-headline text-2xl text-center">Admin Login</CardTitle>
-        <CardDescription>Enter your credentials to access the dashboard.</CardDescription>
+        <CardDescription className="text-white/80">Enter your credentials to access the dashboard.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -84,7 +84,13 @@ export default function AdminLoginPage() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="admin@example.com" {...field} disabled={isPending} />
+                    <Input 
+                      type="email" 
+                      placeholder="admin@example.com" 
+                      {...field} 
+                      disabled={isPending} 
+                      className="bg-white/5 border-white/30 placeholder:text-white/60"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -97,13 +103,19 @@ export default function AdminLoginPage() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} disabled={isPending} />
+                    <Input 
+                      type="password" 
+                      placeholder="••••••••" 
+                      {...field} 
+                      disabled={isPending} 
+                      className="bg-white/5 border-white/30 placeholder:text-white/60"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <Button type="submit" className="w-full bg-primary/80 hover:bg-primary" disabled={isPending}>
               {isPending ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>

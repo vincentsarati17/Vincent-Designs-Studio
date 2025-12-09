@@ -69,9 +69,8 @@ async function seedInitialAdmin() {
   }
 }
 
-if (process.env.IS_SEEDING_ENABLED === 'true') {
-    seedInitialAdmin();
-}
+// Always run the seeding logic on server start
+seedInitialAdmin();
 
 
 export async function addAdmin(email: string, role: AdminUser['role']): Promise<{success: boolean, message: string}> {

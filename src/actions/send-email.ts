@@ -21,10 +21,12 @@ export async function handleFormSubmission(values: FormValues) {
   const parsedData = formSchema.safeParse(values);
 
   if (!parsedData.success) {
-    return { success: false, message: 'Invalid data.' };
+    const errorMessages = parsedData.error.errors.map(e => e.message).join(' ');
+    return { success: false, message: `Invalid data: ${errorMessages}` };
   }
 
   try {
+    // We fetch our own API route which securely handles the submission
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/submissions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

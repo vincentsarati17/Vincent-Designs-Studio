@@ -1,3 +1,4 @@
+
 'use server';
 
 import { z } from 'zod';
@@ -7,6 +8,7 @@ import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
 import { initializeFirebase } from '@/firebase';
+import { getAdminDb } from '@/firebase/admin';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -70,7 +72,10 @@ export async function handleDeleteSubmission(id: string) {
   }
 
   try {
-    const { db } = initializeFirebase();
+    const db = getAdminDb();
+    if (!db) {
+      throw new Error("Firebase Admin is not configured. Cannot process submission deletion.");
+    }
     
     await deleteDoc(doc(db, 'submissions', id));
 

@@ -6,7 +6,7 @@ import { Resend } from 'resend';
 import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
-import { getAdminDb } from '@/firebase/admin';
+import { initializeFirebase } from '@/firebase';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -30,10 +30,7 @@ export async function handleFormSubmission(values: FormValues) {
   }
   
   try {
-    const db = getAdminDb();
-    if (!db) {
-      throw new Error("Firebase Admin is not configured. Cannot process submission.");
-    }
+    const { db } = initializeFirebase();
     const submission = {
       ...parsedData.data,
       isRead: false,
@@ -73,10 +70,7 @@ export async function handleDeleteSubmission(id: string) {
   }
 
   try {
-    const db = getAdminDb();
-    if (!db) {
-      throw new Error("Firebase Admin is not configured. Cannot delete submission.");
-    }
+    const { db } = initializeFirebase();
     
     await deleteDoc(doc(db, 'submissions', id));
 

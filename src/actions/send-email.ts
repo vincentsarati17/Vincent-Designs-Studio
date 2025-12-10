@@ -26,6 +26,9 @@ export async function handleFormSubmission(values: FormValues) {
   }
 
   try {
+    if (!process.env.NEXT_PUBLIC_BASE_URL) {
+      throw new Error('Server is not configured with a base URL.');
+    }
     // We fetch our own API route which securely handles the submission
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/submissions`, {
       method: 'POST',

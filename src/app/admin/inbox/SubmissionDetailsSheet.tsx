@@ -22,7 +22,10 @@ import {
 import type { ContactSubmission } from "@/lib/types";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
-import React from "react";
+import React, { useTransition } from "react";
+import { handleSendReply } from "@/actions/send-email";
+import { useToast } from "@/hooks/use-toast";
+import { getSiteIdentitySettings } from "@/services/settings";
 
 type SubmissionDetailsSheetProps = {
   submission: ContactSubmission;
@@ -38,6 +41,17 @@ const replyTemplates = [
 
 export default function SubmissionDetailsSheet({ submission, isOpen, onOpenChange }: SubmissionDetailsSheetProps) {
     const [replyContent, setReplyContent] = React.useState("");
+    const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
+    const [siteSettings, setSiteSettings] = React.useState({ siteName: 'Vincent Designs Studio', publicEmail: 'vincentdesigns137@gmail.com' });
+
+    React.useEffect(() => {
+        async function fetchSettings() {
+            const settings = await getSiteIdentitySettings();
+            setSiteSettings(settings);
+        }
+        fetchSettings();
+    }, []);
 
     const handleTemplateChange = (templateId: string) => {
         const template = replyTemplates.find(t => t.id === templateId);
@@ -52,6 +66,31 @@ export default function SubmissionDetailsSheet({ submission, isOpen, onOpenChang
             setReplyContent("");
         }
     }, [isOpen, submission]);
+
+    const onSendReply = () => {
+        startTransition(async () => {
+            const result = await handleSendReply({
+                to: submission.email,
+                from: `${siteSettings.siteName} <${siteSettings.publicEmail}>`,
+                subject: `Re: Your inquiry about ${submission.service}`,
+                html: replyContent.replace(/\n/g, '<br>'),
+            });
+
+            if (result.success) {
+                toast({
+                    title: "Reply Sent!",
+                    description: result.message,
+                });
+                onOpenChange(false);
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Error Sending Reply",
+                    description: result.message,
+                });
+            }
+        });
+    }
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -97,6 +136,7 @@ export default function SubmissionDetailsSheet({ submission, isOpen, onOpenChang
                             className="min-h-48"
                             value={replyContent}
                             onChange={(e) => setReplyContent(e.target.value)}
+                            disabled={isPending}
                         />
                     </div>
                 </div>
@@ -105,7 +145,9 @@ export default function SubmissionDetailsSheet({ submission, isOpen, onOpenChang
 
         <SheetFooter className="mt-auto pt-6">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
-          <Button>Send Reply</Button>
+          <Button onClick={onSendReply} disabled={isPending || !replyContent.trim()}>
+            {isPending ? 'Sending...' : 'Send Reply'}
+          </Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>

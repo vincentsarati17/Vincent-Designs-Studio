@@ -7,6 +7,7 @@ import { doc, deleteDoc } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
+import { Resend } from 'resend';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -16,6 +17,15 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+const replySchema = z.object({
+  to: z.string().email(),
+  from: z.string().min(1, 'From address is required.'),
+  subject: z.string().min(1, 'Subject is required.'),
+  html: z.string().min(1, 'Email body is required.'),
+});
+
+type ReplyValues = z.infer<typeof replySchema>;
 
 export async function handleFormSubmission(values: FormValues) {
   const parsedData = formSchema.safeParse(values);
@@ -49,6 +59,46 @@ export async function handleFormSubmission(values: FormValues) {
     return { success: false, message: error.message || 'Failed to process your message. Please try again later.' };
   }
 }
+
+export async function handleSendReply(values: ReplyValues) {
+    const user = await getCurrentUser();
+    if (!user) {
+        return { success: false, message: 'Authentication required.' };
+    }
+    
+    if (!process.env.RESEND_API_KEY) {
+        console.error('Resend API key is not configured.');
+        return { success: false, message: 'The email service is not configured on the server.' };
+    }
+
+    const parsed = replySchema.safeParse(values);
+    if (!parsed.success) {
+        return { success: false, message: 'Invalid reply data.' };
+    }
+
+    try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        await resend.emails.send(parsed.data);
+
+        await logAdminAction('Email Reply Sent', {
+            user: user.email,
+            recipient: parsed.data.to,
+            status: 'Success',
+        });
+        
+        return { success: true, message: 'Your reply has been sent.' };
+    } catch (error: any) {
+        console.error('Resend error:', error);
+        await logAdminAction('Email Reply Failed', {
+            user: user.email,
+            recipient: parsed.data.to,
+            status: 'Failed',
+            error: error.message,
+        });
+        return { success: false, message: 'Failed to send email. Please check server logs.' };
+    }
+}
+
 
 export async function handleDeleteSubmission(id: string) {
   const user = await getCurrentUser();

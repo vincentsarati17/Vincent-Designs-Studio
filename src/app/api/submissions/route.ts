@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import { getAdminDb } from '@/firebase/admin';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp } from 'firebase-admin/firestore';
 import { z } from 'zod';
 
 const formSchema = z.object({

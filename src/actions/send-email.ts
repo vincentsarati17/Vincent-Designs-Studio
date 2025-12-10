@@ -1,9 +1,8 @@
 'use server';
 
 import { z } from 'zod';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
 import { Resend } from 'resend';
-import { deleteSubmission as deleteSubmissionFromDb } from '@/services/submissions';
 import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
@@ -74,7 +73,13 @@ export async function handleDeleteSubmission(id: string) {
   }
 
   try {
-    await deleteSubmissionFromDb(id);
+    const db = getAdminDb();
+    if (!db) {
+      throw new Error("Firebase Admin is not configured. Cannot delete submission.");
+    }
+    
+    await deleteDoc(doc(db, 'submissions', id));
+
     await logAdminAction('Submission Deleted', {
       user: user.email,
       deletedSubmissionId: id,

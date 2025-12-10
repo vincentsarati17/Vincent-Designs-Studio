@@ -6,13 +6,13 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
-import { getStorage, getFirestore } from 'firebase/storage';
+import { getAdminDb } from '@/firebase/admin';
 import { initializeFirebase } from '@/firebase';
 
-// Helper to get client-side instances
-function getClientInstances() {
-    const { db, storage } = initializeFirebase();
-    return { db, storage };
+// Helper to get client-side storage instance
+function getClientStorage() {
+    const { storage } = initializeFirebase();
+    return storage;
 }
 
 const projectSchema = z.object({
@@ -55,7 +55,11 @@ export async function handleAddProject(prevState: any, formData: FormData) {
   const { image, ...projectData } = parsed.data;
 
   try {
-    const { db, storage } = getClientInstances();
+    const db = getAdminDb();
+    if (!db) {
+      throw new Error("Firebase Admin is not configured. Cannot process submission.");
+    }
+    const storage = getClientStorage();
     
     const slugQuery = query(collection(db, 'projects'), where('slug', '==', projectData.slug));
     const slugSnapshot = await getDocs(slugQuery);
@@ -118,7 +122,11 @@ export async function handleUpdateProject(projectId: string, prevState: any, for
   const { image, currentImageUrl, currentSlug, ...projectData } = parsed.data;
 
   try {
-    const { db, storage } = getClientInstances();
+    const db = getAdminDb();
+    if (!db) {
+      throw new Error("Firebase Admin is not configured. Cannot process submission.");
+    }
+    const storage = getClientStorage();
 
     if (projectData.slug !== currentSlug) {
       const slugQuery = query(collection(db, 'projects'), where('slug', '==', projectData.slug));
@@ -188,7 +196,10 @@ export async function handleDeleteProject(id: string) {
   }
 
   try {
-    const { db } = getClientInstances();
+    const db = getAdminDb();
+    if (!db) {
+      throw new Error("Firebase Admin is not configured. Cannot delete project.");
+    }
     await deleteDoc(doc(db, 'projects', id));
     await logAdminAction('Project Deleted', {
       user: user.email,

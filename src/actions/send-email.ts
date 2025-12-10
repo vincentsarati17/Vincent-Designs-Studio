@@ -2,12 +2,11 @@
 'use server';
 
 import { z } from 'zod';
-import { collection, addDoc, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc } from 'firebase/firestore';
 import { Resend } from 'resend';
 import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
-import { initializeFirebase } from '@/firebase';
 import { getAdminDb } from '@/firebase/admin';
 
 const formSchema = z.object({
@@ -27,12 +26,18 @@ export async function handleFormSubmission(values: FormValues) {
   }
 
   if (!process.env.RESEND_API_KEY) {
-    console.error('RESEND_API_KEY is not configured.');
-    return { success: false, message: 'Server configuration error. Could not send email.' };
+    console.error('RESEND_API_KEY environment variable is not configured.');
+    return { success: false, message: 'Server configuration error: The RESEND_API_KEY is missing. Could not send email.' };
   }
   
   try {
-    const { db } = initializeFirebase();
+    const db = getAdminDb();
+    if (!db) {
+        // This is a server configuration issue, so we return a generic server error.
+        console.error("Firebase Admin is not configured. Cannot save submission to database.");
+        return { success: false, message: 'A server error occurred. Please try again later.' };
+    }
+
     const submission = {
       ...parsedData.data,
       isRead: false,
@@ -77,7 +82,7 @@ export async function handleDeleteSubmission(id: string) {
       throw new Error("Firebase Admin is not configured. Cannot process submission deletion.");
     }
     
-    await deleteDoc(doc(db, 'submissions', id));
+    await db.collection('submissions').doc(id).delete();
 
     await logAdminAction('Submission Deleted', {
       user: user.email,

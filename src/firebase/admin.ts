@@ -34,16 +34,22 @@ function initializeAdminApp(): void {
         adminDb = getFirestore(adminApp);
       } catch (e: any) {
         console.error('Firebase Admin SDK initialization failed:', e.message);
+        // Reset to null if initialization fails
+        adminApp = null;
+        adminAuth = null;
+        adminDb = null;
       }
     } else {
       console.warn('Firebase Admin SDK environment variables not fully set. Admin features will be disabled.');
     }
   } else {
     // If already initialized, get the existing app and services.
-    adminApp = getApps()[0];
-    if (adminApp) {
-        adminAuth = getAuth(adminApp);
-        adminDb = getFirestore(adminApp);
+    if (!adminApp) {
+        adminApp = getApps()[0];
+        if (adminApp) {
+            adminAuth = getAuth(adminApp);
+            adminDb = getFirestore(adminApp);
+        }
     }
   }
 }
@@ -52,13 +58,16 @@ function initializeAdminApp(): void {
 initializeAdminApp();
 
 export function getAdminApp(): App | null {
+  if (!adminApp) initializeAdminApp();
   return adminApp;
 }
 
 export function getAdminAuth(): Auth | null {
+  if (!adminAuth) initializeAdminApp();
   return adminAuth;
 }
 
 export function getAdminDb(): Firestore | null {
+  if (!adminDb) initializeAdminApp();
   return adminDb;
 }

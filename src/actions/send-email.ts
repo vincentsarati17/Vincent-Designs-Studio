@@ -2,11 +2,11 @@
 'use server';
 
 import { z } from 'zod';
-import { collection, addDoc, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
+import { getAdminDb } from '@/firebase/admin';
+import { doc, deleteDoc } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
-import { getAdminDb } from '@/firebase/admin';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -23,29 +23,25 @@ export async function handleFormSubmission(values: FormValues) {
   if (!parsedData.success) {
     return { success: false, message: 'Invalid data.' };
   }
-  
+
   try {
-    const db = getAdminDb();
-    if (!db) {
-        // This is a server configuration issue, so we return a generic server error.
-        console.error("Firebase Admin is not configured. Cannot save submission to database.");
-        return { success: false, message: 'A server error occurred. Please try again later.' };
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/submissions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(parsedData.data),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || 'An API error occurred.');
     }
-
-    const submission = {
-      ...parsedData.data,
-      isRead: false,
-      createdAt: serverTimestamp(),
-    };
-    await addDoc(collection(db, 'submissions'), submission);
-
-    // Email sending logic has been removed as requested.
-
+    
     return { success: true };
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error handling form submission:', error);
-    return { success: false, message: 'Failed to process your message. Please try again later.' };
+    return { success: false, message: error.message || 'Failed to process your message. Please try again later.' };
   }
 }
 

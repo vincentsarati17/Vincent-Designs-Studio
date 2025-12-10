@@ -32,7 +32,7 @@ type Notification = {
 }
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = React.useState<{totalClients: number, ongoingProjects: number, completedProjects: number} | null>(null);
+  const [stats, setStats] = React.useState<{totalClients: number, totalProjects: number, completedProjects: number} | null>(null);
   const [submissions, setSubmissions] = React.useState<ContactSubmission[] | null>(null);
   const [deadlines, setDeadlines] = React.useState<Project[] | null>(null);
   const [notifications, setNotifications] = React.useState<Notification[] | null>(null);
@@ -49,13 +49,15 @@ export default function AdminDashboardPage() {
           getDocs(clientsQuery)
         ]);
 
-        const projectsCount = projectsSnapshot.size;
+        const projects = projectsSnapshot.docs.map(doc => doc.data() as Project);
+        const totalProjects = projects.length;
+        const completedProjects = projects.filter(p => p.deadline && p.deadline.toDate() < new Date()).length;
         const clientsCount = clientsSnapshot.size; 
 
         setStats({
             totalClients: clientsCount,
-            ongoingProjects: projectsCount,
-            completedProjects: 1, // Placeholder
+            totalProjects: totalProjects,
+            completedProjects: completedProjects,
         });
     }
 
@@ -170,13 +172,13 @@ export default function AdminDashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ongoing Projects</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
             <FolderKanban className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {stats ? <div className="text-2xl font-bold">{stats.ongoingProjects}</div> : <Skeleton className="h-8 w-10" />}
+            {stats ? <div className="text-2xl font-bold">{stats.totalProjects}</div> : <Skeleton className="h-8 w-10" />}
             <p className="text-xs text-muted-foreground">
-              Total projects created
+              Total projects ever created
             </p>
           </CardContent>
         </Card>
@@ -188,7 +190,7 @@ export default function AdminDashboardPage() {
           <CardContent>
             {stats ? <div className="text-2xl font-bold">{stats.completedProjects}</div> : <Skeleton className="h-8 w-10" />}
             <p className="text-xs text-muted-foreground">
-              Projects delivered this year
+              Projects with past deadlines
             </p>
           </CardContent>
         </Card>
@@ -323,3 +325,5 @@ export default function AdminDashboardPage() {
     </>
   );
 }
+
+    

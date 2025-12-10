@@ -24,7 +24,7 @@ const { db } = initializeFirebase();
 export default function SecurityPageClient() {
   const [is2faEnabled, setIs2faEnabled] = React.useState(false);
   const [isLoaded, setIsLoaded] = React.useState(false);
-  const [loginHistory, setLoginHistory] = React.useState<AdminLog[] | null>(null);
+  const [actionLogs, setActionLogs] = React.useState<AdminLog[] | null>(null);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
@@ -52,15 +52,15 @@ export default function SecurityPageClient() {
           createdAt: data.createdAt?.toDate()
         } as AdminLog;
       });
-      setLoginHistory(logs);
+      setActionLogs(logs);
     }, (error) => {
-      console.error("Error fetching login history:", error);
+      console.error("Error fetching logs:", error);
       toast({
         variant: "destructive",
         title: "Failed to load logs",
-        description: "Could not fetch login history."
+        description: "Could not fetch activity logs."
       });
-      setLoginHistory([]);
+      setActionLogs([]);
     });
 
     return () => unsubscribe();
@@ -104,31 +104,34 @@ export default function SecurityPageClient() {
         <div className="lg:col-span-2 space-y-8">
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><KeyRound /> Login History</CardTitle>
-                    <CardDescription>Recent login attempts to the admin dashboard.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><FileText /> Admin Action Logs</CardTitle>
+                    <CardDescription>A log of the most recent actions performed by administrators.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead>Action</TableHead>
                                 <TableHead>User</TableHead>
                                 <TableHead>Time</TableHead>
                                 <TableHead>Status</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {loginHistory === null ? (
+                            {actionLogs === null ? (
                                 Array.from({ length: 3 }).map((_, i) => (
                                     <TableRow key={`skeleton-${i}`}>
                                         <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                                         <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                                        <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                                         <TableCell><Skeleton className="h-6 w-16" /></TableCell>
                                     </TableRow>
                                 ))
-                            ) : loginHistory.length > 0 ? (
-                                loginHistory.map((log) => (
+                            ) : actionLogs.length > 0 ? (
+                                actionLogs.map((log) => (
                                     <TableRow key={log.id}>
-                                        <TableCell className="font-medium">{log.user}</TableCell>
+                                        <TableCell className="font-medium">{log.action}</TableCell>
+                                        <TableCell>{log.user}</TableCell>
                                         <TableCell>{log.createdAt ? `${formatDistanceToNow(log.createdAt)} ago` : 'N/A'}</TableCell>
                                         <TableCell>
                                             <Badge variant={getStatusVariant(log.status) as any}>{log.status}</Badge>
@@ -138,24 +141,12 @@ export default function SecurityPageClient() {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={4} className="h-24 text-center">
-                                        No login history found.
+                                        No recent activity found.
                                     </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
                     </Table>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><FileText /> Admin Action Logs</CardTitle>
-                    <CardDescription>A log of important actions performed by administrators.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-center text-muted-foreground h-24 flex items-center justify-center">
-                        <p>Action logs are not yet available.</p>
-                    </div>
                     <div className="mt-4 flex justify-end">
                         <Button variant="outline" asChild>
                             <Link href="/admin/security/logs">View All Logs</Link>
@@ -189,3 +180,5 @@ export default function SecurityPageClient() {
     </>
   );
 }
+
+    

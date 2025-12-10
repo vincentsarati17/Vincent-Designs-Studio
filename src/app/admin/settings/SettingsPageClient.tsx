@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ThemeToggleButton } from "@/components/ThemeToggleButton";
 import { Slider } from "@/components/ui/slider";
-import React, { useTransition, useState, useEffect } from "react";
+import React, { useTransition, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Trash2, PlusCircle, Upload } from "lucide-react";
@@ -136,7 +136,7 @@ export default function SettingsPageClient() {
   const [isIdentityPending, startIdentityTransition] = useTransition();
 
   const [isBrandingLoading, setIsBrandingLoading] = React.useState(true);
-  const [brandingFormState, setBrandingFormState] = useState(initialBrandingState);
+  const [isBrandingPending, startBrandingTransition] = useTransition();
   
   const [isAdminsPending, startAdminsTransition] = useTransition();
   const [isMaintenancePending, startMaintenanceTransition] = useTransition();
@@ -186,21 +186,6 @@ export default function SettingsPageClient() {
 
     return () => unsubscribe();
   }, [toast]);
-  
-  useEffect(() => {
-    if (brandingFormState.success) {
-      toast({
-        title: "Logo Settings Saved",
-        description: brandingFormState.message,
-      });
-    } else if (brandingFormState.message && !brandingFormState.success && brandingFormState.message !== "") {
-      toast({
-        variant: "destructive",
-        title: "Save Failed",
-        description: brandingFormState.message,
-      });
-    }
-  }, [brandingFormState, toast]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -269,11 +254,24 @@ export default function SettingsPageClient() {
     });
   };
   
-  const handleBrandingSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleBrandingSubmit = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
-      const result = await updateBrandingSettings(initialBrandingState, formData);
-      setBrandingFormState(result);
+      startBrandingTransition(async () => {
+        const result = await updateBrandingSettings(initialBrandingState, formData);
+        if (result.success) {
+            toast({
+                title: "Logo Settings Saved",
+                description: result.message,
+            });
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Save Failed",
+                description: result.message,
+            });
+        }
+      });
   }
 
   return (
@@ -362,7 +360,7 @@ export default function SettingsPageClient() {
                             accept="image/*" 
                             className="hidden"
                             onChange={handleFileChange}
-                            disabled={false}
+                            disabled={isBrandingPending}
                         />
                         <Button type="button" variant="outline" asChild>
                             <label htmlFor="logo-upload" className="cursor-pointer">
@@ -385,7 +383,7 @@ export default function SettingsPageClient() {
                         value={[logoWidth]}
                         onValueChange={(value) => setLogoWidth(value[0])}
                         className="mt-2"
-                        disabled={false}
+                        disabled={isBrandingPending}
                     />
                 </div>
                 
@@ -412,7 +410,7 @@ export default function SettingsPageClient() {
                 </div>
 
                 <div className="flex justify-end">
-                    <Button type="submit" disabled={false}>Save Logo Settings</Button>
+                    <Button type="submit" disabled={isBrandingPending}>{isBrandingPending ? 'Saving...' : 'Save Logo Settings'}</Button>
                 </div>
             </>
             )}

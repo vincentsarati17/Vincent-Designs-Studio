@@ -3,7 +3,6 @@
 
 import { z } from 'zod';
 import { collection, addDoc, serverTimestamp, doc } from 'firebase/firestore';
-import { Resend } from 'resend';
 import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
@@ -24,11 +23,6 @@ export async function handleFormSubmission(values: FormValues) {
   if (!parsedData.success) {
     return { success: false, message: 'Invalid data.' };
   }
-
-  if (!process.env.RESEND_API_KEY) {
-    console.error('RESEND_API_KEY environment variable is not configured.');
-    return { success: false, message: 'Server configuration error: The RESEND_API_KEY is missing. Could not send email.' };
-  }
   
   try {
     const db = getAdminDb();
@@ -45,22 +39,7 @@ export async function handleFormSubmission(values: FormValues) {
     };
     await addDoc(collection(db, 'submissions'), submission);
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    
-    await resend.emails.send({
-      from: 'onboarding@resend.dev', 
-      to: 'vincentdesigns137@gmail.com', 
-      subject: `New Message from ${parsedData.data.name} via your website`,
-      reply_to: parsedData.data.email, 
-      html: `
-        <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${parsedData.data.name}</p>
-        <p><strong>Email:</strong> ${parsedData.data.email}</p>
-        <p><strong>Service:</strong> ${parsedData.data.service}</p>
-        <p><strong>Message:</strong></p>
-        <p>${parsedData.data.message}</p>
-      `,
-    });
+    // Email sending logic has been removed as requested.
 
     return { success: true };
 

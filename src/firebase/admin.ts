@@ -1,63 +1,64 @@
 
-import { getApps, initializeApp, App, cert, AppOptions } from 'firebase-admin/app';
-import type { Auth } from 'firebase-admin/auth';
-import type { Firestore } from 'firebase-admin/firestore';
+import { getApps, initializeApp, App, cert } from 'firebase-admin/app';
+import { getAuth, Auth } from 'firebase-admin/auth';
+import { getFirestore, Firestore } from 'firebase-admin/firestore';
 
 let adminApp: App | null = null;
 let adminAuth: Auth | null = null;
 let adminDb: Firestore | null = null;
 
 function initializeAdminApp(): void {
-    // Only run initialization in a server environment
-    if (typeof window !== 'undefined') {
-        return;
-    }
+  // This function should only run in a server environment.
+  if (typeof window !== 'undefined') {
+    return;
+  }
 
-    if (getApps().length === 0) {
-        const projectId = process.env.FIREBASE_PROJECT_ID;
-        const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-        const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  // Ensure initialization happens only once.
+  if (getApps().length === 0) {
+    const projectId = process.env.FIREBASE_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-        if (projectId && clientEmail && privateKey) {
-            try {
-                adminApp = initializeApp({
-                    credential: cert({
-                        projectId,
-                        clientEmail,
-                        privateKey: privateKey.replace(/\\n/g, '\n'),
-                    }),
-                    databaseURL: `https://${projectId}.firebaseio.com`,
-                });
-            } catch (e: any) {
-                console.error('Firebase Admin SDK initialization failed:', e.message);
-            }
-        } else {
-            console.warn('Firebase Admin SDK environment variables not fully set. Admin features may be limited.');
-        }
+    // Check if all required environment variables are present.
+    if (projectId && clientEmail && privateKey) {
+      try {
+        adminApp = initializeApp({
+          credential: cert({
+            projectId,
+            clientEmail,
+            // Replace escaped newlines from environment variables.
+            privateKey: privateKey.replace(/\\n/g, '\n'),
+          }),
+        });
+        adminAuth = getAuth(adminApp);
+        adminDb = getFirestore(adminApp);
+      } catch (e: any) {
+        console.error('Firebase Admin SDK initialization failed:', e.message);
+      }
     } else {
-        adminApp = getApps()[0];
+      console.warn('Firebase Admin SDK environment variables not fully set. Admin features will be disabled.');
     }
+  } else {
+    // If already initialized, get the existing app and services.
+    adminApp = getApps()[0];
+    if (adminApp) {
+        adminAuth = getAuth(adminApp);
+        adminDb = getFirestore(adminApp);
+    }
+  }
 }
 
-// Initialize on first import in a server environment
+// Initialize on module load.
 initializeAdminApp();
 
-// Use dynamic imports within the getter functions to ensure
-// they are only imported when called on the server.
 export function getAdminApp(): App | null {
-    return adminApp;
+  return adminApp;
 }
 
 export function getAdminAuth(): Auth | null {
-    if (!adminAuth && adminApp) {
-        adminAuth = require('firebase-admin/auth').getAuth(adminApp);
-    }
-    return adminAuth;
+  return adminAuth;
 }
 
 export function getAdminDb(): Firestore | null {
-    if (!adminDb && adminApp) {
-        adminDb = require('firebase-admin/firestore').getFirestore(adminApp);
-    }
-    return adminDb;
+  return adminDb;
 }

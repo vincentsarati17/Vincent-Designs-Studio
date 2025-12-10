@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getAdminAuth, getAdminDb } from '@/firebase/admin';
-import { getDoc } from 'firebase/firestore';
 
 export async function POST(request: NextRequest) {
     const authorization = request.headers.get('Authorization');
@@ -13,6 +12,12 @@ export async function POST(request: NextRequest) {
         try {
             const adminAuth = getAdminAuth();
             const adminDb = getAdminDb();
+            
+            // The new admin.ts initializes everything, so if it's null, something is wrong with the credentials.
+            if (!adminAuth || !adminDb) {
+                console.error("Firebase Admin SDK is not initialized. Check server environment variables.");
+                return NextResponse.json({ success: false, message: 'Server is not configured for authentication.' }, { status: 500 });
+            }
             
             const decodedToken = await adminAuth.verifyIdToken(idToken);
             
@@ -38,8 +43,11 @@ export async function POST(request: NextRequest) {
 
         } catch (error: any) {
             console.error('Error creating session cookie:', error);
-            // Provide a more specific error message in the response
-            return NextResponse.json({ success: false, message: `Could not create session. Server error: ${error.message}` }, { status: 401 });
+            const errorMessage = error.code === 'auth/id-token-revoked' 
+              ? 'Your session has expired. Please sign in again.' 
+              : `Could not create session. Server error: ${error.message}`;
+              
+            return NextResponse.json({ success: false, message: errorMessage }, { status: 401 });
         }
     }
 

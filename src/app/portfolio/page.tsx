@@ -1,29 +1,10 @@
 
-'use client';
-
 import ProjectCard from "@/components/ProjectCard";
 import { getProjects } from "@/services/projects";
 import type { Project } from "@/lib/types";
-import React from "react";
 
-export default function PortfolioPage() {
-  const [projects, setProjects] = React.useState<Project[] | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    async function loadProjects() {
-      setIsLoading(true);
-      try {
-        const fetchedProjects = await getProjects();
-        setProjects(fetchedProjects || []);
-      } catch (error) {
-        console.error("Error loading projects:", error);
-        setProjects([]);
-      }
-      setIsLoading(false);
-    }
-    loadProjects();
-  }, []);
+export default async function PortfolioPage() {
+  const projects = await getProjects();
 
   return (
     <div className="container py-16 md:py-24">
@@ -35,17 +16,7 @@ export default function PortfolioPage() {
       </div>
       
         <div className="mt-16 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {isLoading ? (
-            // Skeleton loaders
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-card/50 rounded-lg p-6 space-y-4">
-                <div className="aspect-[3/2] bg-muted rounded-md animate-pulse"></div>
-                <div className="h-4 w-1/4 bg-muted rounded animate-pulse"></div>
-                <div className="h-6 w-3/4 bg-muted rounded animate-pulse"></div>
-                <div className="h-10 w-full bg-muted rounded animate-pulse"></div>
-              </div>
-            ))
-          ) : projects && projects.length > 0 ? (
+          {projects && projects.length > 0 ? (
             projects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))

@@ -1,20 +1,31 @@
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getMaintenanceModeSettings } from '@/services/settings';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Check for Maintenance Mode from environment variables
-  const isMaintenanceMode = process.env.MAINTENANCE_MODE === 'true';
-  const isUnderMaintenancePath = pathname === '/maintenance';
+  // 1. Check for Maintenance Mode from Firestore
+  try {
+    const maintenanceSettings = await getMaintenanceModeSettings();
+    const isMaintenanceMode = maintenanceSettings.isEnabled;
+    const isUnderMaintenancePath = pathname === '/maintenance';
 
-  if (isMaintenanceMode && !pathname.startsWith('/admin') && !pathname.startsWith('/api') && !isUnderMaintenancePath) {
-    return NextResponse.rewrite(new URL('/maintenance', request.url));
+    // Allow access to admin, API, and the maintenance page itself
+    const isAllowedPath = pathname.startsWith('/admin') || pathname.startsWith('/api') || isUnderMaintenancePath;
+
+    if (isMaintenanceMode && !isAllowedPath) {
+      return NextResponse.rewrite(new URL('/maintenance', request.url));
+    }
+    
+    if (!isMaintenanceMode && isUnderMaintenancePath) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  } catch (error) {
+    console.error("Middleware error checking maintenance mode:", error);
+    // If we can't check the setting, proceed as if it's disabled.
   }
-  
-  if (!isMaintenanceMode && isUnderMaintenancePath) {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
+
 
   // 2. Handle Admin Route Protection
   if (pathname.startsWith('/admin')) {

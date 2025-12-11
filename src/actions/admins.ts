@@ -1,15 +1,26 @@
 'use server';
 
 import { z } from 'zod';
-import { addAdmin as addAdminToDb, deleteAdmin as deleteAdminFromDb } from '@/services/admins';
+import { addAdmin as addAdminToDb, deleteAdmin as deleteAdminFromDb, getAdmins as getAdminsFromDb } from '@/services/admins';
 import { logAdminAction } from '@/services/logs';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/auth-utils';
+import type { AdminUser } from '@/lib/types';
 
 const addAdminSchema = z.object({
   email: z.string().email(),
   role: z.enum(['Super Admin', 'Admin', 'Support', 'Content']),
 });
+
+export async function getAdmins(): Promise<AdminUser[]> {
+    const user = await getCurrentUser();
+    if (!user) {
+        return [];
+    }
+    // In a real app, you might want to restrict this to Super Admins
+    return getAdminsFromDb();
+}
+
 
 export async function handleAddAdmin(values: { email: string, role: 'Super Admin' | 'Admin' | 'Support' | 'Content' }) {
   const user = await getCurrentUser();

@@ -1,4 +1,3 @@
-
 'use server';
 import { getAdminDb } from '@/firebase/admin';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -35,8 +34,6 @@ const defaultMaintenanceSettings = { isEnabled: false };
 
 async function getSettings<T>(collectionId: string, defaultSettings: T): Promise<T> {
     const db = getAdminDb();
-    // In a serverless environment (like Vercel middleware), the Admin SDK might not be initialized
-    // on every request if there are no credentials. We should handle this gracefully.
     if (!db) {
         console.warn(`Firebase Admin is not available. Returning default settings for '${collectionId}'.`);
         return defaultSettings;

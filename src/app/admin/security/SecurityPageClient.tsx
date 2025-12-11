@@ -1,11 +1,10 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Shield, Fingerprint, KeyRound, User, Clock, FileText } from "lucide-react";
+import { Shield, Fingerprint, FileText } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
@@ -16,27 +15,24 @@ import { initializeFirebase } from "@/firebase";
 import type { AdminLog } from "@/lib/types";
 import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
-import { getSecuritySettings } from "@/services/settings";
 import { updateSecuritySettings } from "@/actions/settings";
+import type { SecuritySettings } from "@/services/settings";
 
 const { db } = initializeFirebase();
 
-export default function SecurityPageClient() {
-  const [is2faEnabled, setIs2faEnabled] = React.useState(false);
-  const [isLoaded, setIsLoaded] = React.useState(false);
+type SecurityPageClientProps = {
+  settings: SecuritySettings;
+};
+
+export default function SecurityPageClient({ settings }: SecurityPageClientProps) {
+  const [is2faEnabled, setIs2faEnabled] = React.useState(settings.is2faEnabled);
+  const [isLoaded, setIsLoaded] = React.useState(true); // Now loaded from server
   const [actionLogs, setActionLogs] = React.useState<AdminLog[] | null>(null);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
   React.useEffect(() => {
-    async function fetchSettings() {
-      const settings = await getSecuritySettings();
-      setIs2faEnabled(settings.is2faEnabled);
-      setIsLoaded(true);
-    }
-
-    fetchSettings();
-
+    // Fetch logs on client
     const logsQuery = query(
       collection(db, 'admin_logs'), 
       orderBy('createdAt', 'desc'),
@@ -180,5 +176,3 @@ export default function SecurityPageClient() {
     </>
   );
 }
-
-    

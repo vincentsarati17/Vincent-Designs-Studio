@@ -1,21 +1,17 @@
 'use server';
 
 import { z } from 'zod';
-import { saveSecuritySettings, saveSiteIdentitySettings, saveBrandingSettings, saveMaintenanceModeSettings } from '@/services/settings';
+import { saveSecuritySettings, saveSiteIdentitySettings, saveBrandingSettings, saveMaintenanceModeSettings, getSiteIdentitySettings as getSiteIdentitySettingsFromDb, getBrandingSettings as getBrandingSettingsFromDb, getMaintenanceModeSettings as getMaintenanceModeSettingsFromDb, getSecuritySettings as getSecuritySettingsFromDb } from '@/services/settings';
 import { logAdminAction } from '@/services/logs';
 import { revalidatePath } from 'next/cache';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { getCurrentUser } from '@/lib/auth-utils';
-import { getStorage } from 'firebase/storage';
-import { initializeApp, getApps } from 'firebase/app';
-import { getFirebaseConfig } from '@/firebase/config';
+import { initializeFirebase } from '@/firebase';
 
 // Helper to get client-side storage instance
 function getClientStorage() {
-    if (!getApps().length) {
-        initializeApp(getFirebaseConfig());
-    }
-    return getStorage();
+    const { storage } = initializeFirebase();
+    return storage;
 }
 
 const securitySettingsSchema = z.object({
@@ -41,6 +37,25 @@ const maintenanceModeSchema = z.object({
 });
 
 type MaintenanceModeForm = z.infer<typeof maintenanceModeSchema>;
+
+// --- SERVER-SIDE GETTERS ---
+export async function getSiteIdentitySettings() {
+    return getSiteIdentitySettingsFromDb();
+}
+
+export async function getBrandingSettings() {
+    return getBrandingSettingsFromDb();
+}
+
+export async function getMaintenanceModeSettings() {
+    return getMaintenanceModeSettingsFromDb();
+}
+
+export async function getSecuritySettings() {
+    return getSecuritySettingsFromDb();
+}
+// --- END SERVER-SIDE GETTERS ---
+
 
 export async function updateSecuritySettings(values: SecuritySettingsForm) {
   const user = await getCurrentUser();

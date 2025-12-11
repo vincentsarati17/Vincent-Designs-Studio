@@ -39,15 +39,16 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast";
-import { getSiteIdentitySettings, SiteIdentitySettings, getBrandingSettings, BrandingSettings, getMaintenanceModeSettings } from "@/services/settings";
+import { SiteIdentitySettings, BrandingSettings, MaintenanceSettings } from "@/services/settings";
 import { updateSiteIdentitySettings, updateBrandingSettings, updateMaintenanceMode } from "@/actions/settings";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AdminUser } from "@/lib/types";
-import { initializeFirebase } from "@/firebase";
-import { collection, onSnapshot, query } from "firebase/firestore";
 import { handleAddAdmin, handleDeleteAdmin } from "@/actions/admins";
+import { collection, onSnapshot, query } from 'firebase/firestore';
+import { initializeFirebase } from "@/firebase";
 
 const { db } = initializeFirebase();
+
 
 const initialBrandingState = {
   success: false,
@@ -123,53 +124,33 @@ function AddAdminDialog() {
     );
 }
 
-export default function SettingsPageClient() {
-  const [logoPreview, setLogoPreview] = React.useState<string | null>(null);
-  const [logoWidth, setLogoWidth] = React.useState(180);
-  const [admins, setAdmins] = React.useState<AdminUser[] | null>(null);
-  const [isMaintenanceMode, setIsMaintenanceMode] = React.useState(false);
+type SettingsPageClientProps = {
+    identitySettings: SiteIdentitySettings;
+    brandingSettings: BrandingSettings;
+    maintenanceSettings: MaintenanceSettings;
+    admins: AdminUser[];
+}
+
+export default function SettingsPageClient({ identitySettings, brandingSettings, maintenanceSettings, admins: initialAdmins }: SettingsPageClientProps) {
+  const [logoPreview, setLogoPreview] = React.useState<string | null>(brandingSettings.logoUrl);
+  const [logoWidth, setLogoWidth] = React.useState(brandingSettings.logoWidth);
+  const [admins, setAdmins] = React.useState<AdminUser[] | null>(initialAdmins);
+  const [isMaintenanceMode, setIsMaintenanceMode] = React.useState(maintenanceSettings.isEnabled);
   const { toast } = useToast();
   
-  const [isIdentityLoading, setIsIdentityLoading] = React.useState(true);
-  const [siteName, setSiteName] = React.useState('');
-  const [publicEmail, setPublicEmail] = React.useState('');
+  const [siteName, setSiteName] = React.useState(identitySettings.siteName);
+  const [publicEmail, setPublicEmail] = React.useState(identitySettings.publicEmail);
   const [isIdentityPending, startIdentityTransition] = useTransition();
 
-  const [isBrandingLoading, setIsBrandingLoading] = React.useState(true);
   const [isBrandingPending, startBrandingTransition] = useTransition();
   
   const [isAdminsPending, startAdminsTransition] = useTransition();
   const [isMaintenancePending, startMaintenanceTransition] = useTransition();
-  const [isSettingsLoading, setIsSettingsLoading] = React.useState(true);
   
   const brandingFormRef = useRef<HTMLFormElement>(null);
 
   React.useEffect(() => {
-    async function fetchAllSettings() {
-      setIsIdentityLoading(true);
-      setIsBrandingLoading(true);
-      setIsSettingsLoading(true);
-
-      const identityPromise = getSiteIdentitySettings();
-      const brandingPromise = getBrandingSettings();
-      const maintenancePromise = getMaintenanceModeSettings();
-
-      const [identity, branding, maintenance] = await Promise.all([identityPromise, brandingPromise, maintenancePromise]);
-      
-      setSiteName(identity.siteName);
-      setPublicEmail(identity.publicEmail);
-      setIsIdentityLoading(false);
-
-      setLogoPreview(branding.logoUrl);
-      setLogoWidth(branding.logoWidth);
-      setIsBrandingLoading(false);
-
-      setIsMaintenanceMode(maintenance.isEnabled);
-      setIsSettingsLoading(false);
-    }
-    
-    fetchAllSettings();
-
+    // Admins are the only thing we listen to in real-time on this page
     const q = query(collection(db, 'admins'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
         const adminList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminUser));
@@ -287,18 +268,6 @@ export default function SettingsPageClient() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {isIdentityLoading ? (
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-20" />
-                        <Skeleton className="h-10 w-full" />
-                    </div>
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-20" />
-                        <Skeleton className="h-10 w-full" />
-                    </div>
-                </div>
-            ) : (
                 <>
                     <div className="space-y-2">
                         <Label htmlFor="site-name">Site Name</Label>
@@ -320,9 +289,8 @@ export default function SettingsPageClient() {
                         />
                     </div>
                 </>
-            )}
              <div className="flex justify-end">
-                <Button onClick={handleSaveChanges} disabled={isIdentityLoading || isIdentityPending}>
+                <Button onClick={handleSaveChanges} disabled={isIdentityPending}>
                   {isIdentityPending ? 'Saving...' : 'Save Changes'}
                 </Button>
             </div>
@@ -338,7 +306,6 @@ export default function SettingsPageClient() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {isBrandingLoading ? <Skeleton className="h-48 w-full" /> : (
             <>
                 <div>
                     <Label htmlFor="logo-upload">Upload New Logo</Label>
@@ -413,7 +380,6 @@ export default function SettingsPageClient() {
                     <Button type="submit" disabled={isBrandingPending}>{isBrandingPending ? 'Saving...' : 'Save Logo Settings'}</Button>
                 </div>
             </>
-            )}
           </CardContent>
         </Card>
         </form>
@@ -506,11 +472,7 @@ export default function SettingsPageClient() {
                         When enabled, your public-facing website will be unavailable.
                     </p>
                 </div>
-                {isSettingsLoading ? (
-                    <Skeleton className="h-6 w-11 rounded-full" />
-                ) : (
-                    <Switch id="maintenance-mode" checked={isMaintenanceMode} onCheckedChange={handleMaintenanceModeChange} disabled={isMaintenancePending} />
-                )}
+                <Switch id="maintenance-mode" checked={isMaintenanceMode} onCheckedChange={handleMaintenanceModeChange} disabled={isMaintenancePending} />
             </div>
           </CardContent>
         </Card>

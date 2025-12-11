@@ -1,12 +1,12 @@
+
 'use server';
 
 import { z } from 'zod';
-import { collection, addDoc, serverTimestamp, query, where, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { revalidatePath } from 'next/cache';
+import { addProject, updateProject, deleteProject } from '@/services/projects';
 import { logAdminAction } from '@/services/logs';
+import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/auth-utils';
-import { getAdminDb } from '@/firebase/admin';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { initializeFirebase } from '@/firebase';
 
 // Helper to get client-side storage instance
@@ -55,16 +55,12 @@ export async function handleAddProject(prevState: any, formData: FormData) {
   const { image, ...projectData } = parsed.data;
 
   try {
-    const db = getAdminDb();
-    if (!db) {
-      throw new Error("Firebase Admin is not configured. Cannot process submission.");
-    }
     const storage = getClientStorage();
     
-    const slugQuery = query(collection(db, 'projects'), where('slug', '==', projectData.slug));
-    const slugSnapshot = await getDocs(slugQuery);
-    if (!slugSnapshot.empty) {
-      return { success: false, message: 'This slug is already in use. Please choose a unique one.' };
+    // Check for slug existence via service
+    const isSlugTaken = await addProject({ ...projectData, checkSlugOnly: true });
+    if (isSlugTaken.slugExists) {
+        return { success: false, message: 'This slug is already in use. Please choose a unique one.' };
     }
 
     const storageRef = ref(storage, `projects/${Date.now()}-${image.name}`);
@@ -75,10 +71,9 @@ export async function handleAddProject(prevState: any, formData: FormData) {
       ...projectData,
       imageUrl,
       details: projectData.details.split('\n').filter(p => p.trim() !== ''),
-      createdAt: serverTimestamp(),
     };
 
-    const docRef = await addDoc(collection(db, 'projects'), finalProjectData);
+    const docRef = await addProject(finalProjectData);
     
     await logAdminAction('Project Created', { 
         projectId: docRef.id, 
@@ -122,18 +117,14 @@ export async function handleUpdateProject(projectId: string, prevState: any, for
   const { image, currentImageUrl, currentSlug, ...projectData } = parsed.data;
 
   try {
-    const db = getAdminDb();
-    if (!db) {
-      throw new Error("Firebase Admin is not configured. Cannot process submission.");
-    }
     const storage = getClientStorage();
 
     if (projectData.slug !== currentSlug) {
-      const slugQuery = query(collection(db, 'projects'), where('slug', '==', projectData.slug));
-      const slugSnapshot = await getDocs(slugQuery);
-      if (!slugSnapshot.empty) {
-        return { success: false, message: 'This slug is already in use. Please choose a unique one.' };
-      }
+        // Check for slug existence via service
+        const isSlugTaken = await updateProject(projectId, { ...projectData, checkSlugOnly: true });
+        if (isSlugTaken.slugExists) {
+            return { success: false, message: 'This slug is already in use. Please choose a unique one.' };
+        }
     }
 
     let imageUrl = currentImageUrl;
@@ -156,11 +147,9 @@ export async function handleUpdateProject(projectId: string, prevState: any, for
       ...projectData,
       imageUrl,
       details: projectData.details.split('\n').filter(p => p.trim() !== ''),
-      updatedAt: serverTimestamp(),
     };
 
-    const projectDocRef = doc(db, 'projects', projectId);
-    await updateDoc(projectDocRef, finalProjectData);
+    await updateProject(projectId, finalProjectData);
     
     await logAdminAction('Project Updated', { 
         projectId, 
@@ -174,7 +163,6 @@ export async function handleUpdateProject(projectId: string, prevState: any, for
     revalidatePath('/');
     revalidatePath('/admin');
     revalidatePath('/portfolio');
-
 
     return { success: true, message: 'Project updated successfully!', slug: projectData.slug };
   } catch (error: any) {
@@ -190,7 +178,6 @@ export async function handleUpdateProject(projectId: string, prevState: any, for
   }
 }
 
-
 export async function handleDeleteProject(id: string) {
   const user = await getCurrentUser();
   if (!user || !user.email) {
@@ -198,11 +185,7 @@ export async function handleDeleteProject(id: string) {
   }
 
   try {
-    const db = getAdminDb();
-    if (!db) {
-      throw new Error("Firebase Admin is not configured. Cannot delete project.");
-    }
-    await deleteDoc(doc(db, 'projects', id));
+    await deleteProject(id);
     await logAdminAction('Project Deleted', {
       user: user.email,
       deletedProjectId: id,

@@ -173,6 +173,8 @@ export async function handleUpdateProject(projectId: string, prevState: any, for
     revalidatePath('/admin/projects');
     revalidatePath('/');
     revalidatePath('/admin');
+    revalidatePath('/portfolio');
+
 
     return { success: true, message: 'Project updated successfully!', slug: projectData.slug };
   } catch (error: any) {
@@ -208,6 +210,8 @@ export async function handleDeleteProject(id: string) {
     });
     revalidatePath('/admin/projects');
     revalidatePath('/portfolio');
+    revalidatePath('/');
+
     return { success: true, message: 'Project has been removed.' };
   } catch (error: any) {
     await logAdminAction('Delete Project Failed', {

@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getAdminAuth, getAdminDb } from '@/firebase/admin';
@@ -19,15 +18,13 @@ export async function POST(request: NextRequest) {
             
             const decodedToken = await adminAuth.verifyIdToken(idToken);
             
-            // **Admin Role Verification - Temporarily Disabled for Development**
-            /*
+            // **Admin Role Verification**
             const adminDoc = await adminDb.collection('admins').doc(decodedToken.uid).get();
 
             if (!adminDoc.exists) {
                 console.warn(`Unauthorized login attempt: User ${decodedToken.email} (UID: ${decodedToken.uid}) is not an administrator.`);
                 return NextResponse.json({ success: false, message: 'Access denied. User is not an administrator.' }, { status: 403 });
             }
-            */
 
             const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
 

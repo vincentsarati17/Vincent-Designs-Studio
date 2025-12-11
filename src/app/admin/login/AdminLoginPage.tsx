@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -11,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useTransition } from 'react';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { initializeFirebase } from '@/firebase';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
-  password: z.string().min(1, 'Password is required.'),
+  password: z.string().min(6, 'Password must be at least 6 characters.'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -26,27 +27,52 @@ export default function AdminLoginPage() {
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: 'developer@example.com', password: 'password' },
+    defaultValues: { email: '', password: '' },
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
-    startTransition(() => {
-      // Mock Login: Set a dummy cookie and redirect to the admin dashboard.
-      // This bypasses all real authentication for development purposes.
-      document.cookie = "__session=dev-mock-session; path=/";
-      toast({
-        title: 'Mock Login Successful',
-        description: 'Redirecting to the admin dashboard...',
-      });
-      router.replace('/admin');
+  const onSubmit = (values: LoginFormValues) => {
+    startTransition(async () => {
+      try {
+        const { auth } = initializeFirebase();
+        const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+        
+        const idToken = await userCredential.user.getIdToken();
+
+        const response = await fetch('/api/auth/session-login', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+          },
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          toast({
+            title: 'Login Successful',
+            description: 'Redirecting to dashboard...',
+          });
+          router.replace('/admin');
+        } else {
+          throw new Error(result.message || 'Login failed. Please check your credentials.');
+        }
+
+      } catch (error: any) {
+        console.error("Login failed:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Login Error',
+          description: error.message || 'An unexpected error occurred.',
+        });
+      }
     });
   };
 
   return (
     <Card className="w-full max-w-sm bg-black/10 backdrop-blur-lg border border-white/20 text-white">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl text-center">Admin Login (Dev Mode)</CardTitle>
-        <CardDescription className="text-white/80">Click Sign In to access the dashboard. No real credentials needed.</CardDescription>
+        <CardTitle className="font-headline text-2xl text-center">Admin Login</CardTitle>
+        <CardDescription className="text-white/80">Enter your credentials to access the dashboard.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -90,7 +116,7 @@ export default function AdminLoginPage() {
               )}
             />
             <Button type="submit" className="w-full bg-primary/80 hover:bg-primary" disabled={isPending}>
-              {isPending ? 'Redirecting...' : 'Sign In'}
+              {isPending ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
         </Form>

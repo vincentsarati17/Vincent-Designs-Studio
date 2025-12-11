@@ -11,14 +11,9 @@ const addAdminSchema = z.object({
   role: z.enum(['Super Admin', 'Admin', 'Support', 'Content']),
 });
 
-// MOCK USER FOR DEVELOPMENT
-const getDevUser = () => ({
-    email: 'developer@example.com',
-});
-
 export async function handleAddAdmin(values: { email: string, role: 'Super Admin' | 'Admin' | 'Support' | 'Content' }) {
-  const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
-  if (!user) {
+  const user = await getCurrentUser();
+  if (!user || !user.email) {
     return { success: false, message: 'Authentication required.' };
   }
 
@@ -52,8 +47,8 @@ export async function handleAddAdmin(values: { email: string, role: 'Super Admin
 }
 
 export async function handleDeleteAdmin(id: string) {
-  const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
-  if (!user) {
+  const user = await getCurrentUser();
+  if (!user || !user.email) {
     return { success: false, message: 'Authentication required.' };
   }
 

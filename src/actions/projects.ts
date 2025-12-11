@@ -15,12 +15,6 @@ function getClientStorage() {
     return storage;
 }
 
-// MOCK USER FOR DEVELOPMENT
-const getDevUser = () => ({
-    email: 'developer@example.com',
-});
-
-
 const projectSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
   slug: z.string().min(3, 'Slug must be at least 3 characters.').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.'),
@@ -45,7 +39,7 @@ const updateProjectSchema = projectSchema.extend({
 
 
 export async function handleAddProject(prevState: any, formData: FormData) {
-  const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
+  const user = await getCurrentUser();
   if (!user || !user.email) {
     return { success: false, message: 'Authentication required.' };
   }
@@ -112,7 +106,7 @@ export async function handleAddProject(prevState: any, formData: FormData) {
 }
 
 export async function handleUpdateProject(projectId: string, prevState: any, formData: FormData) {
-  const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
+  const user = await getCurrentUser();
   if (!user || !user.email) {
     return { success: false, message: 'Authentication required.' };
   }
@@ -196,7 +190,7 @@ export async function handleUpdateProject(projectId: string, prevState: any, for
 
 
 export async function handleDeleteProject(id: string) {
-  const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
+  const user = await getCurrentUser();
   if (!user || !user.email) {
     return { success: false, message: 'Authentication required.' };
   }

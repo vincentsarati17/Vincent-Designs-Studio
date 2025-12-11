@@ -1,4 +1,3 @@
-
 'use server';
 
 import { z } from 'zod';
@@ -26,11 +25,6 @@ const replySchema = z.object({
 });
 
 type ReplyValues = z.infer<typeof replySchema>;
-
-// MOCK USER FOR DEVELOPMENT
-const getDevUser = () => ({
-    email: 'developer@example.com',
-});
 
 export async function handleFormSubmission(values: FormValues) {
   const parsedData = formSchema.safeParse(values);
@@ -66,7 +60,7 @@ export async function handleFormSubmission(values: FormValues) {
 }
 
 export async function handleSendReply(values: ReplyValues) {
-    const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
+    const user = await getCurrentUser();
     if (!user) {
         return { success: false, message: 'Authentication required.' };
     }
@@ -106,7 +100,7 @@ export async function handleSendReply(values: ReplyValues) {
 
 
 export async function handleDeleteSubmission(id: string) {
-  const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
+  const user = await getCurrentUser();
   if (!user || !user.email) {
     return { success: false, message: 'Authentication required.' };
   }

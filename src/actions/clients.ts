@@ -25,14 +25,8 @@ const requestSchema = z.object({
     clientId: z.string(),
 });
 
-// MOCK USER FOR DEVELOPMENT
-const getDevUser = () => ({
-    email: 'developer@example.com',
-});
-
-
 export async function handleAddClient(values: ClientFormValues) {
-  const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
+  const user = await getCurrentUser();
   if (!user || !user.email) {
     return { success: false, message: 'Authentication required.' };
   }
@@ -65,7 +59,7 @@ export async function handleAddClient(values: ClientFormValues) {
 }
 
 export async function handleUpdateClient(id: string, values: ClientFormValues) {
-    const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
+    const user = await getCurrentUser();
     if (!user || !user.email) {
       return { success: false, message: 'Authentication required.' };
     }
@@ -98,7 +92,7 @@ export async function handleUpdateClient(id: string, values: ClientFormValues) {
 
 
 export async function handleDeleteClient(id: string) {
-  const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
+  const user = await getCurrentUser();
   if (!user || !user.email) {
     return { success: false, message: 'Authentication required.' };
   }
@@ -124,7 +118,7 @@ export async function handleDeleteClient(id: string) {
 }
 
 export async function handleAddNote(values: { content: string, clientId: string }) {
-    const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
+    const user = await getCurrentUser();
     if (!user || !user.email) {
       return { success: false, message: 'Authentication required.' };
     }
@@ -143,7 +137,7 @@ export async function handleAddNote(values: { content: string, clientId: string 
 }
 
 export async function handleAddRequest(values: { title: string, status: 'New' | 'In Progress' | 'Completed', clientId: string }) {
-    const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
+    const user = await getCurrentUser();
     if (!user || !user.email) {
       return { success: false, message: 'Authentication required.' };
     }

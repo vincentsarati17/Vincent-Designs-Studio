@@ -212,7 +212,13 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-2">
            <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Bell className="h-5 w-5"/> Notification Center</CardTitle>
+                    <CardTitle className="flex items-center gap-2 relative">
+                      <Bell className="h-5 w-5"/>
+                      {unreadSubmissions > 0 && (
+                        <span className="absolute top-0 left-[18px] w-2 h-2 rounded-full bg-red-500"></span>
+                      )}
+                      Notification Center
+                    </CardTitle>
                 </CardHeader>
                 <CardContent className="pl-2">
                     {notifications === null ? (
@@ -325,5 +331,7 @@ export default function AdminDashboardPage() {
     </>
   );
 }
+
+    
 
     

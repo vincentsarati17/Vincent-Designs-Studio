@@ -77,10 +77,15 @@ export default function ProjectManagementPage() {
   const filteredProjects = React.useMemo(() => {
     if (!projects) return null;
     if (filter === 'All') return projects;
-    return projects.filter(p => p.category.toLowerCase() === filter.toLowerCase());
+    return projects.filter(p => p.category === filter);
   }, [projects, filter]);
 
-  const categories = ['All', 'Web Design', 'Graphic Design', 'UI/UX'];
+  const categories = React.useMemo(() => {
+    if (!projects) return ['All'];
+    const uniqueCategories = new Set(projects.map(p => p.category));
+    return ['All', ...Array.from(uniqueCategories)];
+  }, [projects]);
+
 
   const handleDelete = (projectId: string) => {
     startDeleteTransition(async () => {
@@ -108,17 +113,21 @@ export default function ProjectManagementPage() {
         <Card>
           <CardHeader>
             <CardTitle>Your Projects</CardTitle>
-            <div className="flex items-center gap-2 pt-2">
-                {categories.map((category) => (
-                    <Button 
-                        key={category} 
-                        variant={filter === category ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setFilter(category)}
-                    >
-                        {category}
-                    </Button>
-                ))}
+            <div className="flex items-center gap-2 pt-2 flex-wrap">
+                {projects === null ? (
+                  <Skeleton className="h-9 w-48" />
+                ) : (
+                  categories.map((category) => (
+                      <Button 
+                          key={category} 
+                          variant={filter === category ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setFilter(category)}
+                      >
+                          {category}
+                      </Button>
+                  ))
+                )}
             </div>
           </CardHeader>
           <CardContent>

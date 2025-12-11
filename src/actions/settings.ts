@@ -18,6 +18,11 @@ function getClientStorage() {
     return getStorage();
 }
 
+// MOCK USER FOR DEVELOPMENT
+const getDevUser = () => ({
+    email: 'developer@example.com',
+});
+
 const securitySettingsSchema = z.object({
   is2faEnabled: z.boolean(),
 });
@@ -43,7 +48,7 @@ const maintenanceModeSchema = z.object({
 type MaintenanceModeForm = z.infer<typeof maintenanceModeSchema>;
 
 export async function updateSecuritySettings(values: SecuritySettingsForm) {
-  const user = await getCurrentUser();
+  const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
   if (!user || !user.email) {
     return { success: false, message: 'Authentication required.' };
   }
@@ -79,7 +84,7 @@ export async function updateSecuritySettings(values: SecuritySettingsForm) {
 }
 
 export async function updateSiteIdentitySettings(values: SiteIdentityForm) {
-  const user = await getCurrentUser();
+  const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
   if (!user || !user.email) {
     return { success: false, message: 'Authentication required.' };
   }
@@ -115,7 +120,7 @@ export async function updateSiteIdentitySettings(values: SiteIdentityForm) {
 }
 
 export async function updateBrandingSettings(prevState: any, formData: FormData) {
-  const user = await getCurrentUser();
+  const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
   if (!user || !user.email) {
     return { success: false, message: 'Authentication required.' };
   }
@@ -162,7 +167,7 @@ export async function updateBrandingSettings(prevState: any, formData: FormData)
 }
 
 export async function updateMaintenanceMode(values: MaintenanceModeForm) {
-    const user = await getCurrentUser();
+    const user = process.env.NODE_ENV === 'development' ? getDevUser() : await getCurrentUser();
     if (!user || !user.email) {
       return { success: false, message: 'Authentication required.' };
     }

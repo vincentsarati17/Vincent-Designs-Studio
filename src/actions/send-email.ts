@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { getAdminDb } from '@/firebase/admin';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 import { logAdminAction } from '@/services/logs';
 import { getCurrentUser } from '@/lib/auth-utils';
@@ -35,21 +35,19 @@ export async function handleFormSubmission(values: FormValues) {
   }
 
   try {
-    if (!process.env.NEXT_PUBLIC_BASE_URL) {
-      throw new Error('Server is not configured with a base URL. Cannot process submission.');
+    const db = getAdminDb();
+    if (!db) {
+        console.error("Firebase Admin is not configured on the server. Cannot save submission.");
+        return { success: false, message: 'Server is not configured to handle submissions.' };
     }
-    // We fetch our own API route which securely handles the submission
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/submissions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(parsedData.data),
-    });
 
-    const result = await response.json();
+    const submission = {
+        ...parsedData.data,
+        isRead: false,
+        createdAt: serverTimestamp(),
+    };
 
-    if (!response.ok) {
-      throw new Error(result.message || 'An API error occurred.');
-    }
+    await addDoc(collection(db, 'submissions'), submission);
     
     return { success: true };
 

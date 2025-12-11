@@ -16,7 +16,7 @@ service cloud.firestore {
     // }
 
     // =====================================================================
-    // Production Security Rules (Commented out for development)
+    // Production Security Rules
     // =====================================================================
     
     // Helper function to check if a user is signed in.
@@ -58,29 +58,29 @@ service cloud.firestore {
     // Rules for the 'admins' collection
     match /admins/{adminId} {
       // Only Super Admins can view the list of admins.
-      allow read: if isSuperAdmin();
+      allow list, get: if isSuperAdmin();
       // Super Admins can manage all admins.
-      allow write: if isSuperAdmin();
+      allow create, update: if isSuperAdmin();
       // Super Admins cannot delete themselves.
-      allow delete: if isSuperAdmin() && resource.id != request.auth.uid;
+      allow delete: if isSuperAdmin() && request.auth.uid != adminId;
     }
 
     // Rules for the 'clients' collection and their subcollections
     match /clients/{clientId} {
       // Any admin can read client data for the dashboard.
-      allow read: if isAdmin();
+      allow list, get: if isAdmin();
       // Support, Admins, and Super Admins can manage clients.
-      allow write: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
+      allow create, update, delete: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
 
       // Same roles for notes and requests subcollections.
       match /notes/{noteId} {
-        allow read: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
-        allow write: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
+        allow list, get: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
+        allow create, update, delete: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
       }
 
       match /requests/{requestId} {
-        allow read: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
-        allow write: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
+        allow list, get: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
+        allow create, update, delete: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
       }
     }
 
@@ -89,7 +89,7 @@ service cloud.firestore {
       // Anyone can create a page view log.
       allow create: if true;
       // Only Admins and Super Admins can read analytics data.
-      allow read, list: if isStandardAdmin() || isSuperAdmin();
+      allow list, get: if isStandardAdmin() || isSuperAdmin();
       // No one can update or delete page view logs.
       allow update, delete: if false;
     }
@@ -97,9 +97,9 @@ service cloud.firestore {
     // Rules for the 'projects' collection
     match /projects/{projectId} {
       // Anyone can read public project information.
-      allow read: if true;
+      allow list, get: if true;
       // Content Admins, standard Admins, and Super Admins can write.
-      allow write: if isContentAdmin() || isStandardAdmin() || isSuperAdmin();
+      allow create, update, delete: if isContentAdmin() || isStandardAdmin() || isSuperAdmin();
     }
     
     // Rules for 'admin_logs' collection
@@ -107,7 +107,7 @@ service cloud.firestore {
         // Any admin can create a log.
         allow create: if isAdmin();
         // Any admin can read logs for the dashboard.
-        allow read, list: if isAdmin();
+        allow list, get: if isAdmin();
         // Logs are immutable.
         allow update, delete: if false;
     }
@@ -115,9 +115,11 @@ service cloud.firestore {
     // Rules for the 'settings' collection
     match /settings/{settingId} {
         // Settings are publicly readable for the client-side app to function.
-        allow read: if true;
+        allow get: if true;
+        // Nobody can list all settings documents
+        allow list: if false;
         // Only Super Admins and standard Admins can change settings.
-        allow write: if isStandardAdmin() || isSuperAdmin();
+        allow create, update, delete: if isStandardAdmin() || isSuperAdmin();
     }
 
     // Rules for the 'submissions' collection
@@ -125,7 +127,7 @@ service cloud.firestore {
       // Anyone can create a submission (from the contact form).
       allow create: if true;
       // Any admin can read submissions.
-      allow read: if isAdmin();
+      allow list, get: if isAdmin();
       // Support Admins, standard Admins, and Super Admins can manage submissions.
       allow update, delete: if isSupportAdmin() || isStandardAdmin() || isSuperAdmin();
     }

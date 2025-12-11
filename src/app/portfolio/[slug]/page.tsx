@@ -1,6 +1,6 @@
 'use client';
 
-import { getProjectBySlug, getProjects } from "@/services/projects";
+import { getProjectBySlug } from "@/services/projects";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,20 @@ type PortfolioDetailPageProps = {
   };
 };
 
+// New function to generate metadata on the server
+export async function generateMetadata({ params }: PortfolioDetailPageProps) {
+  const project = await getProjectBySlug(params.slug);
+  if (!project) {
+    return {
+      title: "Project Not Found",
+    };
+  }
+  return {
+    title: project.title,
+    description: project.description,
+  };
+}
+
 export default function PortfolioDetailPage({ params }: PortfolioDetailPageProps) {
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,7 +46,7 @@ export default function PortfolioDetailPage({ params }: PortfolioDetailPageProps
         }
       } catch (error) {
         console.error("Failed to fetch project:", error);
-        // Handle error state appropriately
+        notFound();
       } finally {
         setIsLoading(false);
       }
@@ -56,7 +70,6 @@ export default function PortfolioDetailPage({ params }: PortfolioDetailPageProps
   }
 
   if (!project) {
-    // This will be caught by notFound() earlier, but as a fallback
     return null;
   }
 
@@ -83,9 +96,9 @@ export default function PortfolioDetailPage({ params }: PortfolioDetailPageProps
             <div className="md:col-span-2 space-y-4">
                 <h2 className="font-headline text-2xl font-bold">Project Details</h2>
                 <div className="prose prose-lg text-muted-foreground max-w-none">
-                  {project.details.map((paragraph, index) => (
+                  {Array.isArray(project.details) ? project.details.map((paragraph, index) => (
                     <p key={index}>{paragraph}</p>
-                  ))}
+                  )) : <p>{project.details}</p>}
                 </div>
             </div>
             <div>

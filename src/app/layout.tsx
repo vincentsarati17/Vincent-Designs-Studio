@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { Lora, Poppins } from 'next/font/google';
 import Script from "next/script";
 import SiteLayout from "@/components/layout/SiteLayout";
-import { getBrandingSettings, getSiteIdentitySettings } from "@/services/settings";
+import { getBrandingSettings, getSiteIdentitySettings } from "@/actions/settings";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 
 const poppins = Poppins({

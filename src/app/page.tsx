@@ -76,6 +76,22 @@ function HeroSection() {
   );
 }
 
+const HurricaneIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 512 512" {...props}>
+        <defs>
+            <linearGradient id="SVGGAnF5b5v" x1="175.8" x2="336.2" y1="117" y2="395" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stopColor="#e6991f" />
+                <stop offset=".5" stopColor="#e6991f" />
+                <stop offset="1" stopColor="#f79c0d" />
+            </linearGradient>
+        </defs>
+        <path fill="none" stroke="url(#SVGGAnF5b5v)" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="24" d="M344 256a88 88 0 1 1-88-88a88 88 0 0 1 88 88ZM200 116.9l-3.8 7.7A269.7 269.7 0 0 0 169 267h0m143.1 128l3.8-7.7A269.7 269.7 0 0 0 343.2 245h0">
+            <animateTransform additive="sum" attributeName="transform" dur="6s" repeatCount="indefinite" type="rotate" values="1440 256 256; 0 256 256" />
+        </path>
+    </svg>
+);
+
+
 function WhatWeDoSection() {
   return (
     <Section className="bg-card">
@@ -94,7 +110,10 @@ function WhatWeDoSection() {
                 <Link href="/services/graphic-design">Graphic Design</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/services/web-design">Web Design</Link>
+                <Link href="/services/web-design" className="flex items-center gap-2">
+                  Web Design
+                  <HurricaneIcon className="w-5 h-5" />
+                </Link>
               </Button>
             </div>
           </div>

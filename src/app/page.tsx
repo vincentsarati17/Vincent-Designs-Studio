@@ -77,7 +77,7 @@ function HeroSection() {
 }
 
 const HurricaneIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 512 512" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" {...props}>
         <defs>
             <linearGradient id="SVGGAnF5b5v" x1="175.8" x2="336.2" y1="117" y2="395" gradientUnits="userSpaceOnUse">
                 <stop offset="0" stopColor="#e6991f" />
@@ -115,7 +115,7 @@ function WhatWeDoSection() {
                     Web Design
                   </Link>
                 </Button>
-                <HurricaneIcon className="w-8 h-8" />
+                <HurricaneIcon className="w-10 h-10" />
               </div>
             </div>
           </div>

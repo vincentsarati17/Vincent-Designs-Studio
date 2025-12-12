@@ -105,16 +105,18 @@ function WhatWeDoSection() {
               high-performance websites that capture the essence of your
               business and connect with your audience.
             </p>
-            <div className="flex gap-4 pt-4">
+            <div className="flex items-center gap-4 pt-4">
               <Button asChild variant="outline">
                 <Link href="/services/graphic-design">Graphic Design</Link>
               </Button>
-              <Button asChild variant="outline">
-                <Link href="/services/web-design" className="flex items-center gap-2">
-                  Web Design
-                  <HurricaneIcon className="w-5 h-5" />
-                </Link>
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button asChild variant="outline">
+                  <Link href="/services/web-design">
+                    Web Design
+                  </Link>
+                </Button>
+                <HurricaneIcon className="w-5 h-5" />
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">

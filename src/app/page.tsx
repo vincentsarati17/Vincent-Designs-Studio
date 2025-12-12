@@ -115,7 +115,7 @@ function WhatWeDoSection() {
                     Web Design
                   </Link>
                 </Button>
-                <HurricaneIcon className="w-5 h-5" />
+                <HurricaneIcon className="w-8 h-8" />
               </div>
             </div>
           </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import { getProjectBySlug } from "@/services/projects";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -7,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Project } from "@/lib/types";
-import type { Metadata } from "next";
+import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type PortfolioDetailPageProps = {
   params: {
@@ -15,24 +18,29 @@ type PortfolioDetailPageProps = {
   };
 };
 
-export async function generateMetadata({ params }: PortfolioDetailPageProps): Promise<Metadata> {
-  const project = await getProjectBySlug(params.slug);
-  if (!project) {
-    return {
-      title: "Project Not Found",
-    };
+export default function PortfolioDetailPage({ params }: PortfolioDetailPageProps) {
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProject() {
+      const fetchedProject = await getProjectBySlug(params.slug);
+      if (!fetchedProject) {
+        notFound();
+      } else {
+        setProject(fetchedProject);
+      }
+      setLoading(false);
+    }
+    fetchProject();
+  }, [params.slug]);
+
+  if (loading) {
+    return <PortfolioDetailSkeleton />;
   }
-  return {
-    title: project.title,
-    description: project.description,
-  };
-}
-
-export default async function PortfolioDetailPage({ params }: PortfolioDetailPageProps) {
-  const project = await getProjectBySlug(params.slug);
 
   if (!project) {
-    notFound();
+    return null; // notFound() will have been called
   }
 
   return (
@@ -40,11 +48,14 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <Badge>{project.category}</Badge>
-          <h1 className="font-headline text-4xl md:text-5xl font-bold mt-2 text-balance">{project.title}</h1>
+          <motion.h1 layoutId={`title-${project.id}`} className="font-headline text-4xl md:text-5xl font-bold mt-2 text-balance">{project.title}</motion.h1>
           <p className="mt-4 text-lg text-muted-foreground">{project.description}</p>
         </div>
         
-        <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-12">
+        <motion.div 
+          layoutId={`image-${project.id}`} 
+          className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg mb-12"
+        >
             <Image
                 src={project.imageUrl}
                 alt={project.title}
@@ -53,7 +64,7 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
                 sizes="(max-width: 1024px) 100vw, 66vw"
                 priority
             />
-        </div>
+        </motion.div>
 
         <div className="grid md:grid-cols-3 gap-12">
             <div className="md:col-span-2 space-y-4">
@@ -79,4 +90,36 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
       </div>
     </div>
   );
+}
+
+
+function PortfolioDetailSkeleton() {
+  return (
+    <div className="container py-16 md:py-24">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8 space-y-4">
+          <Skeleton className="h-6 w-24 rounded-full" />
+          <Skeleton className="h-12 w-3/4" />
+          <Skeleton className="h-6 w-full" />
+        </div>
+        
+        <Skeleton className="aspect-video w-full rounded-lg mb-12" />
+
+        <div className="grid md:grid-cols-3 gap-12">
+          <div className="md:col-span-2 space-y-4">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-5/6" />
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-7 w-40" />
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-12 w-full mt-4" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }

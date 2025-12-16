@@ -2,12 +2,13 @@
 'use server';
 
 import { z } from 'zod';
-import { addProject, updateProject, deleteProject } from '@/services/projects';
+import { addProject, updateProject, deleteProject as deleteProjectFromDb, getProjects as getProjectsFromDb, getFeaturedProjects as getFeaturedProjectsFromDb, getProjectById as getProjectByIdFromDb, getProjectBySlug as getProjectBySlugFromDb } from '@/services/projects';
 import { logAdminAction } from '@/services/logs';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/auth-utils';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { initializeFirebase } from '@/firebase';
+import type { Project } from '@/lib/types';
 
 // Helper to get client-side storage instance
 function getClientStorage() {
@@ -37,6 +38,23 @@ const updateProjectSchema = projectSchema.extend({
   currentSlug: z.string().optional(),
 });
 
+// --- SERVER-SIDE GETTERS ---
+export async function getProjects(): Promise<Project[]> {
+    return getProjectsFromDb();
+}
+
+export async function getFeaturedProjects(): Promise<Project[]> {
+    return getFeaturedProjectsFromDb();
+}
+
+export async function getProjectById(id: string): Promise<Project | null> {
+    return getProjectByIdFromDb(id);
+}
+
+export async function getProjectBySlug(slug: string): Promise<Project | null> {
+    return getProjectBySlugFromDb(slug);
+}
+// --- END SERVER-SIDE GETTERS ---
 
 export async function handleAddProject(prevState: any, formData: FormData) {
   const user = await getCurrentUser();
@@ -57,7 +75,6 @@ export async function handleAddProject(prevState: any, formData: FormData) {
   try {
     const storage = getClientStorage();
     
-    // Check for slug existence via service
     const isSlugTaken = await addProject({ ...projectData, checkSlugOnly: true });
     if (isSlugTaken.slugExists) {
         return { success: false, message: 'This slug is already in use. Please choose a unique one.' };
@@ -120,7 +137,6 @@ export async function handleUpdateProject(projectId: string, prevState: any, for
     const storage = getClientStorage();
 
     if (projectData.slug !== currentSlug) {
-        // Check for slug existence via service
         const isSlugTaken = await updateProject(projectId, { ...projectData, checkSlugOnly: true });
         if (isSlugTaken.slugExists) {
             return { success: false, message: 'This slug is already in use. Please choose a unique one.' };
@@ -185,7 +201,7 @@ export async function handleDeleteProject(id: string) {
   }
 
   try {
-    await deleteProject(id);
+    await deleteProjectFromDb(id);
     await logAdminAction('Project Deleted', {
       user: user.email,
       deletedProjectId: id,

@@ -1,7 +1,8 @@
+
 'use server';
 
 import { z } from 'zod';
-import { saveSecuritySettings, saveSiteIdentitySettings, saveBrandingSettings, saveMaintenanceModeSettings, getSiteIdentitySettings as getSiteIdentitySettingsFromDb, getBrandingSettings as getBrandingSettingsFromDb, getMaintenanceModeSettings as getMaintenanceModeSettingsFromDb, getSecuritySettings as getSecuritySettingsFromDb } from '@/services/settings';
+import { saveSecuritySettings, saveSiteIdentitySettings, saveBrandingSettings, saveMaintenanceModeSettings, getSiteIdentitySettings as getSiteIdentitySettingsFromDb, getBrandingSettings as getBrandingSettingsFromDb, getMaintenanceModeSettings as getMaintenanceModeSettingsFromDb, getSecuritySettings as getSecuritySettingsFromDb, type SiteIdentitySettings, type BrandingSettings, type MaintenanceSettings, type SecuritySettings } from '@/services/settings';
 import { logAdminAction } from '@/services/logs';
 import { revalidatePath } from 'next/cache';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
@@ -39,19 +40,19 @@ const maintenanceModeSchema = z.object({
 type MaintenanceModeForm = z.infer<typeof maintenanceModeSchema>;
 
 // --- SERVER-SIDE GETTERS ---
-export async function getSiteIdentitySettings() {
+export async function getSiteIdentitySettings(): Promise<SiteIdentitySettings> {
     return getSiteIdentitySettingsFromDb();
 }
 
-export async function getBrandingSettings() {
+export async function getBrandingSettings(): Promise<BrandingSettings> {
     return getBrandingSettingsFromDb();
 }
 
-export async function getMaintenanceModeSettings() {
+export async function getMaintenanceModeSettings(): Promise<MaintenanceSettings> {
     return getMaintenanceModeSettingsFromDb();
 }
 
-export async function getSecuritySettings() {
+export async function getSecuritySettings(): Promise<SecuritySettings> {
     return getSecuritySettingsFromDb();
 }
 // --- END SERVER-SIDE GETTERS ---

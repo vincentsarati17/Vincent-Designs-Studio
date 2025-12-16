@@ -1,3 +1,4 @@
+
 'use server';
 import { getAdminDb } from '@/firebase/admin';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -20,16 +21,16 @@ export type MaintenanceSettings = {
   isEnabled: boolean;
 };
 
-const defaultSecuritySettings = { is2faEnabled: false };
-const defaultIdentitySettings = {
+const defaultSecuritySettings: SecuritySettings = { is2faEnabled: false };
+const defaultIdentitySettings: SiteIdentitySettings = {
     siteName: 'Vincent Designs Studio',
     publicEmail: 'vincentdesigns137@gmail.com',
 };
-const defaultBrandingSettings = {
+const defaultBrandingSettings: BrandingSettings = {
     logoUrl: '/image/VINCEDSTUDIO.icon.png',
     logoWidth: 220,
 };
-const defaultMaintenanceSettings = { isEnabled: false };
+const defaultMaintenanceSettings: MaintenanceSettings = { isEnabled: false };
 
 
 async function getSettings<T>(collectionId: string, defaultSettings: T): Promise<T> {
@@ -43,7 +44,7 @@ async function getSettings<T>(collectionId: string, defaultSettings: T): Promise
         const settingsDocRef = doc(db, 'settings', collectionId);
         const docSnap = await getDoc(settingsDocRef);
         if (docSnap.exists()) {
-            return { ...defaultSettings, ...docSnap.data() };
+            return { ...defaultSettings, ...docSnap.data() } as T;
         }
         return defaultSettings;
     } catch (error) {

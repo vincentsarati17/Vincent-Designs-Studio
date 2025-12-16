@@ -2,9 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMaintenanceModeSettings } from '@/services/settings';
 
+// This file uses 'firebase-admin' via services, which is not compatible with the Edge runtime.
 // Force the middleware to run on the Node.js runtime.
-// This is required because the middleware uses 'firebase-admin' via the settings service,
-// which is not compatible with the default Edge runtime.
 export const runtime = 'nodejs';
 
 export async function middleware(request: NextRequest) {

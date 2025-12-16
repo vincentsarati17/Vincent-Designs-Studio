@@ -53,7 +53,12 @@ export async function getProjectById(id: string): Promise<Project | null> {
         return null;
     }
 
-    return { id: projectDoc.id, ...projectDoc.data() } as Project;
+    const data = projectDoc.data();
+    return { 
+        id: projectDoc.id,
+        ...data,
+        deadline: data.deadline?.toDate(), // Convert timestamp to Date
+     } as Project;
   } catch (error)
   {
     console.error(`Failed to fetch project by id ${id}:`, error);

@@ -1,6 +1,6 @@
 
 import ProjectCard from "@/components/ProjectCard";
-import { getProjects } from "@/services/projects";
+import { getProjects } from "@/actions/projects";
 import type { Project } from "@/lib/types";
 
 export default async function PortfolioPage() {
